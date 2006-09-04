@@ -1,4 +1,4 @@
-(* Mesh.mli                       Time-stamp: <2006-08-23 16:47:18 trch>
+(* Mesh.mli                       Time-stamp: <2006-09-04 16:14:55 trch>
 
   Copyright (C) 2001-2004
 
@@ -67,7 +67,7 @@ type 'layout t = {
       information is not given) or the number of triangles. *)
   edge : 'layout int_mat;
   (** Array of edge endpoints; 2 int per edge.  It is of size 2 * n
-      (fortran_layout) where n >= 0 is the number of edges. *)
+      (fortran_layout) where n > 0 is the number of edges. *)
   edge_marker : 'layout int_vec;
   (** Array of edge markers.  It must either be empty (in which case
       it is equivalent to all the markers being 1), or it must be of
@@ -101,9 +101,23 @@ val latex : 'l t -> string -> unit
     package "graphics" but it will work for PostScript as well as PDF
     output.  *)
 
+val scilab : 'l t -> 'l vec -> string -> unit
+  (** [scilab mesh z file] saves the mesh data and the function values
+      [z] (i.e. [z.{i}] is the function value at the point
+      [mesh.point.{:,i] (fortran layout)]) on that mesh so that when
+      Scilab runs the created [file].sci script, the graph of the
+      function is drawn. *)
+
+val level_curves : ?boundary:(int -> string) ->
+  'l t -> 'l vec -> float list -> string -> unit
+  (** [level_curves mesh z levels file]
+
+      @param boundary *)
+
+
 val empty : 'l layout -> 'l t
   (** [empty layout] returns an empty mesh structure.  It is convenient
-    to use it as [{(empty layout) with point = ...}]. *)
+      to use it as [{(empty layout) with point = ...}]. *)
 
 val is_c_layout : 'l t -> bool
   (** [is_c_layout] returns true if the mesh layout is C. *)

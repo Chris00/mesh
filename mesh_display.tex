@@ -1,11 +1,20 @@
-\documentclass{article}
+\documentclass[a4paper,12pt]{article}
 
-\usepackage{graphics}
+\usepackage{graphicx,color}
 
 \begin{document}
 
-\setlength{\unitlength}{100mm}
+\setlength{\unitlength}{75mm}
+\noindent
 \input testmesh.tex
+\qquad
+\input levels.tex
+
+
+% Include the EPS file of Scilab
+\rotatebox{-90}{%
+  \includegraphics[height=\linewidth]{triangle}%
+}
 
 \end{document}
 
