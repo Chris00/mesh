@@ -1,4 +1,4 @@
-(* Mesh.mli                       Time-stamp: <2006-09-04 16:14:55 trch>
+(* Mesh.mli                       Time-stamp: <2006-09-05 09:29:26 trch>
 
   Copyright (C) 2001-2004
 
@@ -24,11 +24,13 @@
 
   It also define a group of functions to help to design geometries.
 
-  @version $VERSION
+  @version 0.7
   @author Christophe Troestler (Christophe.Troestler(at)umh.ac.be)
 *)
 
 open Bigarray
+
+(** {2 Mesh data format} *)
 
 type 'layout vec = (float, float64_elt, 'layout) Array1.t
     (** Float vector (parametrized by the layout). *)
@@ -41,9 +43,9 @@ type 'layout int_mat = (int, int_elt, 'layout) Array2.t
 
 (** Record of arrays describing various caracteristics of a mesh.
 
-    The two dimensional arrays of the recoed are described for the
+    The two dimensional arrays of the record are described for the
     [fortran_layout].  If you use a [c_layout], they are transposed:
-    for example [point] is of size n * 2 and the coorsinates of point
+    for example [point] is of size n * 2 and the coordinates of point
     [i] are given by [(point.{i,0}, point.{i,1})]. *)
 type 'layout t = {
   point : 'layout mat;
@@ -94,26 +96,41 @@ type 'layout voronoi = {
 }
 
 
+(** {2 LaTeX output}
+
+    The LaTex output is given in terms of three macros [\meshline],
+    [\meshpoint], and [\meshtriangle] to plot edges, points and
+    (filled) triangles.  The arguments of these macros are described
+    by comments in the output.  If you do not provide your own
+    implementations, default ones will be used.  *)
 
 val latex : 'l t -> string -> unit
-  (** [latex mesh file] saves the mesh as LaTeX box.  You can input
-    the file for LaTeX to render the mesh.  You will need to use the
-    package "graphics" but it will work for PostScript as well as PDF
-    output.  *)
+  (** [latex mesh file] saves the mesh as LaTeX PGF commands.  You can
+      input the file in a tikzpicture environment to render the mesh.
+      You will need to use the package "tikz" -- which works for
+      PostScript as well as PDF output.  *)
+
+val level_curves : ?boundary:(int -> string option) ->
+  'l t -> 'l vec -> float list -> string -> unit
+  (** [level_curves mesh z levels file] outputs into [file] LaTeX PGF
+      commands to display the level curves at [levels] of the FEM
+      surface with values [z] on the mesh [mesh].
+
+      @param boundary specifies the color of the boundary edges given
+      their marker value.  The [None] return value means that that
+      border should not be printed. *)
+
+
+(** {2 Scilab} *)
 
 val scilab : 'l t -> 'l vec -> string -> unit
   (** [scilab mesh z file] saves the mesh data and the function values
       [z] (i.e. [z.{i}] is the function value at the point
-      [mesh.point.{:,i] (fortran layout)]) on that mesh so that when
+      [mesh.point.{_,i}] (fortran layout)) on that mesh so that when
       Scilab runs the created [file].sci script, the graph of the
       function is drawn. *)
 
-val level_curves : ?boundary:(int -> string) ->
-  'l t -> 'l vec -> float list -> string -> unit
-  (** [level_curves mesh z levels file]
-
-      @param boundary *)
-
+(** {2 Misc} *)
 
 val empty : 'l layout -> 'l t
   (** [empty layout] returns an empty mesh structure.  It is convenient

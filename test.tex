@@ -1,0 +1,49 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage{graphicx,tikz}
+\usepackage{times,mathptmx}
+
+% \newcommand{\meshpoint}[3]{%
+%   \begin{pgfscope}
+%     \pgfsetlinewidth{0pt}
+%     \pgfpathcircle{\pgfpointxy{#2}{#3}}{1pt}
+%     \pgfusepath{fill}
+%   \end{pgfscope}}
+
+\begin{document}
+
+\setlength{\unitlength}{75mm}
+\noindent
+% \input testmesh.tex
+% \qquad
+% \input levels.tex
+
+
+\begin{tikzpicture}
+  \newcommand{\meshpoint}[3]{%
+    \node[fill=white,inner sep=0pt] at (#2,#3) {%
+      \textcolor{red}{\fontsize{5pt}{5pt}\selectfont #1}};}
+  \pgfsetlinewidth{0.3pt}
+  \pgfsetxvec{\pgfpoint{0.45\linewidth}{0mm}}
+  \pgfsetyvec{\pgfpoint{0mm}{0.45\linewidth}}
+  \input testmesh.tex
+\end{tikzpicture}
+\qquad
+\begin{tikzpicture}
+  \pgfsetxvec{\pgfpoint{0.45\linewidth}{0mm}}
+  \pgfsetyvec{\pgfpoint{0mm}{0.45\linewidth}}
+  \input levels.tex
+\end{tikzpicture}
+
+
+% Include the EPS file of Scilab
+\rotatebox{-90}{%
+  \includegraphics[height=\linewidth]{triangle}%
+}
+
+\end{document}
+
+%%% Local Variables: 
+%%% mode: latex
+%%% TeX-master: t
+%%% End: 

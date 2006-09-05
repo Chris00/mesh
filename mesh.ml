@@ -78,7 +78,8 @@ let norm dx dy =
   else
     let q = dx /. dy in dy *. sqrt(1.0 +. q *. q)
 
-let latex_header fh width height xmin ymin =
+(*
+let latex_begin fh width height xmin ymin =
   fprintf fh "\\begin{picture}(%.13g,%.13g)(%.13g,%.13g)\n"
     width height xmin ymin;
   fprintf fh "  %% \\meshline{x}{y}{angle}{length}\n";
@@ -89,16 +90,57 @@ let latex_header fh width height xmin ymin =
   fprintf fh "  \\providecommand{\\meshpoint}[3]{%%
     \\put(#2,#3){\\makebox(0,0){\\footnotesize $\\bullet$}}}\n"
 
+let latex_end fh =
+  fprintf fh "\\end{picture}\n"
+*)
+
+(* PGF output *)
+let latex_begin fh width height xmin ymin =
+  fprintf fh "\\begin{pgfscope}\n";
+  fprintf fh "  %% \\meshline{color}{x1}{y1}{x2}{y2}\n";
+  (* We need to put the path in a scope otherwise one gets "TeX
+     capacity exceeded". *)
+  fprintf fh "  \\providecommand{\\meshline}[5]{%%
+    \\begin{pgfscope}
+      \\pgfsetcolor{#1}
+      \\pgfpathmoveto{\\pgfpointxy{#2}{#3}}
+      \\pgfpathlineto{\\pgfpointxy{#4}{#5}}
+      \\pgfusepath{stroke}
+    \\end{pgfscope}}\n";
+  fprintf fh "  %% \\meshpoint{point number}{x}{y}\n";
+  fprintf fh "  \\providecommand{\\meshpoint}[3]{}\n";
+  fprintf fh "  %% \\meshtriangle{color}{x1}{y1}{x2}{y2}{x3}{y3}\n";
+  fprintf fh "  \\providecommand{\\meshtriangle}[7]{%%
+    \\begin{pgfscope}
+      \\pgfsetcolor{#1}
+      \\pgfpathmoveto{\\pgfpointxy{#2}{#3}}
+      \\pgfpathlineto{\\pgfpointxy{#4}{#5}}
+      \\pgfpathlineto{\\pgfpointxy{#6}{#7}}
+      \\pgfusepath{fill}
+    \\end{pgfscope}}\n"
+
+let latex_end fh =
+  fprintf fh "\\end{pgfscope}\n"
+
+
 let degrees_per_radian = 45. /. atan 1.
 
 let line fh color (x0, y0) (x1, y1) =
-  let dx = x1 -. x0
+(*  let dx = x1 -. x0
   and dy = y1 -. y0 in
+      fprintf fh "  \\meshline{%s}{%.12f}{%.12f}{%.12f}{%.12f}\n%!"
+      color x0 y0 (degrees_per_radian *. atan2 dy dx) (norm dx dy)
+*)
   fprintf fh "  \\meshline{%s}{%.12f}{%.12f}{%.12f}{%.12f}\n%!"
-    color x0 y0 (degrees_per_radian *. atan2 dy dx) (norm dx dy)
+    color x0 y0 x1 y1
+
 
 let point fh i x y =
   fprintf fh "  \\meshpoint{%i}{%.12f}{%.13f}\n" i x y
+
+let triangle fh color x1 y1 x2 y2 x3 y3 =
+  fprintf fh "  \\meshtriangle{%s}{%.12f}{%.12f}{%.12f}{%.12f}{%.12f}{%.12f}\n"
+    color x1 y1 x2 y2 x3 y3
 
 
 (* Intersection of the curve et level [l] and the line passing through
@@ -128,7 +170,7 @@ let bounding_box_fortran (mesh : fortran_layout t) =
 let latex_fortran (mesh : fortran_layout t) filename =
   let fh = open_out filename in
   let xmin, xmax, ymin, ymax = bounding_box_fortran mesh in
-  latex_header fh (xmax -. xmin) (ymax -. ymin) xmin ymin;
+  latex_begin fh (xmax -. xmin) (ymax -. ymin) xmin ymin;
   (* Write lines *)
   fprintf fh "  %% %i edges\n" ((Array2.dim2 mesh.triangle));
   for e = 1 to Array2.dim2(mesh.edge) do
@@ -145,8 +187,7 @@ let latex_fortran (mesh : fortran_layout t) filename =
   for i = 1 to Array2.dim2(mesh.point) do
     point fh i mesh.point.{1,i} mesh.point.{2,i};
   done;
-  (* Write trailer *)
-  fprintf fh "\\end{picture}\n";
+  latex_end fh;
   close_out fh
 
 
@@ -181,24 +222,27 @@ plot3d(xf, yf, zf)\n" sci xf yf zf;
   save_mat zf (fun i -> z.{i})
 
 
-let level_curves_fortran ?(boundary=(fun _ -> "black"))
+let level_curves_fortran ?(boundary=(fun _ -> Some "black"))
     (mesh : fortran_layout t) (z: fortran_layout vec) levels fname =
   let fh = open_out fname in
   let xmin, xmax, ymin, ymax = bounding_box_fortran mesh in
-  latex_header fh (xmax -. xmin) (ymax -. ymin) xmin ymin;
+  latex_begin fh (xmax -. xmin) (ymax -. ymin) xmin ymin;
   (* Draw the boundaries *)
   let edge = mesh.edge in
   let marker = mesh.edge_marker in
   for e = 1 to Array2.dim2(edge) do
     let m = marker.{e} in
     if m <> 0 then begin
-      let i1 = mesh.edge.{1,e}
-      and i2 = mesh.edge.{2,e} in
-      let x1 = mesh.point.{1,i1}
-      and y1 = mesh.point.{2,i1}
-      and x2 = mesh.point.{1,i2}
-      and y2 = mesh.point.{2,i2} in
-      line fh (boundary m) (x1, y1) (x2, y2)
+      match boundary m with
+      | None -> ()
+      | Some color ->
+          let i1 = mesh.edge.{1,e}
+          and i2 = mesh.edge.{2,e} in
+          let x1 = mesh.point.{1,i1}
+          and y1 = mesh.point.{2,i1}
+          and x2 = mesh.point.{1,i2}
+          and y2 = mesh.point.{2,i2} in
+          line fh color (x1, y1) (x2, y2)
     end
   done;
   let tr = mesh.triangle in
@@ -261,17 +305,13 @@ let level_curves_fortran ?(boundary=(fun _ -> "black"))
          else (* l = z1 *)
            if (z2 <= l && l < z3) || (z3 <= l && l < z2) then
              line fh "black" (x1,y1) (intercept x2 y2 z2 x3 y3 z3 l)
-           else if l = z2 && l = z3 then (
-             (* Full triangle ! *)
-             line fh "black" (x1,y1) (x2,y2);
-             line fh "black" (x2,y2) (x3,y3);
-             line fh "black" (x3,y3) (x1,y1);
-           )
+           else if l = z2 && l = z3 then
+             triangle fh "black" x1 y1 x2 y2 x3 y3 (* Full triangle ! *)
            else ()
       ) levels
   done;
   (* Write trailer *)
-  fprintf fh "\\end{picture}\n";
+  latex_end fh;
   close_out fh
 
 
@@ -296,7 +336,7 @@ let bounding_box_c (mesh : c_layout t) =
 let latex_c (mesh : c_layout t) filename =
   let fh = open_out filename in
   let xmin, xmax, ymin, ymax = bounding_box_c mesh in
-  latex_header fh (xmax -. xmin) (ymax -. ymin) xmin ymin;
+  latex_begin fh (xmax -. xmin) (ymax -. ymin) xmin ymin;
   (* Write lines *)
   fprintf fh "  %% %i edges\n" ((Array2.dim1 mesh.triangle));
   for e = 0 to Array2.dim1(mesh.edge) - 1 do
@@ -313,8 +353,7 @@ let latex_c (mesh : c_layout t) filename =
   for i = 0 to Array2.dim1(mesh.point) - 1 do
     point fh i mesh.point.{i,0} mesh.point.{i,1};
   done;
-  (* Write trailer *)
-  fprintf fh "\\end{picture}\n";
+  latex_end fh;
   close_out fh
 
 
@@ -349,24 +388,27 @@ plot3d(xf, yf, zf)\n" sci xf yf zf;
   save_mat zf (fun i -> z.{i})
 
 
-let level_curves_c ?(boundary=(fun _ -> "black"))
+let level_curves_c ?(boundary=(fun _ -> Some "black"))
     (mesh : c_layout t) (z: c_layout vec) levels fname =
   let fh = open_out fname in
   let xmin, xmax, ymin, ymax = bounding_box_c mesh in
-  latex_header fh (xmax -. xmin) (ymax -. ymin) xmin ymin;
+  latex_begin fh (xmax -. xmin) (ymax -. ymin) xmin ymin;
   (* Draw the boundaries *)
   let edge = mesh.edge in
   let marker = mesh.edge_marker in
   for e = 0 to Array2.dim1(edge) - 1 do
     let m = marker.{e} in
     if m <> 0 then begin
-      let i1 = mesh.edge.{e,0}
-      and i2 = mesh.edge.{e,1} in
-      let x1 = mesh.point.{i1,0}
-      and y1 = mesh.point.{i1,1}
-      and x2 = mesh.point.{i2,0}
-      and y2 = mesh.point.{i2,1} in
-      line fh (boundary m) (x1, y1) (x2, y2)
+      match boundary m with
+      | None -> ()
+      | Some color ->
+          let i1 = mesh.edge.{e,0}
+          and i2 = mesh.edge.{e,1} in
+          let x1 = mesh.point.{i1,0}
+          and y1 = mesh.point.{i1,1}
+          and x2 = mesh.point.{i2,0}
+          and y2 = mesh.point.{i2,1} in
+          line fh color (x1, y1) (x2, y2)
     end
   done;
   let tr = mesh.triangle in
@@ -429,17 +471,13 @@ let level_curves_c ?(boundary=(fun _ -> "black"))
          else (* l = z1 *)
            if (z2 <= l && l < z3) || (z3 <= l && l < z2) then
              line fh "black" (x1,y1) (intercept x2 y2 z2 x3 y3 z3 l)
-           else if l = z2 && l = z3 then (
-             (* Full triangle ! *)
-             line fh "black" (x1,y1) (x2,y2);
-             line fh "black" (x2,y2) (x3,y3);
-             line fh "black" (x3,y3) (x1,y1);
-           )
+           else if l = z2 && l = z3 then
+             triangle fh "black" x1 y1 x2 y2 x3 y3 (* Full triangle ! *)
            else ()
       ) levels
   done;
   (* Write trailer *)
-  fprintf fh "\\end{picture}\n";
+  latex_end fh;
   close_out fh
 
 

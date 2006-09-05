@@ -11,6 +11,9 @@ module M = Easymesh
 
 let pi = 4. *. atan 1.
 
+(* Round [x] to the nearest integer *)
+let round x = floor(x +. 0.5)
+
 let () =
   let m = M.triangulate ~max_area:0.05 {
     (Mesh.empty fortran_layout) with
@@ -36,5 +39,9 @@ let () =
   Mesh.scilab m z sci;
   printf "Run Scilab script with: exec('%s')\n" sci;
 
-  Mesh.level_curves ~boundary:(fun _ -> "blue")
-    m z [-0.5; -0.2; 0.; 0.1; 0.5; 0.9] "/tmp/levels.tex"
+  (* Round to 4 decimal places *)
+  for i = 1 to Array2.dim2 pt do z.{i} <- round(1e4 *. z.{i}) *. 1e-4 done;
+
+  List.iter (fun i -> printf "z.{%i} = %g\n" i z.{i}) [1;2;3; 196];
+  Mesh.level_curves ~boundary:(fun _ -> Some "red")
+    m z [-0.5; -0.2; 0.; 0.1; 0.5; 0.8; 0.95] "/tmp/levels.tex"
