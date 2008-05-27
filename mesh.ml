@@ -67,7 +67,8 @@ type 'layout voronoi = {
 
 
 
-(* LaTeX commands *)
+(** LaTeX commands *)
+
 let norm dx dy =
   (* Watch out for overflow in computing sqrt(dx^2 + dy^2) *)
   let dx = abs_float dx and dy = abs_float dy in
@@ -152,350 +153,47 @@ let intercept x1 y1 z1 x2 y2 z2 l =
 (* Functions for fortran layout.
  ***********************************************************************)
 
-let bounding_box_fortran (mesh : fortran_layout t) =
-  let xmin = ref infinity
-  and xmax = ref neg_infinity
-  and ymin = ref infinity
-  and ymax = ref neg_infinity in
-  for i = 1 to Array2.dim2(mesh.point) do
-    let x = mesh.point.{1,i}
-    and y = mesh.point.{2,i} in
-    if x > !xmax then xmax := x;
-    if x < !xmin then xmin := x;
-    if y > !ymax then ymax := y;
-    if y < !ymin then ymin := y;
-  done;
-  (!xmin, !xmax, !ymin, !ymax)
+module F =
+struct
+  type mesh = fortran_layout t;;
+  type 'a vector = 'a vec               (* global vec *)
+  type vec = fortran_layout vector;;    (* local vec *)
+  DEFINE NCOLS(a) = Array2.dim2 a;;
+  DEFINE FST = 1;;
+  DEFINE SND = 2;;
+  DEFINE THIRD = 3;;
+  DEFINE LASTCOL(a) = Array2.dim2 a;;
+  DEFINE GET(a,i,j) = a.{i,j};;
+  INCLUDE "meshFC.ml";;
+end
 
-let latex_fortran (mesh : fortran_layout t) filename =
-  let fh = open_out filename in
-  let xmin, xmax, ymin, ymax = bounding_box_fortran mesh in
-  latex_begin fh (xmax -. xmin) (ymax -. ymin) xmin ymin;
-  (* Write lines *)
-  fprintf fh "  %% %i edges\n" ((Array2.dim2 mesh.triangle));
-  for e = 1 to Array2.dim2(mesh.edge) do
-    let i1 = mesh.edge.{1,e}
-    and i2 = mesh.edge.{2,e} in
-    let x1 = mesh.point.{1,i1}
-    and y1 = mesh.point.{2,i1}
-    and x2 = mesh.point.{1,i2}
-    and y2 = mesh.point.{2,i2} in
-    line fh "black" (x1, y1) (x2, y2)
-  done;
-  (* Write points *)
-  fprintf fh "  %% %i points\n" ((Array2.dim2 mesh.point));
-  for i = 1 to Array2.dim2(mesh.point) do
-    point fh i mesh.point.{1,i} mesh.point.{2,i};
-  done;
-  latex_end fh;
-  close_out fh
-
-
-let scilab_fortran (mesh : fortran_layout t) (z: fortran_layout vec) fname =
-  let fname = Filename.chop_extension fname in
-  let sci = fname ^ ".sci"
-  and xf = fname ^ "_x.dat"
-  and yf = fname ^ "_y.dat"
-  and zf = fname ^ "_z.dat" in
-  let fh = open_out sci in
-  fprintf fh "// Run with exec('%s')
-xf = fscanfMat('%s');
-yf = fscanfMat('%s');
-zf = fscanfMat('%s');
-xbasc();
-plot3d(xf, yf, zf)\n" sci xf yf zf;
-  close_out fh;
-  let save_mat fname coord =
-    let fh = open_out fname in
-    (* We traverse several times the triangles but Scilab will not
-       have to transpose the matrices. *)
-    for point = 1 to 3 do
-      for t = 1 to Array2.dim2(mesh.triangle) do
-        fprintf fh "%.13g " (coord mesh.triangle.{point,t})
-      done;
-      fprintf fh "\n";
-    done;
-    close_out fh in
-  let pt = mesh.point in
-  save_mat xf (fun i -> pt.{1,i});
-  save_mat yf (fun i -> pt.{2,i});
-  save_mat zf (fun i -> z.{i})
-
-
-let level_curves_fortran ?(boundary=(fun _ -> Some "black"))
-    (mesh : fortran_layout t) (z: fortran_layout vec) levels fname =
-  let fh = open_out fname in
-  let xmin, xmax, ymin, ymax = bounding_box_fortran mesh in
-  latex_begin fh (xmax -. xmin) (ymax -. ymin) xmin ymin;
-  (* Draw the boundaries *)
-  let edge = mesh.edge in
-  let marker = mesh.edge_marker in
-  for e = 1 to Array2.dim2(edge) do
-    let m = marker.{e} in
-    if m <> 0 then begin
-      match boundary m with
-      | None -> ()
-      | Some color ->
-          let i1 = mesh.edge.{1,e}
-          and i2 = mesh.edge.{2,e} in
-          let x1 = mesh.point.{1,i1}
-          and y1 = mesh.point.{2,i1}
-          and x2 = mesh.point.{1,i2}
-          and y2 = mesh.point.{2,i2} in
-          line fh color (x1, y1) (x2, y2)
-    end
-  done;
-  let tr = mesh.triangle in
-  let pt = mesh.point in
-  for t = 1 to Array2.dim2(tr) do
-    let i1 = tr.{1,t}
-    and i2 = tr.{2,t}
-    and i3 = tr.{3,t} in
-    let x1 = pt.{1,i1}
-    and y1 = pt.{2,i1}
-    and z1 = z.{i1} in
-    let x2 = pt.{1,i2}
-    and y2 = pt.{2,i2}
-    and z2 = z.{i2} in
-    let x3 = pt.{1,i3}
-    and y3 = pt.{2,i3}
-    and z3 = z.{i3} in
-    List.iter
-      (fun l ->
-         (* Draw the level curve [l] on the triangle [t]. *)
-         if l < z1 then
-           if l < z2 then
-             if l > z3 then
-               line fh "black" (intercept x1 y1 z1 x3 y3 z3 l)
-                 (intercept x2 y2 z2 x3 y3 z3 l)
-             else if l = z3 then
-               point fh i3 x3 y3
-             else ()
-           else if l = z2 then
-             if l >= z3 then (* z3 <= l = z2 < z1 *)
-               line fh "black" (x2,y2) (intercept x1 y1 z1 x3 y3 z3 l)
-             else
-               point fh i2 x2 y2
-           else (* l > z2 *)
-             line fh "black" (intercept x1 y1 z1 x2 y2 z2 l)
-               (if l < z3 then      intercept x2 y2 z2 x3 y3 z3 l
-                else if l > z3 then intercept x1 y1 z1 x3 y3 z3 l
-                else (* l = z3 *)   (x3,y3))
-
-         else if l > z1 then
-           (* Symmetric of [l < z1] with all inequalities reversed *)
-           if l > z2 then
-             if l < z3 then
-               line fh "black" (intercept x1 y1 z1 x3 y3 z3 l)
-                 (intercept x2 y2 z2 x3 y3 z3 l)
-             else if l = z3 then
-               point fh i3 x3 y3
-             else ()
-           else if l = z2 then
-             if l <= z3 then (* z3 >= l = z2 > z1 *)
-               line fh "black" (x2,y2) (intercept x1 y1 z1 x3 y3 z3 l)
-             else
-               point fh i2 x2 y2
-           else (* l < z2 *)
-             line fh "black" (intercept x1 y1 z1 x2 y2 z2 l)
-               (if l > z3 then      intercept x2 y2 z2 x3 y3 z3 l
-                else if l < z3 then intercept x1 y1 z1 x3 y3 z3 l
-                else (* l = z3 *)   (x3,y3))
-
-         else (* l = z1 *)
-           if (z2 <= l && l < z3) || (z3 <= l && l < z2) then
-             line fh "black" (x1,y1) (intercept x2 y2 z2 x3 y3 z3 l)
-           else if l = z2 && l = z3 then
-             triangle fh "black" x1 y1 x2 y2 x3 y3 (* Full triangle ! *)
-           else ()
-      ) levels
-  done;
-  (* Write trailer *)
-  latex_end fh;
-  close_out fh
-
-
-(* Functions for c layout.
- ***********************************************************************)
-
-let bounding_box_c (mesh : c_layout t) =
-  let xmin = ref infinity
-  and xmax = ref neg_infinity
-  and ymin = ref infinity
-  and ymax = ref neg_infinity in
-  for i = 0 to Array2.dim1(mesh.point) - 1 do
-    let x = mesh.point.{i,0}
-    and y = mesh.point.{i,1} in
-    if x > !xmax then xmax := x;
-    if x < !xmin then xmin := x;
-    if y > !ymax then ymax := y;
-    if y < !ymin then ymin := y;
-  done;
-  (!xmin, !xmax, !ymin, !ymax)
-
-let latex_c (mesh : c_layout t) filename =
-  let fh = open_out filename in
-  let xmin, xmax, ymin, ymax = bounding_box_c mesh in
-  latex_begin fh (xmax -. xmin) (ymax -. ymin) xmin ymin;
-  (* Write lines *)
-  fprintf fh "  %% %i edges\n" ((Array2.dim1 mesh.triangle));
-  for e = 0 to Array2.dim1(mesh.edge) - 1 do
-    let i1 = mesh.edge.{e,0}
-    and i2 = mesh.edge.{e,1} in
-    let x1 = mesh.point.{i1,0}
-    and y1 = mesh.point.{i1,1}
-    and x2 = mesh.point.{i2,0}
-    and y2 = mesh.point.{i2,1} in
-    line fh "black" (x1, y1) (x2, y2)
-  done;
-  (* Write points *)
-  fprintf fh "  %% %i points\n" ((Array2.dim1 mesh.point));
-  for i = 0 to Array2.dim1(mesh.point) - 1 do
-    point fh i mesh.point.{i,0} mesh.point.{i,1};
-  done;
-  latex_end fh;
-  close_out fh
-
-
-let scilab_c (mesh : c_layout t) (z: c_layout vec) fname =
-  let fname = Filename.chop_extension fname in
-  let sci = fname ^ ".sci"
-  and xf = fname ^ "_x.dat"
-  and yf = fname ^ "_y.dat"
-  and zf = fname ^ "_z.dat" in
-  let fh = open_out sci in
-  fprintf fh "// Run with exec('%s')
-xf = fscanfMat('%s');
-yf = fscanfMat('%s');
-zf = fscanfMat('%s');
-xbasc();
-plot3d(xf, yf, zf)\n" sci xf yf zf;
-  close_out fh;
-  let save_mat fname coord =
-    let fh = open_out fname in
-    (* We traverse several times the triangles but Scilab will not
-       have to transpose the matrices. *)
-    for point = 0 to 2 do
-      for t = 0 to Array2.dim1(mesh.triangle) - 1 do
-        fprintf fh "%.13g " (coord mesh.triangle.{t,point})
-      done;
-      fprintf fh "\n";
-    done;
-    close_out fh in
-  let pt = mesh.point in
-  save_mat xf (fun i -> pt.{i,0});
-  save_mat yf (fun i -> pt.{i,1});
-  save_mat zf (fun i -> z.{i})
-
-
-let level_curves_c ?(boundary=(fun _ -> Some "black"))
-    (mesh : c_layout t) (z: c_layout vec) levels fname =
-  let fh = open_out fname in
-  let xmin, xmax, ymin, ymax = bounding_box_c mesh in
-  latex_begin fh (xmax -. xmin) (ymax -. ymin) xmin ymin;
-  (* Draw the boundaries *)
-  let edge = mesh.edge in
-  let marker = mesh.edge_marker in
-  for e = 0 to Array2.dim1(edge) - 1 do
-    let m = marker.{e} in
-    if m <> 0 then begin
-      match boundary m with
-      | None -> ()
-      | Some color ->
-          let i1 = mesh.edge.{e,0}
-          and i2 = mesh.edge.{e,1} in
-          let x1 = mesh.point.{i1,0}
-          and y1 = mesh.point.{i1,1}
-          and x2 = mesh.point.{i2,0}
-          and y2 = mesh.point.{i2,1} in
-          line fh color (x1, y1) (x2, y2)
-    end
-  done;
-  let tr = mesh.triangle in
-  let pt = mesh.point in
-  for t = 0 to Array2.dim1(tr) - 1 do
-    let i1 = tr.{t,0}
-    and i2 = tr.{t,1}
-    and i3 = tr.{t,2} in
-    let x1 = pt.{i1,0}
-    and y1 = pt.{i1,1}
-    and z1 = z.{i1} in
-    let x2 = pt.{i2,0}
-    and y2 = pt.{i2,1}
-    and z2 = z.{i2} in
-    let x3 = pt.{i3,0}
-    and y3 = pt.{i3,1}
-    and z3 = z.{i3} in
-    List.iter
-      (fun l ->
-         (* Draw the level curve [l] on the triangle [t]. *)
-         if l < z1 then
-           if l < z2 then
-             if l > z3 then
-               line fh "black" (intercept x1 y1 z1 x3 y3 z3 l)
-                 (intercept x2 y2 z2 x3 y3 z3 l)
-             else if l = z3 then
-               point fh i3 x3 y3
-             else ()
-           else if l = z2 then
-             if l >= z3 then (* z3 <= l = z2 < z1 *)
-               line fh "black" (x2,y2) (intercept x1 y1 z1 x3 y3 z3 l)
-             else
-               point fh i2 x2 y2
-           else (* l > z2 *)
-             line fh "black" (intercept x1 y1 z1 x2 y2 z2 l)
-               (if l < z3 then      intercept x2 y2 z2 x3 y3 z3 l
-                else if l > z3 then intercept x1 y1 z1 x3 y3 z3 l
-                else (* l = z3 *)   (x3,y3))
-
-         else if l > z1 then
-           (* Symmetric of [l < z1] with all inequalities reversed *)
-           if l > z2 then
-             if l < z3 then
-               line fh "black" (intercept x1 y1 z1 x3 y3 z3 l)
-                 (intercept x2 y2 z2 x3 y3 z3 l)
-             else if l = z3 then
-               point fh i3 x3 y3
-             else ()
-           else if l = z2 then
-             if l <= z3 then (* z3 >= l = z2 > z1 *)
-               line fh "black" (x2,y2) (intercept x1 y1 z1 x3 y3 z3 l)
-             else
-               point fh i2 x2 y2
-           else (* l < z2 *)
-             line fh "black" (intercept x1 y1 z1 x2 y2 z2 l)
-               (if l > z3 then      intercept x2 y2 z2 x3 y3 z3 l
-                else if l < z3 then intercept x1 y1 z1 x3 y3 z3 l
-                else (* l = z3 *)   (x3,y3))
-
-         else (* l = z1 *)
-           if (z2 <= l && l < z3) || (z3 <= l && l < z2) then
-             line fh "black" (x1,y1) (intercept x2 y2 z2 x3 y3 z3 l)
-           else if l = z2 && l = z3 then
-             triangle fh "black" x1 y1 x2 y2 x3 y3 (* Full triangle ! *)
-           else ()
-      ) levels
-  done;
-  (* Write trailer *)
-  latex_end fh;
-  close_out fh
-
-
+module C =
+struct
+  type mesh = c_layout t;;
+  type 'a vector = 'a vec               (* global vec *)
+  type vec = c_layout vector;;
+  DEFINE NCOLS(a) = Array2.dim1 a;;
+  DEFINE FST = 0;;
+  DEFINE SND = 1;;
+  DEFINE THIRD = 2;;
+  DEFINE LASTCOL(a) = Array2.dim1 a - 1;;
+  DEFINE GET(a,i,j) = a.{j,i};;
+  INCLUDE "meshFC.ml";;
+end
 
 let is_c_layout mesh =
   Array2.layout mesh.point = (Obj.magic c_layout : 'a Bigarray.layout)
 
 let latex mesh filename =
-  if is_c_layout mesh then latex_c (Obj.magic mesh) filename
-  else latex_fortran (Obj.magic mesh) filename
+  if is_c_layout mesh then C.latex (Obj.magic mesh) filename
+  else F.latex (Obj.magic mesh) filename
 
 let scilab (mesh: 'a t) (z: 'a vec) filename =
-  if is_c_layout mesh then scilab_c (Obj.magic mesh) (Obj.magic z) filename
-  else scilab_fortran (Obj.magic mesh) (Obj.magic z) filename
+  if is_c_layout mesh then C.scilab (Obj.magic mesh) (Obj.magic z) filename
+  else F.scilab (Obj.magic mesh) (Obj.magic z) filename
 
 let level_curves ?boundary (mesh: 'a t) (z: 'a vec) levels filename =
   if is_c_layout mesh then
-    level_curves_c ?boundary (Obj.magic mesh) (Obj.magic z) levels filename
+    C.level_curves ?boundary (Obj.magic mesh) (Obj.magic z) levels filename
   else
-    level_curves_fortran ?boundary (Obj.magic mesh) (Obj.magic z)
-      levels filename
+    F.level_curves ?boundary (Obj.magic mesh) (Obj.magic z) levels filename

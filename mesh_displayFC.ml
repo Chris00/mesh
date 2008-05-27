@@ -1,28 +1,15 @@
-open Bigarray
-open Graphics
-open Mesh
 
-(* Displaying the mesh with Graphics *)
-
-(* TODO:
-
-   - 'q' to quit
-   - allow to zoom in and out
-   - display the segments in another color
-   - allow to switch on and off the nodes #
-*)
-
-
-let display_LAYOUT ?(width=600) ?(height=600) ?xmin ?xmax ?ymin ?ymax
-    ?(xbd=10) ?(ybd=10) ?voronoi ?(segments=true) (mesh: LAYOUT_layout t) =
+let display ?(width=600) ?(height=600) ?xmin ?xmax ?ymin ?ymax
+    ?(xbd=10) ?(ybd=10) ?voronoi ?(segments=true) (mesh: mesh) =
   (* Compute the natural rectangle around the mesh *)
   let pt = mesh.point in
   let cxmax = ref neg_infinity
   and cxmin = ref infinity
   and cymax = ref neg_infinity
   and cymin = ref infinity in
-  for i = BA_FIRST to BA_LASTCOL(pt) do
-    let x = BA_GET(pt,BA_FIRST,i) and y = BA_GET(pt,BA_SECOND,i) in
+  for i = FST to LASTCOL(pt) do
+    let x = GET(pt, FST,i)
+    and y = GET(pt, SND,i) in
     if !cxmax < x then cxmax := x;
     if !cxmin > x then cxmin := x;
     if !cymax < y then cymax := y;
@@ -53,15 +40,15 @@ let display_LAYOUT ?(width=600) ?(height=600) ?xmin ?xmax ?ymin ?ymax
     and y1 = truncate((y1 -. ymin) *. hy) + ybd in
     draw_segments [| (x0, y0, x1, y1) |] in
   let draw_triangle t =
-    let i0 = BA_GET(mesh.triangle,BA_FIRST,t)
-    and i1 = BA_GET(mesh.triangle,BA_SECOND,t)
-    and i2 = BA_GET(mesh.triangle,BA_THIRD,t) in
-    let x0 = BA_GET(pt,BA_FIRST,i0)
-    and y0 = BA_GET(pt,BA_SECOND,i0) in
-    let x1 = BA_GET(pt,BA_FIRST,i1)
-    and y1 = BA_GET(pt,BA_SECOND,i1) in
-    let x2 = BA_GET(pt,BA_FIRST,i2)
-    and y2 = BA_GET(pt,BA_SECOND,i2) in
+    let i0 = GET(mesh.triangle, FST,t)
+    and i1 = GET(mesh.triangle, SND,t)
+    and i2 = GET(mesh.triangle, THIRD,t) in
+    let x0 = GET(pt, FST,i0)
+    and y0 = GET(pt, SND,i0) in
+    let x1 = GET(pt, FST,i1)
+    and y1 = GET(pt, SND,i1) in
+    let x2 = GET(pt, FST,i2)
+    and y2 = GET(pt, SND,i2) in
     draw_segment x0 y0 x1 y1;
     draw_segment x1 y1 x2 y2;
     draw_segment x2 y2 x0 y0  in
@@ -70,19 +57,20 @@ let display_LAYOUT ?(width=600) ?(height=600) ?xmin ?xmax ?ymin ?ymax
               ^ (string_of_int (height + 2 * ybd)) ^ "-40+40");
   set_window_title "Mesh";
   (* Triangles and Points *)
-  for t = BA_FIRST to BA_LASTCOL(mesh.triangle) do draw_triangle t done;
-  for i = BA_FIRST to BA_LASTCOL(pt) do
-    draw_pt BA_GET(pt,BA_FIRST,i) BA_GET(pt,BA_SECOND,i)
+  for t = FST to LASTCOL(mesh.triangle) do draw_triangle t done;
+  for i = FST to LASTCOL(pt) do
+    draw_pt (GET(pt, FST,i)) (GET(pt, SND,i))
   done;
   (* Voronoi diagram *)
   begin match voronoi with
   | None -> ()
   | Some vor -> ()
   end;
+  (* Wait for the key 'q' to be pressed. *)
   try
     while true do
       let status = wait_next_event [Button_down; Key_pressed] in
-      if status.keypressed && status.key = 'q' then (
+      if status.keypressed && (status.key = 'q' || status.key = 'Q') then (
         close_graph();
         raise Exit
       );

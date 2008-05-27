@@ -1,4 +1,4 @@
-(* Mesh.mli                       Time-stamp: <2006-09-05 09:29:26 trch>
+(* Mesh.mli                       Time-stamp: <2008-05-26 23:09:38 trch>
 
   Copyright (C) 2001-2004
 
@@ -88,12 +88,18 @@ type 'layout t = {
   region : 'layout mat;
 }
 
-
 type 'layout voronoi = {
   vor_point : 'layout mat;
   vor_edge  : 'layout int_mat;
   vor_normal: 'layout mat;
 }
+
+val empty : 'l layout -> 'l t
+  (** [empty layout] returns an empty mesh structure.  It is convenient
+      to use it as [{(empty layout) with point = ...}]. *)
+
+val is_c_layout : 'l t -> bool
+  (** [is_c_layout] returns true if the mesh layout is C. *)
 
 
 (** {2 LaTeX output}
@@ -130,11 +136,3 @@ val scilab : 'l t -> 'l vec -> string -> unit
       Scilab runs the created [file].sci script, the graph of the
       function is drawn. *)
 
-(** {2 Misc} *)
-
-val empty : 'l layout -> 'l t
-  (** [empty layout] returns an empty mesh structure.  It is convenient
-      to use it as [{(empty layout) with point = ...}]. *)
-
-val is_c_layout : 'l t -> bool
-  (** [is_c_layout] returns true if the mesh layout is C. *)

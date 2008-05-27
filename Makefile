@@ -7,8 +7,8 @@ OCAMLMKLIB 	= ocamlmklib
 LIBDIR 		= /usr/local/lib/ocaml/$(shell ocamlc -version)
 STUBLIBDIR 	= $(LIBDIR)/stublibs/
 
-OCAMLCFLAGS 	= -dtypes -g
-OCAMLOPTFLAGS 	= -dtypes
+OCAMLCFLAGS 	= -dtypes -g -pp "camlp4o pa_macro.cmo"
+OCAMLOPTFLAGS 	= -dtypes -pp "camlp4o pa_macro.cmo"
 OCAMLDOCFLAGS 	= -stars -colorize-code
 
 INC_TRIANGLE	= /usr/local/include/
@@ -34,36 +34,36 @@ mesh_display.cmo: mesh_display.ml mesh_display.cmi mesh.cmo
 mesh_display.cmx: mesh_display.ml mesh_display.cmi mesh.cmx
 
 # Generate the files containing the 2 layouts:
-mesh.ml: mesh.gen.ml
-	cp $< $@
-easymesh.ml: easymesh.gen.ml
-	cp $< $@
-mesh_display.ml: mesh_display.gen.ml
-	cp $< $@
+# mesh.ml: mesh.gen.ml
+# 	cp $< $@
+# easymesh.ml: easymesh.gen.ml
+# 	cp $< $@
+# mesh_display.ml: mesh_display.gen.ml
+# 	cp $< $@
 
-%.gen.ml: %-layout.ml %-head.ml %-tail.ml
-	cat $(filter %-head.ml, $^) > $@
-#	The "macros" names are with fortran layout in mind
-	$(SED) -e 's/LAYOUT/fortran/g' \
-	  -e 's/BA_FIRST/1/g' -e 's/BA_SECOND/2/g' -e 's/BA_THIRD/3/g' \
-	  -e 's/BA_LASTCOL(\([^()]\+\))/Array2.dim2(\1)/g' \
-	  -e 's/BA_NCOL(\([^,()]\+\))/(Array2.dim2 \1)/g' \
-	  -e 's/BA_GET(\([^,()]\+\),\([^,()]\+\),\([^,()]\+\))/\1.{\2,\3}/g' \
-	  -e 's/BA_CREATE \([^ ]\+\) \([^ ]\+\) \([^ ]\+\)/Array2.create \1 fortran_layout \2 \3/g' \
-	  -e 's/BA_OFIDX(\([^()]\+\))/(\1 - 1)/g' \
-	  -e 's/BA_TOIDX(\([^()]\+\))/(\1 + 1)/g' \
-	  $< >> $@
-#	C arrays are transposed.
-	$(SED) -e 's/LAYOUT/c/g' \
-	  -e 's/BA_FIRST/0/g' -e 's/BA_SECOND/1/g' -e 's/BA_THIRD/2/g' \
-	  -e 's/BA_LASTCOL(\([^()]\+\))/Array2.dim1(\1) - 1/g' \
-	  -e 's/BA_NCOL(\([^,()]\+\))/(Array2.dim1 \1)/g' \
-	  -e 's/BA_GET(\([^,()]\+\),\([^,()]\+\),\([^,()]\+\))/\1.{\3,\2}/g' \
-	  -e 's/BA_CREATE \([^ ]\+\) \([^ ]\+\) \([^ ]\+\)/Array2.create \1 c_layout \3 \2/g' \
-	  -e 's/BA_OFIDX(\([^()]\+\))/(\1)/g' \
-	  -e 's/BA_TOIDX(\([^()]\+\))/(\1)/g' \
-	  $< >> $@
-	cat $(filter %-tail.ml, $^) >> $@
+# %.gen.ml: %-layout.ml %-head.ml %-tail.ml
+# 	cat $(filter %-head.ml, $^) > $@
+# #	The "macros" names are with fortran layout in mind
+# 	$(SED) -e 's/LAYOUT/fortran/g' \
+# 	  -e 's/BA_FIRST/1/g' -e 's/BA_SECOND/2/g' -e 's/BA_THIRD/3/g' \
+# 	  -e 's/BA_LASTCOL(\([^()]\+\))/Array2.dim2(\1)/g' \
+# 	  -e 's/BA_NCOL(\([^,()]\+\))/(Array2.dim2 \1)/g' \
+# 	  -e 's/BA_GET(\([^,()]\+\),\([^,()]\+\),\([^,()]\+\))/\1.{\2,\3}/g' \
+# 	  -e 's/BA_CREATE \([^ ]\+\) \([^ ]\+\) \([^ ]\+\)/Array2.create \1 fortran_layout \2 \3/g' \
+# 	  -e 's/BA_OFIDX(\([^()]\+\))/(\1 - 1)/g' \
+# 	  -e 's/BA_TOIDX(\([^()]\+\))/(\1 + 1)/g' \
+# 	  $< >> $@
+# #	C arrays are transposed.
+# 	$(SED) -e 's/LAYOUT/c/g' \
+# 	  -e 's/BA_FIRST/0/g' -e 's/BA_SECOND/1/g' -e 's/BA_THIRD/2/g' \
+# 	  -e 's/BA_LASTCOL(\([^()]\+\))/Array2.dim1(\1) - 1/g' \
+# 	  -e 's/BA_NCOL(\([^,()]\+\))/(Array2.dim1 \1)/g' \
+# 	  -e 's/BA_GET(\([^,()]\+\),\([^,()]\+\),\([^,()]\+\))/\1.{\3,\2}/g' \
+# 	  -e 's/BA_CREATE \([^ ]\+\) \([^ ]\+\) \([^ ]\+\)/Array2.create \1 c_layout \3 \2/g' \
+# 	  -e 's/BA_OFIDX(\([^()]\+\))/(\1)/g' \
+# 	  -e 's/BA_TOIDX(\([^()]\+\))/(\1)/g' \
+# 	  $< >> $@
+# 	cat $(filter %-tail.ml, $^) >> $@
 
 triangle.cma: mesh.cma $(OBJ_TRIANGLE) triangle_stubs.o
 	$(OCAMLMKLIB) -o $(@:.cma=) $^ -L$(INC_TRIANGLE)
@@ -156,4 +156,4 @@ clean:
 
 distclean:
 #	Files generated for the two layouts:
-	rm easymesh.ml mesh_display.ml
+#	rm easymesh.ml mesh_display.ml

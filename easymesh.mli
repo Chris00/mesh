@@ -1,4 +1,4 @@
-(* Easymesh.mli                    Time-stamp: <2006-08-23 18:47:26 trch>
+(* Easymesh.mli                    Time-stamp: <2008-05-27 00:42:36 trch>
 
   Copyright (C) 2001-2004
 
@@ -27,7 +27,7 @@
    very robust and can segfault instead of reporting an error.
 
    @version 0.5
-   @author Christophe Troestler (Christophe.Troestler(at)umh.ac.be)
+   @author Christophe Troestler (Christophe.Troestler\@umh.ac.be)
 *)
 
 

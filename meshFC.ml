@@ -1,14 +1,15 @@
 (* Functions for LAYOUT layout.
  ***********************************************************************)
 
-let bounding_box_LAYOUT (mesh : LAYOUT_layout t) =
+(** Return the smaller box (xmin, xmax, ymin, ymax) containing the [mesh]. *)
+let bounding_box (mesh: mesh) =
   let xmin = ref infinity
   and xmax = ref neg_infinity
   and ymin = ref infinity
   and ymax = ref neg_infinity in
-  for i = BA_FIRST to BA_LASTCOL(mesh.point) do
-    let x = BA_GET(mesh.point,BA_FIRST,i)
-    and y = BA_GET(mesh.point,BA_SECOND,i) in
+  for i = FST to LASTCOL(mesh.point) do
+    let x = GET(mesh.point, FST,i)
+    and y = GET(mesh.point, SND,i) in
     if x > !xmax then xmax := x;
     if x < !xmin then xmin := x;
     if y > !ymax then ymax := y;
@@ -16,31 +17,31 @@ let bounding_box_LAYOUT (mesh : LAYOUT_layout t) =
   done;
   (!xmin, !xmax, !ymin, !ymax)
 
-let latex_LAYOUT (mesh : LAYOUT_layout t) filename =
+let latex (mesh: mesh) filename =
   let fh = open_out filename in
-  let xmin, xmax, ymin, ymax = bounding_box_LAYOUT mesh in
+  let xmin, xmax, ymin, ymax = bounding_box mesh in
   latex_begin fh (xmax -. xmin) (ymax -. ymin) xmin ymin;
   (* Write lines *)
-  fprintf fh "  %% %i edges\n" (BA_NCOL(mesh.triangle));
-  for e = BA_FIRST to BA_LASTCOL(mesh.edge) do
-    let i1 = BA_GET(mesh.edge,BA_FIRST,e)
-    and i2 = BA_GET(mesh.edge,BA_SECOND,e) in
-    let x1 = BA_GET(mesh.point,BA_FIRST,i1)
-    and y1 = BA_GET(mesh.point,BA_SECOND,i1)
-    and x2 = BA_GET(mesh.point,BA_FIRST,i2)
-    and y2 = BA_GET(mesh.point,BA_SECOND,i2) in
+  fprintf fh "  %% %i edges\n" (NCOLS(mesh.triangle));
+  for e = FST to LASTCOL(mesh.edge) do
+    let i1 = GET(mesh.edge, FST,e)
+    and i2 = GET(mesh.edge, SND,e) in
+    let x1 = GET(mesh.point, FST,i1)
+    and y1 = GET(mesh.point, SND,i1)
+    and x2 = GET(mesh.point, FST,i2)
+    and y2 = GET(mesh.point, SND,i2) in
     line fh "black" (x1, y1) (x2, y2)
   done;
   (* Write points *)
-  fprintf fh "  %% %i points\n" (BA_NCOL(mesh.point));
-  for i = BA_FIRST to BA_LASTCOL(mesh.point) do
-    point fh i BA_GET(mesh.point,BA_FIRST,i) BA_GET(mesh.point,BA_SECOND,i);
+  fprintf fh "  %% %i points\n" (NCOLS(mesh.point));
+  for i = FST to LASTCOL(mesh.point) do
+    point fh i (GET(mesh.point, FST,i)) (GET(mesh.point, SND,i));
   done;
   latex_end fh;
   close_out fh
 
 
-let scilab_LAYOUT (mesh : LAYOUT_layout t) (z: LAYOUT_layout vec) fname =
+let scilab (mesh: mesh) (z: vec) fname =
   let fname = Filename.chop_extension fname in
   let sci = fname ^ ".sci"
   and xf = fname ^ "_x.dat"
@@ -58,56 +59,56 @@ plot3d(xf, yf, zf)\n" sci xf yf zf;
     let fh = open_out fname in
     (* We traverse several times the triangles but Scilab will not
        have to transpose the matrices. *)
-    for point = BA_FIRST to BA_THIRD do
-      for t = BA_FIRST to BA_LASTCOL(mesh.triangle) do
-        fprintf fh "%.13g " (coord BA_GET(mesh.triangle,point,t))
+    for point = FST to THIRD do
+      for t = FST to LASTCOL(mesh.triangle) do
+        fprintf fh "%.13g " (coord (GET(mesh.triangle, point,t)))
       done;
       fprintf fh "\n";
     done;
     close_out fh in
   let pt = mesh.point in
-  save_mat xf (fun i -> BA_GET(pt,BA_FIRST,i));
-  save_mat yf (fun i -> BA_GET(pt,BA_SECOND,i));
+  save_mat xf (fun i -> GET(pt, FST,i));
+  save_mat yf (fun i -> GET(pt, SND,i));
   save_mat zf (fun i -> z.{i})
 
 
-let level_curves_LAYOUT ?(boundary=(fun _ -> Some "black"))
-    (mesh : LAYOUT_layout t) (z: LAYOUT_layout vec) levels fname =
+let level_curves ?(boundary=(fun _ -> Some "black")) (mesh: mesh) (z: vec)
+    levels fname =
   let fh = open_out fname in
-  let xmin, xmax, ymin, ymax = bounding_box_LAYOUT mesh in
+  let xmin, xmax, ymin, ymax = bounding_box mesh in
   latex_begin fh (xmax -. xmin) (ymax -. ymin) xmin ymin;
   (* Draw the boundaries *)
   let edge = mesh.edge in
   let marker = mesh.edge_marker in
-  for e = BA_FIRST to BA_LASTCOL(edge) do
+  for e = FST to LASTCOL(edge) do
     let m = marker.{e} in
-    if m <> 0 then begin
+    if m <> 0 (* not an interior point *) then begin
       match boundary m with
       | None -> ()
       | Some color ->
-          let i1 = BA_GET(mesh.edge,BA_FIRST,e)
-          and i2 = BA_GET(mesh.edge,BA_SECOND,e) in
-          let x1 = BA_GET(mesh.point,BA_FIRST,i1)
-          and y1 = BA_GET(mesh.point,BA_SECOND,i1)
-          and x2 = BA_GET(mesh.point,BA_FIRST,i2)
-          and y2 = BA_GET(mesh.point,BA_SECOND,i2) in
+          let i1 = GET(mesh.edge, FST,e)
+          and i2 = GET(mesh.edge, SND,e) in
+          let x1 = GET(mesh.point, FST,i1)
+          and y1 = GET(mesh.point, SND,i1)
+          and x2 = GET(mesh.point, FST,i2)
+          and y2 = GET(mesh.point, SND,i2) in
           line fh color (x1, y1) (x2, y2)
     end
   done;
   let tr = mesh.triangle in
   let pt = mesh.point in
-  for t = BA_FIRST to BA_LASTCOL(tr) do
-    let i1 = BA_GET(tr,BA_FIRST,t)
-    and i2 = BA_GET(tr,BA_SECOND,t)
-    and i3 = BA_GET(tr,BA_THIRD,t) in
-    let x1 = BA_GET(pt,BA_FIRST,i1)
-    and y1 = BA_GET(pt,BA_SECOND,i1)
+  for t = FST to LASTCOL(tr) do
+    let i1 = GET(tr, FST,t)
+    and i2 = GET(tr, SND,t)
+    and i3 = GET(tr, THIRD,t) in
+    let x1 = GET(pt, FST,i1)
+    and y1 = GET(pt, SND,i1)
     and z1 = z.{i1} in
-    let x2 = BA_GET(pt,BA_FIRST,i2)
-    and y2 = BA_GET(pt,BA_SECOND,i2)
+    let x2 = GET(pt, FST,i2)
+    and y2 = GET(pt, SND,i2)
     and z2 = z.{i2} in
-    let x3 = BA_GET(pt,BA_FIRST,i3)
-    and y3 = BA_GET(pt,BA_SECOND,i3)
+    let x3 = GET(pt, FST,i3)
+    and y3 = GET(pt, SND,i3)
     and z3 = z.{i3} in
     List.iter
       (fun l ->
@@ -162,5 +163,3 @@ let level_curves_LAYOUT ?(boundary=(fun _ -> Some "black"))
   (* Write trailer *)
   latex_end fh;
   close_out fh
-
-
