@@ -1,0 +1,9 @@
+*.annot
+*.cmi
+*.cmo
+*.cma
+*.cmx
+*.cmxa
+*.exe
+*.com
+doc
