@@ -1,35 +1,25 @@
-
-let display ?(width=600) ?(height=600) ?xmin ?xmax ?ymin ?ymax
-    ?(xbd=10) ?(ybd=10) ?voronoi ?(segments=true) (mesh: mesh) =
-  (* Compute the natural rectangle around the mesh *)
+(** Return the smaller box (xmin, xmax, ymin, ymax) containing the [mesh]. *)
+let bounding_box (mesh: mesh) =
   let pt = mesh.point in
-  let cxmax = ref neg_infinity
-  and cxmin = ref infinity
-  and cymax = ref neg_infinity
-  and cymin = ref infinity in
+  let xmin = ref infinity
+  and xmax = ref neg_infinity
+  and ymin = ref infinity
+  and ymax = ref neg_infinity in
   for i = FST to LASTCOL(pt) do
     let x = GET(pt, FST,i)
     and y = GET(pt, SND,i) in
-    if !cxmax < x then cxmax := x;
-    if !cxmin > x then cxmin := x;
-    if !cymax < y then cymax := y;
-    if !cymin > y then cymin := y;
+    if x > !xmax then xmax := x;
+    if x < !xmin then xmin := x;
+    if y > !ymax then ymax := y;
+    if y < !ymin then ymin := y;
   done;
-  (* Set displayed area  *)
-  let xmin = match xmin with
-    | None -> !cxmin
-    | Some x -> x
-  and xmax = match xmax with
-    | None -> !cxmax
-    | Some x -> x
-  and ymin = match ymin with
-    | None -> !cymin
-    | Some x -> x
-  and ymax = match ymax with
-    | None -> !cymax
-    | Some x -> x in
+  (!xmin, !xmax, !ymin, !ymax)
+
+let draw ?(width=600) ?(height=600) ?voronoi ?(segments=true) (mesh: mesh) =
+  let xmin, xmax, ymin, ymax = bounding_box mesh in
   let hx = float width /. (xmax -. xmin)
   and hy = float height /. (ymax -. ymin) in
+  let (xbd, ybd) = current_point() in
   let draw_pt x y =
     fill_circle (truncate((x -. xmin) *. hx) + xbd)
       (truncate((y -. ymin) *. hy) + ybd) 3 in
@@ -39,16 +29,14 @@ let display ?(width=600) ?(height=600) ?xmin ?xmax ?ymin ?ymax
     and x1 = truncate((x1 -. xmin) *. hx) + xbd
     and y1 = truncate((y1 -. ymin) *. hy) + ybd in
     draw_segments [| (x0, y0, x1, y1) |] in
-  (* Drawing itself *)
-  open_graph (" " ^ (string_of_int (width + 2 * xbd)) ^ "x"
-              ^ (string_of_int (height + 2 * ybd)) ^ "-40+40");
-  set_window_title "Mesh";
   (* Triangles and Points *)
-  for t = FST to LASTCOL(mesh.triangle) do
+  let pt = mesh.point
+  and triangle = mesh.triangle in
+  for t = FST to LASTCOL(triangle) do
     (* Draw triangle [t]. *)
-    let i0 = GET(mesh.triangle, FST,t)
-    and i1 = GET(mesh.triangle, SND,t)
-    and i2 = GET(mesh.triangle, THIRD,t) in
+    let i0 = GET(triangle, FST,t)
+    and i1 = GET(triangle, SND,t)
+    and i2 = GET(triangle, THIRD,t) in
     try
       let x0 = GET(pt, FST,i0)
       and y0 = GET(pt, SND,i0) in
@@ -69,15 +57,5 @@ let display ?(width=600) ?(height=600) ?xmin ?xmax ?ymin ?ymax
   (* Voronoi diagram *)
   begin match voronoi with
   | None -> ()
-  | Some vor -> ()
-  end;
-  (* Wait for the key 'q' to be pressed. *)
-  try
-    while true do
-      let status = wait_next_event [Button_down; Key_pressed] in
-      if status.keypressed && (status.key = 'q' || status.key = 'Q') then (
-        close_graph();
-        raise Exit
-      );
-    done
-  with Exit -> ()
+  | Some vor -> ()                      (* FIXME: todo *)
+  end

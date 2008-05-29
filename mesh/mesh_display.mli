@@ -17,9 +17,20 @@
    LICENSE for more details. *)
 
 
+val draw :
+  ?width:int -> ?height:int -> ?voronoi:'a Mesh.voronoi -> ?segments:bool ->
+  'a Mesh.t -> unit
+  (** [draw mesh] display the mesh on the current OCaml Graphics
+      window with the bottom left corner at the current position.  The
+      mesh is drawn with the current color.
+
+      @param width the width (in pixels) of the mesh image.
+      @param height the height (in pixels) of the mesh image.
+      @param voronoi draw also the voronoi diagram given
+  *)
 
 val display :
-  ?width:int -> ?height:int ->
-  ?xmin:float -> ?xmax:float -> ?ymin:float -> ?ymax:float ->
-  ?xbd:int -> ?ybd:int -> ?voronoi:'a Mesh.voronoi -> ?segments:bool ->
+  ?width:int -> ?height:int -> ?voronoi:'a Mesh.voronoi -> ?segments:bool ->
   'a Mesh.t -> unit
+  (** [display mesh] open an OCaml graphic window and draw the mesh on
+      it.  *)

@@ -56,11 +56,26 @@ struct
 end
 
 
-let display ?width ?height ?xmin ?xmax ?ymin ?ymax
-    ?xbd ?ybd ?voronoi ?segments (mesh: 'a t) =
+let draw ?width ?height ?voronoi ?segments (mesh: 'a t) =
   if Mesh.is_c_layout mesh then
-    C.display ?width ?height ?xmin ?xmax ?ymin ?ymax
-      ?xbd ?ybd ?voronoi ?segments (Obj.magic mesh)
+    C.draw ?width ?height ?voronoi ?segments (Obj.magic mesh)
   else
-    F.display ?width ?height ?xmin ?xmax ?ymin ?ymax
-      ?xbd ?ybd ?voronoi ?segments (Obj.magic mesh)
+    F.draw ?width ?height ?voronoi ?segments (Obj.magic mesh)
+
+let display ?(width=600) ?(height=600) ?voronoi ?(segments=true) mesh =
+  let xbd = 10 and ybd = 10 in
+  (* Drawing itself *)
+  open_graph (sprintf " %ix%i-40+40" (width + 2 * xbd) (height + 2 * ybd));
+  set_window_title("Mesh (" ^ Sys.argv.(0) ^ ")");
+  moveto xbd ybd;
+  draw ~width ~height ?voronoi ~segments mesh;
+  (* Wait for the key 'q' to be pressed. *)
+  try
+    while true do
+      let status = wait_next_event [Button_down; Key_pressed] in
+      if status.keypressed && (status.key = 'q' || status.key = 'Q') then (
+        close_graph();
+        raise Exit
+      );
+    done
+  with Exit -> ()
