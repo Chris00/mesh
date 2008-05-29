@@ -1,4 +1,4 @@
-(* Mesh.mli                       Time-stamp: <2008-05-26 23:09:38 trch>
+(* Mesh.mli                       Time-stamp: <2008-05-27 23:52:30 trch>
 
   Copyright (C) 2001-2004
 
@@ -123,8 +123,8 @@ val level_curves : ?boundary:(int -> string option) ->
       surface with values [z] on the mesh [mesh].
 
       @param boundary specifies the color of the boundary edges given
-      their marker value.  The [None] return value means that that
-      border should not be printed. *)
+      their marker value.  Returning [None] means that one does not
+      want the border with that marker to be printed. *)
 
 
 (** {2 Scilab} *)
