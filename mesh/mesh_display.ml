@@ -18,6 +18,7 @@
 
 (** Displaying the mesh with Graphics *)
 
+open Printf
 open Bigarray
 open Graphics
 open Mesh
