@@ -1,4 +1,4 @@
-(* Easymesh.mli                    Time-stamp: <2008-05-27 00:42:36 trch>
+(* Easymesh.mli                    Time-stamp: <2008-05-29 18:29:12 trch>
 
   Copyright (C) 2001-2004
 
@@ -39,6 +39,9 @@ val triangulate : max_area:float -> 'layout Mesh.t -> 'layout Mesh.t
       be delimited by a negatively orientated paths.
 
       [pslg.Mesh.points_marker] and [pslg.Mesh.segment_marker] may be set.
+
+      The returned mesh sets [point], [point_marker], [triangle],
+      [neighbor] and should genrally set [edge] and [edge_marker].
 
       @param max_area is given as an indication to the algorithm and
       may not be respected. *)
