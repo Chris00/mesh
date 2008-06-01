@@ -15,7 +15,8 @@ let bounding_box (mesh: mesh) =
   done;
   (!xmin, !xmax, !ymin, !ymax)
 
-let draw ?(width=600) ?(height=600) ?voronoi ?(segments=true) (mesh: mesh) =
+let draw ?(width=600) ?(height=600) ?(color=foreground) ?voronoi
+    ?(segments=true) ?point_marker_color (mesh: mesh) =
   let xmin, xmax, ymin, ymax = bounding_box mesh in
   let hx = float width /. (xmax -. xmin)
   and hy = float height /. (ymax -. ymin) in
@@ -32,6 +33,7 @@ let draw ?(width=600) ?(height=600) ?voronoi ?(segments=true) (mesh: mesh) =
   (* Triangles and Points *)
   let pt = mesh.point
   and triangle = mesh.triangle in
+  set_color color;
   for t = FST to LASTCOL(triangle) do
     (* Draw triangle [t]. *)
     let i0 = GET(triangle, FST,t)
@@ -51,8 +53,20 @@ let draw ?(width=600) ?(height=600) ?voronoi ?(segments=true) (mesh: mesh) =
       eprintf "mesh_display: triangle %i (%i,%i,%i): %s\n%!"
         t i0 i1 i2 (Printexc.to_string e)
   done;
+  let marker = match point_marker_color with
+    | None -> (fun _ _ _ -> ())
+    | Some c -> (fun m x y ->
+                   set_color c;
+                   let px = truncate((x -. xmin) *. hx) + xbd
+                   and py = truncate((y -. ymin) *. hy) + ybd in
+                   moveto px py;
+                   draw_string(string_of_int m);
+                   set_color color
+                ) in
   for i = FST to LASTCOL(pt) do
-    draw_pt (GET(pt, FST,i)) (GET(pt, SND,i))
+    let x = GET(pt, FST,i)  and y = GET(pt, SND,i) in
+    draw_pt x y;
+    marker mesh.point_marker.{i} x y
   done;
   (* Voronoi diagram *)
   begin match voronoi with

@@ -18,19 +18,23 @@
 
 
 val draw :
-  ?width:int -> ?height:int -> ?voronoi:'a Mesh.voronoi -> ?segments:bool ->
+  ?width:int -> ?height:int -> ?color: int -> ?voronoi:'a Mesh.voronoi ->
+  ?point_marker_color: int -> ?segments:bool ->
   'a Mesh.t -> unit
   (** [draw mesh] display the mesh on the current OCaml Graphics
-      window with the bottom left corner at the current position.  The
-      mesh is drawn with the current color.
+      window with the bottom left corner at the current position.
 
-      @param width the width (in pixels) of the mesh image.
-      @param height the height (in pixels) of the mesh image.
-      @param voronoi draw also the voronoi diagram given
-  *)
+      @param width the width (in pixels) of the mesh image (default: 600).
+      @param height the height (in pixels) of the mesh image (default: 600).
+      @param color the color to draw the mesh (default: the foreground color).
+      @param voronoi draw also the given voronoi diagram.
+      @param point_marker_color trigger the display of the point
+      markers with the color given (default: no markers). *)
 
 val display :
-  ?width:int -> ?height:int -> ?voronoi:'a Mesh.voronoi -> ?segments:bool ->
+  ?width:int -> ?height:int -> ?color: int -> ?voronoi:'a Mesh.voronoi ->
+  ?point_marker_color: int -> ?segments:bool ->
   'a Mesh.t -> unit
   (** [display mesh] open an OCaml graphic window and draw the mesh on
-      it.  *)
+      it.  See {!Mesh_display.draw} for the meaning of the optional
+      parameters. *)

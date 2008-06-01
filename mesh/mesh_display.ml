@@ -56,19 +56,23 @@ struct
 end
 
 
-let draw ?width ?height ?voronoi ?segments (mesh: 'a t) =
+let draw ?width ?height ?color ?voronoi ?point_marker_color ?segments
+    (mesh: 'a t) =
   if Mesh.is_c_layout mesh then
-    C.draw ?width ?height ?voronoi ?segments (Obj.magic mesh)
+    C.draw ?width ?height ?color ?voronoi ?point_marker_color ?segments
+      (Obj.magic mesh)
   else
-    F.draw ?width ?height ?voronoi ?segments (Obj.magic mesh)
+    F.draw ?width ?height ?color ?voronoi ?point_marker_color ?segments
+      (Obj.magic mesh)
 
-let display ?(width=600) ?(height=600) ?voronoi ?(segments=true) mesh =
+let display ?(width=600) ?(height=600) ?color ?voronoi ?point_marker_color
+    ?(segments=true) mesh =
   let xbd = 10 and ybd = 10 in
   (* Drawing itself *)
   open_graph (sprintf " %ix%i-40+40" (width + 2 * xbd) (height + 2 * ybd));
-  set_window_title("Mesh (" ^ Sys.argv.(0) ^ ")");
+  set_window_title("Mesh (" ^ Filename.basename Sys.argv.(0) ^ ")");
   moveto xbd ybd;
-  draw ~width ~height ?voronoi ~segments mesh;
+  draw ~width ~height ?color ?voronoi ?point_marker_color ~segments mesh;
   (* Wait for the key 'q' to be pressed. *)
   try
     while true do
