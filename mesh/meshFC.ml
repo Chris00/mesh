@@ -71,6 +71,29 @@ plot3d(xf, yf, zf)\n" sci xf yf zf;
   save_mat yf (fun i -> GET(pt, SND,i));
   save_mat zf (fun i -> z.{i})
 
+let matlab (mesh: mesh) (z: vec) fname =
+  let fname = try Filename.chop_extension fname with _ -> fname in
+  let pt = mesh.point in
+  let save_xy fh coord =
+    for p = FST to LASTCOL(pt) do fprintf fh "%.13g " (GET(pt, coord,p)) done;
+    fprintf fh "\n" in
+  let mat = fname ^ ".m" in
+  let fh = open_out mat in
+  fprintf fh "%% Created by the OCaml Mesh module (run %s)\nmesh_x = [" mat;
+  save_xy fh FST;
+  fprintf fh "];\nmesh_y = [";
+  save_xy fh SND;
+  fprintf fh "];\nmesh_z = [";
+  for i = FST to LASTEL(z) do fprintf fh "%.13f " z.{i} done;
+  fprintf fh "];\nmesh_triangles = [";
+  let tr = mesh.triangle in
+  for t = FST to LASTCOL(mesh.triangle) do
+    fprintf fh "%i %i %i; " (GET(tr, FST,t)) (GET(tr, SND,t)) (GET(tr, THIRD,t))
+    done;
+  fprintf fh "];\ntrisurf(mesh_triangles, mesh_x, mesh_y, mesh_z);\n";
+  close_out fh
+;;
+
 
 let level_curves ?(boundary=(fun _ -> Some "black")) (mesh: mesh) (z: vec)
     levels fname =

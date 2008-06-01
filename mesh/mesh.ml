@@ -163,6 +163,7 @@ struct
   DEFINE SND = 2;;
   DEFINE THIRD = 3;;
   DEFINE LASTCOL(a) = Array2.dim2 a;;
+  DEFINE LASTEL(v) = Array1.dim v;;
   DEFINE GET(a,i,j) = a.{i,j};;
   INCLUDE "meshFC.ml";;
 end
@@ -177,6 +178,7 @@ struct
   DEFINE SND = 1;;
   DEFINE THIRD = 2;;
   DEFINE LASTCOL(a) = Array2.dim1 a - 1;;
+  DEFINE LASTEL(v) = Array1.dim v - 1;;
   DEFINE GET(a,i,j) = a.{j,i};;
   INCLUDE "meshFC.ml";;
 end
@@ -188,12 +190,16 @@ let latex mesh filename =
   if is_c_layout mesh then C.latex (Obj.magic mesh) filename
   else F.latex (Obj.magic mesh) filename
 
-let scilab (mesh: 'a t) (z: 'a vec) filename =
-  if is_c_layout mesh then C.scilab (Obj.magic mesh) (Obj.magic z) filename
-  else F.scilab (Obj.magic mesh) (Obj.magic z) filename
-
 let level_curves ?boundary (mesh: 'a t) (z: 'a vec) levels filename =
   if is_c_layout mesh then
     C.level_curves ?boundary (Obj.magic mesh) (Obj.magic z) levels filename
   else
     F.level_curves ?boundary (Obj.magic mesh) (Obj.magic z) levels filename
+
+let scilab (mesh: 'a t) (z: 'a vec) filename =
+  if is_c_layout mesh then C.scilab (Obj.magic mesh) (Obj.magic z) filename
+  else F.scilab (Obj.magic mesh) (Obj.magic z) filename
+
+let matlab (mesh: 'a t) (z: 'a vec) filename =
+  if is_c_layout mesh then C.matlab (Obj.magic mesh) (Obj.magic z) filename
+  else F.matlab (Obj.magic mesh) (Obj.magic z) filename

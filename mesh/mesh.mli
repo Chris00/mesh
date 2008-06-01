@@ -1,4 +1,4 @@
-(* Mesh.mli                       Time-stamp: <2008-05-27 23:52:30 trch>
+(* Mesh.mli                       Time-stamp: <2008-06-01 15:35:01 trch>
 
   Copyright (C) 2001-2004
 
@@ -102,6 +102,10 @@ val is_c_layout : 'l t -> bool
   (** [is_c_layout] returns true if the mesh layout is C. *)
 
 
+(** {2 Level curves} *)
+
+
+
 (** {2 LaTeX output}
 
     The LaTex output is given in terms of three macros [\meshline],
@@ -136,3 +140,11 @@ val scilab : 'l t -> 'l vec -> string -> unit
       Scilab runs the created [file].sci script, the graph of the
       function is drawn. *)
 
+(** {2 Matlab} *)
+
+val matlab : 'l t -> 'l vec -> string -> unit
+  (** [matlab mesh z file] saves the mesh data and the function values
+      [z] (i.e. [z.{i}] is the function value at the point
+      [mesh.point.{_,i}] (fortran layout)) on that mesh so that when
+      Matlab runs the created [file].m script, the graph of the
+      function is drawn. *)
