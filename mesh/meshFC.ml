@@ -42,7 +42,7 @@ let latex (mesh: mesh) filename =
 
 
 let scilab (mesh: mesh) (z: vec) fname =
-  let fname = Filename.chop_extension fname in
+  let fname = try Filename.chop_extension fname with _ -> fname in
   let sci = fname ^ ".sci"
   and xf = fname ^ "_x.dat"
   and yf = fname ^ "_y.dat"
