@@ -1,11 +1,11 @@
 (* FORTRAN/C functions *)
 
 (* Write the [pslg] to the channel [fh]. *)
-let output_pslg fh (pslg: mesh) area =
-  let pt = pslg.point
-  and seg = pslg.segment
-  and pt_marker = pslg.point_marker
-  and seg_marker = pslg.segment_marker in
+let output_pslg fh (pslg: pslg) area =
+  let pt = pslg#point
+  and seg = pslg#segment
+  and pt_marker = pslg#point_marker
+  and seg_marker = pslg#segment_marker in
   let pt_marker =
     if Array1.dim pt_marker > 0 then (fun i -> pt_marker.{i})
     else (fun i -> 1) in
@@ -33,26 +33,26 @@ let output_pslg fh (pslg: mesh) area =
    [fname].e and [fname].s and creates a mesh struture with fortran
    layout.  This function can throw a variety of exceptions depending
    of what goes wrong.  *)
-let read fname =
+let read (pslg: pslg) fname : mesh =
   (* Read nodes *)
   let fh = open_in (fname ^ ".n") in
   let nnodes = int_of_string(input_line fh) in
   let pt = CREATE_MAT(float64, 2, nnodes) in
-  let pt_mark = CREATE_VEC(int, nnodes) in
+  let pt_marker = CREATE_VEC(int, nnodes) in
   let sb = Scanning.from_channel fh in
   for i = FST to LASTCOL(pt) do
     bscanf sb " %i: %g %g %i" (fun i x y m ->
                                  let i = TO_IDX(i) in
                                  GET(pt, FST,i) <- x;
                                  GET(pt, SND,i) <- y;
-                                 pt_mark.{i} <- m)
+                                 pt_marker.{i} <- m)
   done;
   close_in fh;
   (* Read triangles *)
   let fh = open_in (fname ^ ".e") in
   let n = int_of_string(input_line fh) in
   let tr = CREATE_MAT(int, 3, n)
-  and tr_nb = CREATE_MAT(int, 3, n) in
+  and tr_nbh = CREATE_MAT(int, 3, n) in
   let sb = Scanning.from_channel fh in
   for i = FST to LASTCOL(tr) do
     bscanf sb " %i: %i %i %i %i %i %i %_i %_i %_i %_f %_f %_i"
@@ -61,9 +61,9 @@ let read fname =
          GET(tr, 1,e) <- TO_IDX(i);
          GET(tr, 2,e) <- TO_IDX(j);
          GET(tr, 3,e) <- TO_IDX(k);
-         GET(tr_nb, 1,e) <- TO_IDX(ei);
-         GET(tr_nb, 2,e) <- TO_IDX(ej);
-         GET(tr_nb, 3,e) <- TO_IDX(ek);
+         GET(tr_nbh, 1,e) <- TO_IDX(ei);
+         GET(tr_nbh, 2,e) <- TO_IDX(ej);
+         GET(tr_nbh, 3,e) <- TO_IDX(ek);
       )
   done;
   close_in fh;
@@ -83,18 +83,41 @@ let read fname =
                                         )
     done;
     close_in fh;
-    { (Mesh.empty LAYOUT) with
-        point = pt;
-        point_marker = pt_mark;
-        triangle = tr;
-        neighbor = tr_nb;
-        edge = edge;
-        edge_marker = edge_marker;
-    }
+    (object
+       method point = pt;
+       method point_marker = pt_marker;
+       method triangle = tr;
+       method neighbor = tr_nbh;
+       method edge = edge;
+       method edge_marker = edge_marker;
+       method segment = pslg#segment
+       method segment_marker = pslg#segment_marker
+       method hole = pslg#hole
+       method region = pslg#region
+     end)
   with Sys_error _ ->
-    { (Mesh.empty LAYOUT) with
-        point = pt;
-        point_marker = pt_mark;
-        triangle = tr;
-        neighbor = tr_nb;
-    }
+    (object
+       method point = pt;
+       method point_marker = pt_marker;
+       method triangle = tr;
+       method neighbor = tr_nbh;
+       method edge = CREATE_MAT(int, 2, 0)
+       method edge_marker = CREATE_VEC(int, 0)
+       method segment = pslg#segment
+       method segment_marker = pslg#segment_marker
+       method hole = pslg#hole
+       method region = pslg#region
+     end)
+
+let empty_pslg : pslg =
+  let empty_mat = CREATE_MAT(float64, 2, 0)
+  and empty_int_mat = CREATE_MAT(int, 2, 0)
+  and empty_vec = CREATE_VEC(int, 0) in
+  (object
+     method point = empty_mat
+     method point_marker = empty_vec
+     method segment = empty_int_mat
+     method segment_marker = empty_vec
+     method hole = empty_mat
+     method region = empty_mat
+   end)

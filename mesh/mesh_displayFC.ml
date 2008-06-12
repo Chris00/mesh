@@ -1,6 +1,6 @@
 (** Return the smaller box (xmin, xmax, ymin, ymax) containing the [mesh]. *)
 let bounding_box (mesh: mesh) =
-  let pt = mesh.point in
+  let pt = mesh#point in
   let xmin = ref infinity
   and xmax = ref neg_infinity
   and ymin = ref infinity
@@ -31,8 +31,8 @@ let draw ?(width=600) ?(height=600) ?(color=foreground) ?voronoi
     and y1 = truncate((y1 -. ymin) *. hy) + ybd in
     draw_segments [| (x0, y0, x1, y1) |] in
   (* Triangles and Points *)
-  let pt = mesh.point
-  and triangle = mesh.triangle in
+  let pt = mesh#point
+  and triangle = mesh#triangle in
   set_color color;
   for t = FST to LASTCOL(triangle) do
     (* Draw triangle [t]. *)
@@ -63,10 +63,11 @@ let draw ?(width=600) ?(height=600) ?(color=foreground) ?voronoi
                    draw_string(string_of_int m);
                    set_color color
                 ) in
+  let pt_marker = mesh#point_marker in
   for i = FST to LASTCOL(pt) do
     let x = GET(pt, FST,i)  and y = GET(pt, SND,i) in
     draw_pt x y;
-    marker mesh.point_marker.{i} x y
+    marker pt_marker.{i} x y
   done;
   (* Voronoi diagram *)
   begin match voronoi with

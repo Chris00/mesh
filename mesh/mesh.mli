@@ -1,4 +1,4 @@
-(* Mesh.mli                       Time-stamp: <2008-06-01 15:35:01 trch>
+(* Mesh.mli                       Time-stamp: <2008-06-12 22:25:37 trch>
 
   Copyright (C) 2001-2004
 
@@ -19,13 +19,11 @@
    Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
    02111-1307, USA.
 *)
-(**
-  Generic mesh structure to be used with various meshers.
+(** Generic mesh structure to be used with various meshers.  It also
+    defines some functions to help to display and design geometries.
 
-  It also define a group of functions to help to design geometries.
-
-  @version 0.7
-  @author Christophe Troestler (Christophe.Troestler(at)umh.ac.be)
+    @version 0.7
+    @author Christophe Troestler <Christophe.Troestler\@umh.ac.be>
 *)
 
 open Bigarray
@@ -41,64 +39,77 @@ type 'layout int_vec = (int, int_elt, 'layout) Array1.t
 type 'layout int_mat = (int, int_elt, 'layout) Array2.t
     (** Integer matrix (parametrized by the layout). *)
 
-(** Record of arrays describing various caracteristics of a mesh.
+(** Planar Straight Line Graph datastructure. *)
+class type ['layout] pslg =
+object
+  method point : 'layout mat
+    (** Array of points coordinates (x,y).  It is of size 2 * n
+        (fortran_layout) where n >= 3 is the number of points.  So the
+        coordinates of point number [i] are [(point.{1,i},
+        point.{2,i})]. *)
+  method point_marker : 'layout int_vec
+    (** Array of points markers.  Points inside the domain receive the
+        marker 0, so assign markers [>= 1] to distinguish different
+        parts of the boundary.  It must either be empty (in which case
+        it is equivalent to all the markers being 1), or it must be of
+        size n, where n is the number of points.  *)
 
-    The two dimensional arrays of the record are described for the
-    [fortran_layout].  If you use a [c_layout], they are transposed:
-    for example [point] is of size n * 2 and the coordinates of point
-    [i] are given by [(point.{i,0}, point.{i,1})]. *)
-type 'layout t = {
-  point : 'layout mat;
-  (** Array of points coordinates (x,y).  It is of size 2 * n
-      (fortran_layout) where n >= 3 is the number of points.  So the
-      coordinates of point number [i] are [(point.{1,i}, point.{2,i})]. *)
-  point_marker : 'layout int_vec;
-  (** Array of points markers.  Points inside the domain receive the
-      marker 0, so assign markers [>= 1] to distinguish different
-      parts of the boundary.  It must either be empty (in which case
-      it is equivalent to all the markers being 1), or it must be of
-      size n, where n is the number of points.  *)
-  triangle : 'layout int_mat;
-  (** Array of triangle corners: for each triangle, give the 3 corners
-      followed by other nodes if the triangle represents a nonlinear
-      element.  Its size is c * n (fortran_layout) where n > 0 is the
-      number of triangles and c >= 3 is the number of nodes. *)
-  neighbor : 'layout int_mat;
-  (** Array of triangle neighbors; 3 int per triangle.  It is of size
-      3 * n (fortran_layout) where n is 0 (i.e., neighbouring
-      information is not given) or the number of triangles. *)
-  edge : 'layout int_mat;
-  (** Array of edge endpoints; 2 int per edge.  It is of size 2 * n
-      (fortran_layout) where n > 0 is the number of edges. *)
-  edge_marker : 'layout int_vec;
-  (** Array of edge markers.  It must either be empty (in which case
-      it is equivalent to all the markers being 1), or it must be of
-      size n, where n is the number of edges.  *)
+  method segment : 'layout int_mat
+    (** Array of segments endpoints; 2 int per segment.  Segments are
+        edges whose presence in the triangulation is enforced (although
+        each segment may be subdivided into smaller edges).  It is of
+        size 2 * n (fortran_layout) for some n >= 0. *)
+  method segment_marker : 'layout int_vec
+    (** Array of segment markers.  It must either be empty (in which
+        case it is equivalent to all the markers being 1), or it must be
+        of size n, where n is the number of segments.  *)
 
-  segment : 'layout int_mat;
-  (** Array of segments endpoints; 2 int per segment.  Segments are
-      edges whose presence in the triangulation is enforced (although
-      each segment may be subdivided into smaller edges).  It is of
-      size 2 * n (fortran_layout) for some n >= 0. *)
-  segment_marker : 'layout int_vec;
-  (** Array of segment markers.  It must either be empty (in which
-      case it is equivalent to all the markers being 1), or it must be
-      of size n, where n is the number of segments.  *)
-  hole : 'layout mat;
-  region : 'layout mat;
-}
+  method hole : 'layout mat
+  method region : 'layout mat
+end
 
-type 'layout voronoi = {
-  vor_point : 'layout mat;
-  vor_edge  : 'layout int_mat;
-  vor_normal: 'layout mat;
-}
+(** Object describing various caracteristics of a mesh.
 
-val empty : 'l layout -> 'l t
-  (** [empty layout] returns an empty mesh structure.  It is convenient
-      to use it as [{(empty layout) with point = ...}]. *)
+    The two dimensional arrays are described for the [fortran_layout].
+    If you use a [c_layout], they are transposed: for example [point]
+    is of size n * 2 and the coordinates of point [i] are given by
+    [(point.{i,0}, point.{i,1})]. *)
+class type ['layout] t =
+object
+  inherit ['layout] pslg
 
-val is_c_layout : 'l t -> bool
+  method triangle : 'layout int_mat
+    (** Array of triangle corners: for each triangle, give the 3 corners
+        followed by other nodes if the triangle represents a nonlinear
+        element.  Its size is c * n (fortran_layout) where n > 0 is the
+        number of triangles and c >= 3 is the number of nodes. *)
+  method neighbor : 'layout int_mat
+    (** Array of triangle neighbors; 3 int per triangle.  It is of size
+        3 * n (fortran_layout) where n is 0 (i.e., neighbouring
+        information is not given) or the number of triangles. *)
+  method edge : 'layout int_mat
+    (** Array of edge endpoints; 2 int per edge.  It is of size 2 * n
+        (fortran_layout) where n > 0 is the number of edges. *)
+  method edge_marker : 'layout int_vec
+    (** Array of edge markers.  It must either be empty (in which case
+        it is equivalent to all the markers being 1), or it must be of
+        size n, where n is the number of edges.  *)
+end
+
+(** Voronoi diagram. *)
+class type ['layout] voronoi =
+object
+  method point : 'layout mat
+    (** Array of points coordinates (x,y).  It is of size 2 * n
+        (fortran_layout) where n is the number of points.  So the
+        coordinates of point number [i] are [(point.{1,i},
+        point.{2,i})]. *)
+  method edge  : 'layout int_mat
+  method normal: 'layout mat
+end
+
+
+val is_c_layout : 'l pslg -> bool
   (** [is_c_layout] returns true if the mesh layout is C. *)
 
 

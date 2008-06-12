@@ -1,3 +1,4 @@
+(*pp camlp4o pa_macro.cmo *)
 (* File: mesh.ml
 
    Copyright (C) 2006
@@ -25,45 +26,32 @@ type 'layout mat = (float, float64_elt, 'layout) Array2.t
 type 'layout int_vec = (int, int_elt, 'layout) Array1.t
 type 'layout int_mat = (int, int_elt, 'layout) Array2.t
 
-type 'layout t = {
-  point : (float, float64_elt, 'layout) Array2.t;
-  point_marker : (int, int_elt, 'layout) Array1.t;
-  triangle : (int, int_elt, 'layout) Array2.t;
-  neighbor : (int, int_elt, 'layout) Array2.t;
-  edge : (int, int_elt, 'layout) Array2.t;
-  edge_marker : (int, int_elt, 'layout) Array1.t;
+class type ['layout] pslg =
+object
+  method point : 'layout mat
+  method point_marker : 'layout int_vec
+  method segment : 'layout int_mat
+  method segment_marker : 'layout int_vec
+  method hole : 'layout mat
+  method region : 'layout mat
+end
 
-  segment : (int, int_elt, 'layout) Array2.t;
-  segment_marker : (int, int_elt, 'layout) Array1.t;
-  hole : (float, float64_elt, 'layout) Array2.t;
-  region : (float, float64_elt, 'layout) Array2.t;
-}
+class type ['layout] t =
+object
+  inherit ['layout] pslg
 
+  method triangle : 'layout int_mat
+  method neighbor : 'layout int_mat
+  method edge : 'layout int_mat
+  method edge_marker : 'layout int_vec
+end
 
-let empty layout =
-  let empty_array = Array2.create float64 layout 0 0
-  and empty_int_array = Array2.create int layout 0 0
-  and empty_int_vec =  Array1.create int layout 0 in
-  {
-    point = empty_array;
-    point_marker = empty_int_vec;
-    triangle = empty_int_array;
-    neighbor = empty_int_array;
-    edge = empty_int_array;
-    edge_marker = empty_int_vec;
-
-    segment = empty_int_array;
-    segment_marker = empty_int_vec;
-    hole = empty_array;
-    region = empty_array;
-  }
-
-
-type 'layout voronoi = {
-  vor_point : (float, float64_elt, 'layout) Array2.t;
-  vor_edge : (int, int_elt, 'layout) Array2.t;
-  vor_normal : (float, float64_elt, 'layout) Array2.t;
-}
+class type ['layout] voronoi =
+object
+  method point : 'layout mat
+  method edge  : 'layout int_mat
+  method normal: 'layout mat
+end
 
 
 
@@ -183,23 +171,26 @@ struct
   INCLUDE "meshFC.ml";;
 end
 
-let is_c_layout mesh =
-  Array2.layout mesh.point = (Obj.magic c_layout : 'a Bigarray.layout)
+let is_c_layout (mesh: _ pslg) =
+  Array2.layout mesh#point = (Obj.magic c_layout : 'a Bigarray.layout)
 
-let latex mesh filename =
-  if is_c_layout mesh then C.latex (Obj.magic mesh) filename
+let latex (mesh: _ t) filename =
+  if is_c_layout(mesh :> _ pslg)
+  then C.latex (Obj.magic mesh) filename
   else F.latex (Obj.magic mesh) filename
 
 let level_curves ?boundary (mesh: 'a t) (z: 'a vec) levels filename =
-  if is_c_layout mesh then
+  if is_c_layout(mesh :> _ pslg) then
     C.level_curves ?boundary (Obj.magic mesh) (Obj.magic z) levels filename
   else
     F.level_curves ?boundary (Obj.magic mesh) (Obj.magic z) levels filename
 
 let scilab (mesh: 'a t) (z: 'a vec) filename =
-  if is_c_layout mesh then C.scilab (Obj.magic mesh) (Obj.magic z) filename
+  if is_c_layout(mesh :> _ pslg)
+  then C.scilab (Obj.magic mesh) (Obj.magic z) filename
   else F.scilab (Obj.magic mesh) (Obj.magic z) filename
 
 let matlab (mesh: 'a t) (z: 'a vec) filename =
-  if is_c_layout mesh then C.matlab (Obj.magic mesh) (Obj.magic z) filename
+  if is_c_layout(mesh :> _ pslg)
+  then C.matlab (Obj.magic mesh) (Obj.magic z) filename
   else F.matlab (Obj.magic mesh) (Obj.magic z) filename

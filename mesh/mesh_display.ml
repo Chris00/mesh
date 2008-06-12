@@ -58,7 +58,7 @@ end
 
 let draw ?width ?height ?color ?voronoi ?point_marker_color ?segments
     (mesh: 'a t) =
-  if Mesh.is_c_layout mesh then
+  if Mesh.is_c_layout(mesh :> _ Mesh.pslg) then
     C.draw ?width ?height ?color ?voronoi ?point_marker_color ?segments
       (Obj.magic mesh)
   else

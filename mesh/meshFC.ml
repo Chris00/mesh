@@ -7,9 +7,10 @@ let bounding_box (mesh: mesh) =
   and xmax = ref neg_infinity
   and ymin = ref infinity
   and ymax = ref neg_infinity in
-  for i = FST to LASTCOL(mesh.point) do
-    let x = GET(mesh.point, FST,i)
-    and y = GET(mesh.point, SND,i) in
+  let point = mesh#point in
+  for i = FST to LASTCOL(point) do
+    let x = GET(point, FST,i)
+    and y = GET(point, SND,i) in
     if x > !xmax then xmax := x;
     if x < !xmin then xmin := x;
     if y > !ymax then ymax := y;
@@ -22,20 +23,22 @@ let latex (mesh: mesh) filename =
   let xmin, xmax, ymin, ymax = bounding_box mesh in
   latex_begin fh (xmax -. xmin) (ymax -. ymin) xmin ymin;
   (* Write lines *)
-  fprintf fh "  %% %i edges\n" (NCOLS(mesh.triangle));
-  for e = FST to LASTCOL(mesh.edge) do
-    let i1 = GET(mesh.edge, FST,e)
-    and i2 = GET(mesh.edge, SND,e) in
-    let x1 = GET(mesh.point, FST,i1)
-    and y1 = GET(mesh.point, SND,i1)
-    and x2 = GET(mesh.point, FST,i2)
-    and y2 = GET(mesh.point, SND,i2) in
+  fprintf fh "  %% %i triangles\n" (NCOLS(mesh#triangle));
+  let edge = mesh#edge in
+  let pt = mesh#point in
+  for e = FST to LASTCOL(edge) do
+    let i1 = GET(edge, FST,e)
+    and i2 = GET(edge, SND,e) in
+    let x1 = GET(pt, FST,i1)
+    and y1 = GET(pt, SND,i1)
+    and x2 = GET(pt, FST,i2)
+    and y2 = GET(pt, SND,i2) in
     line fh "black" (x1, y1) (x2, y2)
   done;
   (* Write points *)
-  fprintf fh "  %% %i points\n" (NCOLS(mesh.point));
-  for i = FST to LASTCOL(mesh.point) do
-    point fh i (GET(mesh.point, FST,i)) (GET(mesh.point, SND,i));
+  fprintf fh "  %% %i points\n" (NCOLS(pt));
+  for i = FST to LASTCOL(pt) do
+    point fh i (GET(pt, FST,i)) (GET(pt, SND,i));
   done;
   latex_end fh;
   close_out fh
@@ -59,21 +62,22 @@ plot3d(xf, yf, zf)\n" sci xf yf zf;
     let fh = open_out fname in
     (* We traverse several times the triangles but Scilab will not
        have to transpose the matrices. *)
+    let triangle = mesh#triangle in
     for point = FST to THIRD do
-      for t = FST to LASTCOL(mesh.triangle) do
-        fprintf fh "%.13g " (coord (GET(mesh.triangle, point,t)))
+      for t = FST to LASTCOL(triangle) do
+        fprintf fh "%.13g " (coord (GET(triangle, point,t)))
       done;
       fprintf fh "\n";
     done;
     close_out fh in
-  let pt = mesh.point in
+  let pt = mesh#point in
   save_mat xf (fun i -> GET(pt, FST,i));
   save_mat yf (fun i -> GET(pt, SND,i));
   save_mat zf (fun i -> z.{i})
 
 let matlab (mesh: mesh) (z: vec) fname =
   let fname = try Filename.chop_extension fname with _ -> fname in
-  let pt = mesh.point in
+  let pt = mesh#point in
   let save_xy fh coord =
     for p = FST to LASTCOL(pt) do fprintf fh "%.13g " (GET(pt, coord,p)) done;
     fprintf fh "\n" in
@@ -86,8 +90,8 @@ let matlab (mesh: mesh) (z: vec) fname =
   fprintf fh "];\nmesh_z = [";
   for i = FST to LASTEL(z) do fprintf fh "%.13f " z.{i} done;
   fprintf fh "];\nmesh_triangles = [";
-  let tr = mesh.triangle in
-  for t = FST to LASTCOL(mesh.triangle) do
+  let tr = mesh#triangle in
+  for t = FST to LASTCOL(tr) do
     fprintf fh "%i %i %i; " (GET(tr, FST,t)) (GET(tr, SND,t)) (GET(tr, THIRD,t))
     done;
   fprintf fh "];\ntrisurf(mesh_triangles, mesh_x, mesh_y, mesh_z);\n";
@@ -101,25 +105,25 @@ let level_curves ?(boundary=(fun _ -> Some "black")) (mesh: mesh) (z: vec)
   let xmin, xmax, ymin, ymax = bounding_box mesh in
   latex_begin fh (xmax -. xmin) (ymax -. ymin) xmin ymin;
   (* Draw the boundaries *)
-  let edge = mesh.edge in
-  let marker = mesh.edge_marker in
+  let edge = mesh#edge in
+  let marker = mesh#edge_marker in
+  let pt = mesh#point in
   for e = FST to LASTCOL(edge) do
     let m = marker.{e} in
     if m <> 0 (* not an interior point *) then begin
       match boundary m with
       | None -> ()
       | Some color ->
-          let i1 = GET(mesh.edge, FST,e)
-          and i2 = GET(mesh.edge, SND,e) in
-          let x1 = GET(mesh.point, FST,i1)
-          and y1 = GET(mesh.point, SND,i1)
-          and x2 = GET(mesh.point, FST,i2)
-          and y2 = GET(mesh.point, SND,i2) in
+          let i1 = GET(edge, FST,e)
+          and i2 = GET(edge, SND,e) in
+          let x1 = GET(pt, FST,i1)
+          and y1 = GET(pt, SND,i1)
+          and x2 = GET(pt, FST,i2)
+          and y2 = GET(pt, SND,i2) in
           line fh color (x1, y1) (x2, y2)
     end
   done;
-  let tr = mesh.triangle in
-  let pt = mesh.point in
+  let tr = mesh#triangle in
   for t = FST to LASTCOL(tr) do
     let i1 = GET(tr, FST,t)
     and i2 = GET(tr, SND,t)

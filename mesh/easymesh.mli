@@ -1,4 +1,4 @@
-(* Easymesh.mli                    Time-stamp: <2008-05-29 18:29:12 trch>
+(* Easymesh.mli                    Time-stamp: <2008-06-12 22:30:30 trch>
 
   Copyright (C) 2001-2004
 
@@ -31,7 +31,7 @@
 *)
 
 
-val triangulate : max_area:float -> 'layout Mesh.t -> 'layout Mesh.t
+val triangulate : max_area:float -> 'layout Mesh.pslg -> 'layout Mesh.t
   (** [triangulate ~max_area pslg] returns a triangulation of the
       Planar Straight Line Graph [pslg] given by [pslg.Mesh.points]
       and [pslg.Mesh.segment].  BEWARE that for EasyMesh, the boundary
