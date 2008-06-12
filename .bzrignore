@@ -8,3 +8,5 @@
 *.com
 doc
 */.depend
+mesh/triangle
+mesh/triangle.zip
