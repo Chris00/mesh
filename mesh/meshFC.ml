@@ -29,16 +29,14 @@ let latex (mesh: mesh) filename =
   for e = FST to LASTCOL(edge) do
     let i1 = GET(edge, FST,e)
     and i2 = GET(edge, SND,e) in
-    let x1 = GET(pt, FST,i1)
-    and y1 = GET(pt, SND,i1)
-    and x2 = GET(pt, FST,i2)
-    and y2 = GET(pt, SND,i2) in
-    line fh "black" (x1, y1) (x2, y2)
+    let p1 = { x = GET(pt, FST,i1);  y = GET(pt, SND,i1) }
+    and p2 = { x = GET(pt, FST,i2);  y = GET(pt, SND,i2) } in
+    line fh "black" p1 p2
   done;
   (* Write points *)
   fprintf fh "  %% %i points\n" (NCOLS(pt));
   for i = FST to LASTCOL(pt) do
-    point fh i (GET(pt, FST,i)) (GET(pt, SND,i));
+    point_xy fh i (GET(pt, FST,i)) (GET(pt, SND,i));
   done;
   latex_end fh;
   close_out fh
@@ -100,93 +98,116 @@ let matlab (mesh: mesh) (z: vec) fname =
 
 
 let level_curves ?(boundary=(fun _ -> Some "black")) (mesh: mesh) (z: vec)
-    levels fname =
+    ?(level_eq=level_eq_default) levels fname =
   let fh = open_out fname in
   let xmin, xmax, ymin, ymax = bounding_box mesh in
   latex_begin fh (xmax -. xmin) (ymax -. ymin) xmin ymin;
-  (* Draw the boundaries *)
+  let bd = Edge.make() in
+  (* Draw the boundary edges *)
   let edge = mesh#edge in
   let marker = mesh#edge_marker in
   let pt = mesh#point in
   for e = FST to LASTCOL(edge) do
     let m = marker.{e} in
     if m <> 0 (* not an interior point *) then begin
+      let i1 = GET(edge, FST,e)
+      and i2 = GET(edge, SND,e) in
+      Edge.add bd i1 i2; (* collect boundary points *)
       match boundary m with
       | None -> ()
       | Some color ->
-          let i1 = GET(edge, FST,e)
-          and i2 = GET(edge, SND,e) in
-          let x1 = GET(pt, FST,i1)
-          and y1 = GET(pt, SND,i1)
-          and x2 = GET(pt, FST,i2)
-          and y2 = GET(pt, SND,i2) in
-          line fh color (x1, y1) (x2, y2)
+          let p1 = { x = GET(pt, FST,i1);  y = GET(pt, SND,i1) }
+          and p2 = { x = GET(pt, FST,i2);  y = GET(pt, SND,i2) } in
+          line fh color p1 p2
     end
   done;
   let tr = mesh#triangle in
+  let marker = mesh#point_marker in
   for t = FST to LASTCOL(tr) do
     let i1 = GET(tr, FST,t)
     and i2 = GET(tr, SND,t)
     and i3 = GET(tr, THIRD,t) in
-    let x1 = GET(pt, FST,i1)
-    and y1 = GET(pt, SND,i1)
+    let p1 = { x = GET(pt, FST,i1);  y = GET(pt, SND,i1) }
     and z1 = z.{i1} in
-    let x2 = GET(pt, FST,i2)
-    and y2 = GET(pt, SND,i2)
+    let p2 = { x = GET(pt, FST,i2);  y = GET(pt, SND,i2) }
     and z2 = z.{i2} in
-    let x3 = GET(pt, FST,i3)
-    and y3 = GET(pt, SND,i3)
+    let p3 = { x = GET(pt, FST,i3);  y = GET(pt, SND,i3) }
     and z3 = z.{i3} in
     List.iter
-      (fun l ->
-         (* Draw the level curve [l] on the triangle [t]. *)
-         if l < z1 then
-           if l < z2 then
-             if l > z3 then
-               line fh "black" (intercept x1 y1 z1 x3 y3 z3 l)
-                 (intercept x2 y2 z2 x3 y3 z3 l)
-             else if l = z3 then
-               point fh i3 x3 y3
-             else ()
-           else if l = z2 then
-             if l >= z3 then (* z3 <= l = z2 < z1 *)
-               line fh "black" (x2,y2) (intercept x1 y1 z1 x3 y3 z3 l)
-             else
-               point fh i2 x2 y2
-           else (* l > z2 *)
-             line fh "black" (intercept x1 y1 z1 x2 y2 z2 l)
-               (if l < z3 then      intercept x2 y2 z2 x3 y3 z3 l
-                else if l > z3 then intercept x1 y1 z1 x3 y3 z3 l
-                else (* l = z3 *)   (x3,y3))
-
-         else if l > z1 then
+      (fun (l, color) ->
+         (* Draw the level curve [l] on the triangle [t] except if
+            that curve is on the boundary. *)
+         if level_eq l z1 then (
+           if level_eq l z2 then (
+             if level_eq l z3 then
+               (* The entire triangle is at the same level.  Try to
+                  remove boundary edges. *)
+               if Edge.on bd i1 i2 then
+                 if Edge.on bd i1 i3 || Edge.on bd i2 i3 then
+                   triangle fh color p1 p2 p3 (* Full triangle ! *)
+                 else line fh color p3 (mid p1 p2)
+               else (* i1-i2 not on boundary *)
+                 if Edge.on bd i1 i3 then
+                   if Edge.on bd i2 i3 then triangle fh color p1 p2 p3
+                   else line fh color p2 (mid p1 p3)
+                 else (* i1-i3 not on boundary *)
+                   if Edge.on bd i2 i3 then line fh color p1 (mid p2 p3)
+                   else triangle fh color p1 p2 p3 (* Full triangle ! *)
+             else (* l = z1 = z2 <> z3 *)
+               if not(Edge.on bd i1 i2) then line fh color p1 p2
+           )
+           else (* l = z1 <> z2, z3 *)
+             if (z2 < l && l < z3) || (z3 < l && l < z2) then
+               line fh color p1 (intercept p2 z2 p3 z3 l)
+         )
+         else if l < z1 then (
+           if level_eq l z2 then
+             if level_eq l z3 then
+               (if not(Edge.on bd i2 i3) then line fh color p2 p3)
+             else if l > z3 then (* z3 < l = z2 < z1 *)
+               line fh color p2 (intercept p1 z1 p3 z3 l)
+             else (* isolated point, inside the domain *)
+               (if marker.{i2} = 0 then point fh i2 p2)
+           else if l < z2 then (
+             if level_eq l z3 then
+               (if marker.{i3} = 0 then point fh i3 p3)
+             else if l > z3 then
+               line fh color (intercept p1 z1 p3 z3 l) (intercept p2 z2 p3 z3 l)
+           )
+           else (* z2 < l < z1 *)
+             line fh color (intercept p1 z1 p2 z2 l)
+               (if level_eq l z3 then p3
+                else if l < z3 then intercept p2 z2 p3 z3 l
+                else (* l > z3 *)   intercept p1 z1 p3 z3 l)
+         )
+         else (* l > z1 *) (
            (* Symmetric of [l < z1] with all inequalities reversed *)
-           if l > z2 then
-             if l < z3 then
-               line fh "black" (intercept x1 y1 z1 x3 y3 z3 l)
-                 (intercept x2 y2 z2 x3 y3 z3 l)
-             else if l = z3 then
-               point fh i3 x3 y3
-             else ()
-           else if l = z2 then
-             if l <= z3 then (* z3 >= l = z2 > z1 *)
-               line fh "black" (x2,y2) (intercept x1 y1 z1 x3 y3 z3 l)
-             else
-               point fh i2 x2 y2
-           else (* l < z2 *)
-             line fh "black" (intercept x1 y1 z1 x2 y2 z2 l)
-               (if l > z3 then      intercept x2 y2 z2 x3 y3 z3 l
-                else if l < z3 then intercept x1 y1 z1 x3 y3 z3 l
-                else (* l = z3 *)   (x3,y3))
-
-         else (* l = z1 *)
-           if (z2 <= l && l < z3) || (z3 <= l && l < z2) then
-             line fh "black" (x1,y1) (intercept x2 y2 z2 x3 y3 z3 l)
-           else if l = z2 && l = z3 then
-             triangle fh "black" x1 y1 x2 y2 x3 y3 (* Full triangle ! *)
-           else ()
+           if level_eq l z2 then
+             if level_eq l z3 then
+               (if not(Edge.on bd i2 i3) then line fh color p2 p3)
+             else if l < z3 then (* z1 < l = z2 < z3 *)
+               line fh color p2 (intercept p1 z1 p3 z3 l)
+             else (* isolated point, inside the domain *)
+               (if marker.{i2} = 0 then point fh i2 p2)
+           else if l > z2 then (
+             if level_eq l z3 then
+               (if marker.{i3} = 0 then point fh i3 p3)
+             else if l < z3 then
+               line fh color (intercept p1 z1 p3 z3 l) (intercept p2 z2 p3 z3 l)
+           )
+           else (* z1 < l < z2 *)
+             line fh color (intercept p1 z1 p2 z2 l)
+               (if level_eq l z3 then p3
+                else if l > z3 then intercept p2 z2 p3 z3 l
+                else (* l < z3 *)   intercept p1 z1 p3 z3 l)
+         )
       ) levels
   done;
   (* Write trailer *)
   latex_end fh;
   close_out fh
+
+
+(* Local Variables: *)
+(* compile-command: "make -k" *)
+(* End: *)

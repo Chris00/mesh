@@ -1,4 +1,4 @@
-(* Mesh.mli                       Time-stamp: <2008-06-12 22:25:37 trch>
+(* Mesh.mli                       Time-stamp: <2008-11-10 21:55:44 trch>
 
   Copyright (C) 2001-2004
 
@@ -124,23 +124,38 @@ val is_c_layout : 'l pslg -> bool
     (filled) triangles.  The arguments of these macros are described
     by comments in the output.  If you do not provide your own
     implementations, default ones will be used.  *)
-
-val latex : 'l t -> string -> unit
+module LaTeX :
+sig
+  val save : 'l t -> string -> unit
   (** [latex mesh file] saves the mesh as LaTeX PGF commands.  You can
       input the file in a tikzpicture environment to render the mesh.
       You will need to use the package "tikz" -- which works for
       PostScript as well as PDF output.  *)
 
-val level_curves : ?boundary:(int -> string option) ->
-  'l t -> 'l vec -> float list -> string -> unit
-  (** [level_curves mesh z levels file] outputs into [file] LaTeX PGF
-      commands to display the level curves at [levels] of the FEM
-      surface with values [z] on the mesh [mesh].
+  val level_curves : ?boundary:(int -> string option) ->
+    'l t -> 'l vec -> ?level_eq:(float -> float -> bool) ->
+    (float * string) list -> string -> unit
+    (** [level_curves mesh z levels file] outputs into [file] LaTeX
+        PGF commands to display the level curves at [levels] of the P1
+        FEM surface with values [z] on the mesh [mesh].  Each level is
+        a couple [(l, c)] where [l] is the lavel value and [c] is the
+        color to be used to display it. The output is done as TeX
+        macros [\meshline{color}{x1}{y1}{x2}{y2}], [\meshpoint{point
+        number}{x}{y}] and
+        [\meshtriangle{color}{x1}{y1}{x2}{y2}{x3}{y3}], so it is
+        easily customizable from within LaTeX.  Default values for
+        these macros are provided if they are not defined.
 
-      @param boundary specifies the color of the boundary edges given
-      their marker value.  Returning [None] means that one does not
-      want the border with that marker to be printed. *)
+        @param boundary specifies the color of the boundary edges given
+        their marker value.  Returning [None] means that one does not
+        want the border with that marker to be printed.
 
+        @param level_eq an approximate equality for levels that are
+        judged not to be distinguishable.  It is expected that [l1 =
+        l2] implies [level_eq l1 l2].  This function is mainly used
+        not to draw the boundary edges at levels given in
+        [levels].  *)
+end
 
 (** {2 Scilab} *)
 
