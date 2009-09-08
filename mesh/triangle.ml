@@ -1,25 +1,62 @@
+(*pp camlp4o pa_macro.cmo *)
+(* File: triangle.ml
+
+   Copyright (C) 2009
+
+     Christophe Troestler <Christophe.Troestler@umons.ac.be>
+     WWW: http://math.umons.ac.be/an/software/
+
+   This library is free software; you can redistribute it and/or modify
+   it under the terms of the GNU Lesser General Public License version 3 or
+   later as published by the Free Software Foundation, with the special
+   exception on linking described in the file LICENSE.
+
+   This library is distributed in the hope that it will be useful, but
+   WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the file
+   LICENSE for more details. *)
+
 open Bigarray
 
 type 'l voronoi = {
-  vor_point : 'l array2;
-  vor_point_attribute : 'l array2;
-  vor_edge : 'l int_array2;
-  vor_normal : 'l array2;
+  vor_point : 'l Mesh.mat;
+  vor_point_attribute : 'l Mesh.mat;
+  vor_edge : 'l Mesh.int_mat;
+  vor_normal : 'l Mesh.mat;
 }
 
 
 type triunsuitable =
     float -> float -> float -> float -> float -> float -> float -> bool
 
-external triangulate_c : string -> 'l t -> 'l vec (* trianglearea *)
-  -> 'l t * 'l voronoi = "triangulate_c_layout"
-
-external triangulate_fortran : string -> 'l t -> 'l vec (* trianglearea *)
-  -> 'l t * 'l voronoi = "triangulate_fortran_layout"
-
 let triunsuitable : triunsuitable -> unit =
   Callback.register "triunsuitable_callback"
 
+module F =
+struct
+  external triangle :
+    string ->                           (* options *)
+    'l Mesh.t ->
+    'l vec                              (* trianglearea *)
+     -> 'l Mesh.t * 'l voronoi = "triangulate_fortran_layout"
+
+  DEFINE NCOLS(a) = Array2.dim2 a;;
+  DEFINE NROWS(a) = Array2.dim1 a;;
+  DEFINE COLS = "dim2";;
+  DEFINE ROWS = "dim1";;
+  INCLUDE "triangleFC.ml";;
+end
+
+module C =
+struct
+  external triangle : string -> 'l Mesh.t -> 'l vec (* trianglearea *)
+  -> 'l Mesh.t * 'l voronoi = "triangulate_c_layout"
+  DEFINE NCOLS(a) = Array2.dim1 a;;
+  DEFINE NROWS(a) = Array2.dim2 a;;
+  DEFINE COLS = "dim1";;
+  DEFINE ROWS = "dim2";;
+  INCLUDE "triangleFC.ml";;
+end
 
 let invalid_arg m = invalid_arg ("Mesh.triangulate: " ^ m)
 

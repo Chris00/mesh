@@ -18,7 +18,7 @@
 #define REAL double
 #define PREC BIGARRAY_FLOAT64
 #endif /* SINGLE */
-#include <triangle.h>
+#include "triangle/triangle.h"
 
 #define INT BIGARRAY_CAML_INT
 #define REAL_BIGARRAY_VAL(v) ((REAL *) Data_bigarray_val(v))
@@ -52,7 +52,7 @@
 #endif
 
 
-/* WARNING: Keep in sync with ['l t] Caml data type -- same order */
+/* WARNING: Keep in sync with ['l Mesh.t] Caml data type -- same order */
 #define POINT_VAL(v) REAL_BIGARRAY_VAL(Field(v,0))
 #define POINT_ARR(v) Bigarray_val(Field(v,0))
 #define POINT_ATTRIBUTE_VAL(v) REAL_BIGARRAY_VAL(Field(v,1))

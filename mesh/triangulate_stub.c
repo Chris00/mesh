@@ -1,8 +1,6 @@
-CAMLprim value NAME(
-  value switches,
-  value mesh_in,
-  value triangle_area
-  )
+CAMLexport value NAME(value switches,
+                      value mesh_in,
+                      value triangle_area)
 {
   CAMLparam3(switches, mesh_in, triangle_area);
   CAMLlocal3(mesh_out, vor_out, tuple);
