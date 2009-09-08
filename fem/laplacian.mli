@@ -47,7 +47,7 @@ val solve : t -> vec -> unit
       condition is imposed at node [i], the value of [b.{i}] will be
       ignored.  The solution satisfies the boundary conditions.  *)
 
-val nonlin : ?y:vec -> t -> (float -> float -> float -> float) -> (vec -> vec)
+val nonlin : ?y:vec -> t -> (float -> float -> float -> float) -> vec -> vec
   (** [nonlin ?y lap f] returns a function [fm] such that [fm u]
       computes the vector corresponding to the FEM weak form of the
       non-linearity [f x y u]. *)
@@ -63,8 +63,11 @@ val inner : t -> vec -> vec -> float
       constants). *)
 
 val norm2 : t -> vec -> float
+  (** [norm2 lap u] is the square norm of [u] (it is a shortcut for
+      [inner lap u u]). *)
 
 val norm : t -> vec -> float
+  (** [norm lap u] is the norm of [u] (it is a shortcut for [sqrt(norm lap u]). *)
 
 val pos : vec -> vec
   (** [pos u] returns the positive part of [u] (as a function),
