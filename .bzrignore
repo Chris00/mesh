@@ -11,3 +11,8 @@ doc
 ._d/
 mesh/triangle
 mesh/triangle.zip
+# LaTeX and AUCTeX
+*.aux
+*.log
+*.pdf
+auto/

@@ -26,20 +26,22 @@
   \pgfsetlinewidth{0.3pt}
   \pgfsetxvec{\pgfpoint{0.45\linewidth}{0mm}}
   \pgfsetyvec{\pgfpoint{0mm}{0.45\linewidth}}
-  \input testmesh.tex
+  \input /tmp/testmesh.tex
 \end{tikzpicture}
 \qquad
 \begin{tikzpicture}
   \pgfsetxvec{\pgfpoint{0.45\linewidth}{0mm}}
   \pgfsetyvec{\pgfpoint{0mm}{0.45\linewidth}}
-  \input levels.tex
+  \input /tmp/levels.tex
 \end{tikzpicture}
 
 
 % Include the EPS file of Scilab
-\rotatebox{-90}{%
-  \includegraphics[height=\linewidth]{triangle}%
-}
+\IfFileExists{triangle.eps}{%
+  \rotatebox{-90}{%
+    \includegraphics[height=\linewidth]{triangle}%
+  }%
+}{}
 
 \end{document}
 
