@@ -1,4 +1,4 @@
-(* Mesh.mli                       Time-stamp: <2008-11-10 21:55:44 trch>
+(* Mesh.mli                       Time-stamp: <2009-09-08 17:45:24 trch>
 
   Copyright (C) 2001-2004
 
@@ -39,33 +39,35 @@ type 'layout int_vec = (int, int_elt, 'layout) Array1.t
 type 'layout int_mat = (int, int_elt, 'layout) Array2.t
     (** Integer matrix (parametrized by the layout). *)
 
-(** Planar Straight Line Graph datastructure. *)
-class type ['layout] pslg =
+(** Planar Straight Line Graph datastructure.  By default, creating an
+    object from this class results in all methods being initialized
+    with empty arrays. *)
+class ['l] pslg : 'l layout ->
 object
-  method point : 'layout mat
+  method point : 'l mat
     (** Array of points coordinates (x,y).  It is of size 2 * n
         (fortran_layout) where n >= 3 is the number of points.  So the
         coordinates of point number [i] are [(point.{1,i},
         point.{2,i})]. *)
-  method point_marker : 'layout int_vec
+  method point_marker : 'l int_vec
     (** Array of points markers.  Points inside the domain receive the
         marker 0, so assign markers [>= 1] to distinguish different
         parts of the boundary.  It must either be empty (in which case
         it is equivalent to all the markers being 1), or it must be of
         size n, where n is the number of points.  *)
 
-  method segment : 'layout int_mat
+  method segment : 'l int_mat
     (** Array of segments endpoints; 2 int per segment.  Segments are
         edges whose presence in the triangulation is enforced (although
         each segment may be subdivided into smaller edges).  It is of
         size 2 * n (fortran_layout) for some n >= 0. *)
-  method segment_marker : 'layout int_vec
+  method segment_marker : 'l int_vec
     (** Array of segment markers.  It must either be empty (in which
         case it is equivalent to all the markers being 1), or it must be
         of size n, where n is the number of segments.  *)
 
-  method hole : 'layout mat
-  method region : 'layout mat
+  method hole : 'l mat
+  method region : 'l mat
 end
 
 (** Object describing various caracteristics of a mesh.

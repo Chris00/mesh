@@ -26,15 +26,16 @@ type 'layout mat = (float, float64_elt, 'layout) Array2.t
 type 'layout int_vec = (int, int_elt, 'layout) Array1.t
 type 'layout int_mat = (int, int_elt, 'layout) Array2.t
 
-class type ['layout] pslg =
+class ['l] pslg (layout : 'l layout) =
 object
-  method point : 'layout mat
-  method point_marker : 'layout int_vec
-  method segment : 'layout int_mat
-  method segment_marker : 'layout int_vec
-  method hole : 'layout mat
-  method region : 'layout mat
+  method point = Array2.create float64 layout 2 0
+  method point_marker = Array1.create int layout 0
+  method segment = Array2.create int layout 2 0
+  method segment_marker = Array1.create int layout 0
+  method hole = Array2.create float64 layout 2 0
+  method region = Array2.create float64 layout 2 0
 end
+
 
 class type ['layout] t =
 object
