@@ -132,9 +132,10 @@ let make ?(bc=(fun _ _ _ -> None)) (mesh: mesh) =
 let solve lap =
   let lap_copy = Mat.create (Mat.dim1 lap.lap) (Mat.dim2 lap.lap) in
   fun b ->
+    (* FIXME: should factorize the matrix once for all *)
     Array2.blit lap.lap lap_copy;
     List.iter (fun i -> b.{i} <- 0.) lap.bc_dirichlet;
-    axpy ~x:lap.bc_rhs b;
+    axpy b ~x:lap.bc_rhs;
     let rhs = reshape_2 (genarray_of_array1 b) (Array1.dim b) 1 in
     pbsv lap_copy rhs
 
