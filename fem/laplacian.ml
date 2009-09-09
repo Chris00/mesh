@@ -63,19 +63,20 @@ let inner_band_matrix (mesh: mesh) =
     let x32 = x3 -. x2  and y23 = y2 -. y3 in
     let x13 = x1 -. x3  and y31 = y3 -. y1 in
     let x21 = x2 -. x1  and y12 = y1 -. y2 in
-    let area = 0.5 *. abs_float(x21 *. y31 -. x13 *. y12) in
-    tr_area.{t} <- area;
+    let abs_det = abs_float(x21 *. y31 -. x13 *. y12) in
+    tr_area.{t} <- 0.5 *. abs_det;
+    let a = 0.5 /. abs_det in
     (* diagonal *)
-    im.{band, i1} <- im.{band, i1} +. (y23 *. y23 +. x32 *. x32) /. area;
-    im.{band, i2} <- im.{band, i2} +. (y31 *. y31 +. x13 *. x13) /. area;
-    im.{band, i3} <- im.{band, i3} +. (y12 *. y12 +. x21 *. x21) /. area;
-    (* above diag *)
+    im.{band, i1} <- im.{band, i1} +. (y23 *. y23 +. x32 *. x32) *. a;
+    im.{band, i2} <- im.{band, i2} +. (y31 *. y31 +. x13 *. x13) *. a;
+    im.{band, i3} <- im.{band, i3} +. (y12 *. y12 +. x21 *. x21) *. a;
+    (* above diag: k <= l => A(k,l) = im.{band + k - l, l} *)
     let j = band + i2 - i1 in
-    im.{j, i1} <- im.{j, i1} +. (y23 *. y31 +. x32 *. x13) /. area;
+    im.{j, i1} <- im.{j, i1} +. (y23 *. y31 +. x32 *. x13) *. a;
     let j = band + i3 - i1 in
-    im.{j, i1} <- im.{j, i1} +. (y23 *. y12 +. x32 *. x21) /. area;
+    im.{j, i1} <- im.{j, i1} +. (y23 *. y12 +. x32 *. x21) *. a;
     let j = band + i3 - i2 in
-    im.{j, i2} <- im.{j, i2} +. (y31 *. y12 +. x13 *. x21) /. area;
+    im.{j, i2} <- im.{j, i2} +. (y31 *. y12 +. x13 *. x21) *. a;
   done;
   im, tr_area
 
@@ -140,6 +141,8 @@ let solve lap =
 let mesh lap = lap.mesh
 
 let area lap t = lap.area.{t}
+
+let nnodes lap = Mat.dim2 lap.inner
 
 let inner lap (u: vec) (v: vec) = dot u (sbmv lap.inner v)
 
@@ -218,3 +221,14 @@ let neg u =
     if u.{i} > 0. then u.{i} <- 0.
   done;
   u'
+
+let vec_of_fun lap f =
+  let pt = lap.mesh#point in
+  let marker = lap.mesh#point_marker in
+  let nnodes = Mat.dim2 pt in
+  let u = Vec.create nnodes in
+  for i = 1 to nnodes do
+    if marker.{i} = 0 then u.{i} <- f pt.{1,i} pt.{2,i}
+    else u.{i} <- lap.bc_rhs.{i}
+  done;
+  u

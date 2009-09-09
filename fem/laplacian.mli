@@ -40,6 +40,11 @@ val area : t -> int -> float
   (** [area lap t] returns the area of the triangle nubered [t] in
       the underlying mesh. *)
 
+val nnodes : t -> int
+  (** The number of nodes, including the boundary ones (the vectors
+      must be of that size).  Note that for the dimension of the space
+      one must substract the number of Dirichlet boundary nodes.  *)
+
 val solve : t -> vec -> unit
   (** [solver lap b] solves the equation [- Laplacian(u) = b] and
       returns the answer in [b].  [b.{i}] is the coordinate in the FEM
@@ -68,6 +73,12 @@ val norm2 : t -> vec -> float
 
 val norm : t -> vec -> float
   (** [norm lap u] is the norm of [u] (it is a shortcut for [sqrt(norm lap u]). *)
+
+val vec_of_fun : t -> (float -> float -> float) -> vec
+  (** [vec_of_fun u] returns the P1 interpolation of the function [fun x
+      y -> u x y].  Regardless of whether [u] has the right values at
+      boundary points with Dirichlet boundary conditions, these are
+      enforced in the returned vector. *)
 
 val pos : vec -> vec
   (** [pos u] returns the positive part of [u] (as a function),
