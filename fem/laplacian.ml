@@ -210,18 +210,14 @@ let integrate lap f u =
 
 (* For P1 elements, the positive part can be computed node by node. *)
 let pos u =
-  let u' = copy u in
   for i = 1 to Vec.dim u do
     if u.{i} < 0. then u.{i} <- 0.
-  done;
-  u'
+  done
 
 let neg u =
-  let u' = copy u in
   for i = 1 to Vec.dim u do
     if u.{i} > 0. then u.{i} <- 0.
-  done;
-  u'
+  done
 
 let vec_of_fun lap f =
   let pt = lap.mesh#point in

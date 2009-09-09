@@ -80,10 +80,10 @@ val vec_of_fun : t -> (float -> float -> float) -> vec
       boundary points with Dirichlet boundary conditions, these are
       enforced in the returned vector. *)
 
-val pos : vec -> vec
-  (** [pos u] returns the positive part of [u] (as a function),
-      i.e. x -> max{u(x), 0}. *)
+val pos : vec -> unit
+  (** [pos u] project [u] on its positive part (as a function), i.e. x
+      -> max{u(x), 0}. *)
 
-val neg : vec -> vec
-  (** [neg u] returns the negative part of [u] (as a function),
-      i.e. x -> min{u(x), 0}. *)
+val neg : vec -> unit
+  (** [neg u] project [u] on its negative part (as a function), i.e. x
+      -> min{u(x), 0}. *)
