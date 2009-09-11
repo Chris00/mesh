@@ -150,9 +150,38 @@ let inner lap (u: vec) (v: vec) = dot u (sbmv lap.inner v)
 let norm2 lap u = inner lap u u
 let norm lap u = sqrt(inner lap u u)
 
+let dual lap ?y (u: vec) = sbmv ?y lap.inner u
+
+let add_inner ?(alpha=1.) lap m =
+  Mat.axpy m ~alpha ~x:lap.inner
+
+let solve_with_bc lap m b =
+  (* Modify the system to impose BC.  See [make] for further details. *)
+  let nnodes = Mat.dim2 lap.inner in
+  let band = Mat.dim1 lap.inner in
+  let modify i =
+    let v = lap.bc_rhs.{i} in
+    for k = 1 + max2 0 (band - i) to band - 1 do
+      let j = i - band + k in     (* above diag *)
+      b.{j} <- b.{j} -. m.{k,i} *. v;
+      m.{k,i} <- 0.;
+    done;
+    for k = max2 1 (i + band - nnodes) to band - 1 do
+      let j = i + band - k in     (* below diag *)
+      b.{j} <- b.{j} -. m.{k,j} *. v;
+      m.{k,j} <- 0.;
+    done;
+    b.{i} <- v;
+    m.{band, i} <- 1.;
+  in
+  List.iter modify lap.bc_dirichlet;
+  let rhs = reshape_2 (genarray_of_array1 b) (Array1.dim b) 1 in
+  pbsv m rhs
+
+
 (* let eigenvalues lap = *)
 (*   let im_copy = Mat.create (Mat.dim1 lap.im) (Mat.dim2 lap.im) in *)
-(*   sbev *)
+(* sbev *)
 
 (* Use the second order formula that estimates the integral of a
    function f over a triangle T as area/3 of the sum of the values of f
@@ -204,6 +233,42 @@ let integrate lap f u =
                                          +. f x23 y23 u23);
   done;
   !integ
+
+let hessian ?y lap f =
+  let m = match y with
+    | None -> Mat.create (Mat.dim1 lap.inner) (Mat.dim2 lap.inner)
+    | Some y -> y in
+  fun u ->
+    let band = Mat.dim1 m in
+    Array2.fill m 0.;
+    let tr = lap.mesh#triangle in
+    let pt = lap.mesh#point in
+    let area = lap.area in
+    for t = 1 to Array2.dim2 tr do
+      let i1 = tr.{1,t}   and i2 = tr.{2,t}  and i3 = tr.{3,t} in
+      let x1 = pt.{1,i1}  and y1 = pt.{2,i1} in
+      let x2 = pt.{1,i2}  and y2 = pt.{2,i2} in
+      let x3 = pt.{1,i3}  and y3 = pt.{2,i3} in
+      let x12 = 0.5 *. (x1 +. x2)  and y12 = 0.5 *. (y1 +. y2) in
+      let x13 = 0.5 *. (x1 +. x3)  and y13 = 0.5 *. (y1 +. y3) in
+      let x23 = 0.5 *. (x2 +. x3)  and y23 = 0.5 *. (y2 +. y3) in
+      let u12 = 0.5 *. (u.{i1} +. u.{i2})
+      and u13 = 0.5 *. (u.{i1} +. u.{i3})
+      and u23 = 0.5 *. (u.{i2} +. u.{i3}) in
+      let w = area.{t} /. 12. in
+      (* Diagonal *)
+      m.{band, i1} <- m.{band, i1} +. w *. (f x12 y12 u12 +. f x13 y13 u13);
+      m.{band, i2} <- m.{band, i2} +. w *. (f x12 y12 u12 +. f x23 y23 u23);
+      m.{band, i3} <- m.{band, i3} +. w *. (f x13 y13 u13 +. f x23 y23 u23);
+      (* Above diag *)
+      let j = band + i2 - i1 in
+      m.{j, i1} <- m.{j, i1} +. w *. f x12 y12 u12;
+      let j = band + i3 - i1 in
+      m.{j, i1} <- m.{j, i1} +. w *. f x13 y13 u13;
+      let j = band + i3 - i2 in
+      m.{j, i2} <- m.{j, i2} +. w *. f x23 y23 u23;
+    done;
+    y
 
 (* Use the formulas in "Symmetric quadrature rules on a triangle",
    S. Wandzurat* and H. Xiao, for a higher order integration scheme? *)

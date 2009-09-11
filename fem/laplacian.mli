@@ -18,8 +18,7 @@
 (** P1 functions on a mesh. *)
 
 open Bigarray
-
-type vec = (float, float64_elt, fortran_layout) Array1.t
+open Lacaml.Impl.D
 
 type t
 
@@ -48,18 +47,23 @@ val nnodes : t -> int
 val solve : t -> vec -> unit
   (** [solver lap b] solves the equation [- Laplacian(u) = b] and
       returns the answer in [b].  [b.{i}] is the coordinate in the FEM
-      basis corresponding to the node [i].  If a Dirichlet boundary
-      condition is imposed at node [i], the value of [b.{i}] will be
-      ignored.  The solution satisfies the boundary conditions.  *)
+      basis corresponding to the node [i], i.e. \int b \phi_i.  If a
+      Dirichlet boundary condition is imposed at node [i], the value
+      of [b.{i}] will be ignored.  The solution satisfies the boundary
+      conditions.  *)
+
+val integrate : t -> (float -> float -> float -> float) -> (vec -> float)
+  (** [integrate lap f u] integrate the function [f x y u] on the
+      whole domain, where [u] is a function defined on the mesh. *)
 
 val nonlin : ?y:vec -> t -> (float -> float -> float -> float) -> vec -> vec
   (** [nonlin ?y lap f] returns a function [fm] such that [fm u]
       computes the vector corresponding to the FEM weak form of the
       non-linearity [f x y u]. *)
 
-val integrate : t -> (float -> float -> float -> float) -> (vec -> float)
-  (** [integrate lap f u] integrate the function [f x y u] on the
-      whole domain, where [u] is a function defined on the mesh. *)
+val hessian : t -> (float -> float -> float -> float) -> (vec -> mat)
+  (** [hessian kap f u] returns the matrix of the Hessian assotiated
+      to [f], i.e. [int f(x,u) \phi_i \phi_j] *)
 
 val inner : t -> vec -> vec -> float
   (** [inner] returns the H^1_0 inner product on the mesh.  Note that
@@ -73,6 +77,21 @@ val norm2 : t -> vec -> float
 
 val norm : t -> vec -> float
   (** [norm lap u] is the norm of [u] (it is a shortcut for [sqrt(norm lap u]). *)
+
+val dual : t -> ?y:vec -> vec -> vec
+  (** [dual lap u] is the vector [inner lap u phi_i] where [phi_i]
+      runs through all the finite elements basis (including boundary
+      nodes). *)
+
+val add_inner : ?alpha:float -> t -> mat -> unit
+  (** [add_inner lap m] adds the inner product matrix to [m]. *)
+
+val solve_with_bc : t -> mat -> vec -> unit
+  (** [solve lap m v] solves the system [m * u = v] and store the
+      solution in [v].  The solution will satisfy the boundary
+      conditions of the space (only the equations that correspond to
+      non-Dirichlet boundary conditions are considered).  WARNING: the
+      matrix [m] is modified. *)
 
 val vec_of_fun : t -> (float -> float -> float) -> vec
   (** [vec_of_fun u] returns the P1 interpolation of the function [fun x
