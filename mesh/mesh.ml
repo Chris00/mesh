@@ -137,54 +137,6 @@ let triangle fh color {x=x1; y=y1} {x=x2; y=y2} {x=x3; y=y3} =
     color x1 y1 x2 y2 x3 y3
 
 
-(* Intersection of the curve et level [l] and the line passing through
-   (x1,y1) and (x2,y2).  [z1 <> z2] assumed. *)
-let intercept {x=x1; y=y1} z1 {x=x2; y=y2} z2 l =
-  let d = z1 -. z2 and a = l -. z2 and b = z1 -. l in
-  {x = (a *. x1 +. b *. x2) /. d;  y = (a *. y1 +. b *. y2) /. d }
-
-let mid p q = {x = 0.5 *. (p.x +. q.x);  y = 0.5 *. (p.y +. q.y) }
-
-let level_eq_default l1 l2 =
-  abs_float(l1 -. l2) <= 1E-8 *. (abs_float l1 +. abs_float l2)
-
-module M = Map.Make(struct
-                      type t = int
-                      let compare x y = compare (x:int) y
-                    end)
-
-(* Module to build a structure helping to determine when the segment
-   joining 2 points are on the boundary. *)
-module Edge =
-struct
-  let make() = ref M.empty
-
-  let add_edge t i1 i2 =
-    assert(i1 < i2);
-    try
-      let v = M.find i1 !t in
-      v := i2 :: !v
-    with Not_found ->
-      t := M.add i1 (ref [i2]) !t
-
-  (* Declare the segment joining the points of indexes [i1] and [i2]
-     as being part of the boundary.   It is auusmed that [i1 <> i2]. *)
-  let add t i1 i2 =
-    if i1 < i2 then add_edge t i1 i2 else add_edge t i2 i1
-
-  let on_boundary t i1 i2 =
-    assert(i1 < i2);
-    try
-      let v = M.find i1 !t in List.mem i2 !v
-    with Not_found -> false
-
-  (* Tells whether the segment (if any) joining the points of indices
-     [i1] and [i2] is on the boundary (according to the information in
-     [t]).  It is assumed that [i1 <> i2]. *)
-  let on t i1 i2 =
-    if i1 < i2 then on_boundary t i1 i2 else on_boundary t i2 i1
-end;;
-
 (* Functions for fortran layout.
  ***********************************************************************)
 

@@ -34,6 +34,8 @@ open Mesh
 module F =
 struct
   type mesh = fortran_layout t;;
+  type 'a vector = 'a vec               (* global vec *)
+  type vec = fortran_layout vector;;  (* local vec *)
   DEFINE NCOLS(a) = Array2.dim2 a;;
   DEFINE FST = 1;;
   DEFINE SND = 2;;
@@ -46,6 +48,8 @@ end
 module C =
 struct
   type mesh = c_layout t;;
+  type 'a vector = 'a vec               (* global vec *)
+  type vec = c_layout vector;;
   DEFINE NCOLS(a) = Array2.dim1 a;;
   DEFINE FST = 0;;
   DEFINE SND = 1;;
@@ -65,14 +69,13 @@ let draw ?width ?height ?color ?voronoi ?point_marker_color ?segments
     F.draw ?width ?height ?color ?voronoi ?point_marker_color ?segments
       (Obj.magic mesh)
 
-let display ?(width=600) ?(height=600) ?color ?voronoi ?point_marker_color
-    ?(segments=true) mesh =
+let init_graph width height =
   let xbd = 10 and ybd = 10 in
   (* Drawing itself *)
   open_graph (sprintf " %ix%i-40+40" (width + 2 * xbd) (height + 2 * ybd));
-  set_window_title("Mesh (" ^ Filename.basename Sys.argv.(0) ^ ")");
-  moveto xbd ybd;
-  draw ~width ~height ?color ?voronoi ?point_marker_color ~segments mesh;
+  moveto xbd ybd
+
+let hold_graph () =
   (* Wait for the key 'q' to be pressed. *)
   try
     while true do
@@ -83,3 +86,22 @@ let display ?(width=600) ?(height=600) ?color ?voronoi ?point_marker_color
       );
     done
   with Exit -> ()
+
+let display ?(width=600) ?(height=600) ?color ?voronoi ?point_marker_color
+    ?(segments=true) mesh =
+  init_graph width height;
+  set_window_title("Mesh (" ^ Filename.basename Sys.argv.(0) ^ ")");
+  draw ~width ~height ?color ?voronoi ?point_marker_color ~segments mesh;
+  hold_graph()
+
+let level_curves ?(width=600) ?(height=600) ?boundary (mesh: 'a t) (z: 'a vec)
+    ?level_eq levels =
+  init_graph width height;
+  set_window_title("Level curves (" ^ Filename.basename Sys.argv.(0) ^ ")");
+  if Mesh.is_c_layout(mesh :> _ Mesh.pslg) then
+    C.level_curves ~width ~height ?boundary
+      (Obj.magic mesh) (Obj.magic z) ?level_eq levels
+  else
+    F.level_curves ~width ~height ?boundary
+      (Obj.magic mesh) (Obj.magic z) ?level_eq levels;
+  hold_graph()

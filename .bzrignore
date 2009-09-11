@@ -1,3 +1,4 @@
+# OCaml							-*-conf-unix-*-
 *.annot
 *.cmi
 *.cmo
@@ -16,3 +17,5 @@ mesh/triangle.zip
 *.log
 *.pdf
 auto/
+# Test executables
+tests/square
