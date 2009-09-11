@@ -61,7 +61,7 @@ val nonlin : ?y:vec -> t -> (float -> float -> float -> float) -> vec -> vec
       computes the vector corresponding to the FEM weak form of the
       non-linearity [f x y u]. *)
 
-val hessian : t -> (float -> float -> float -> float) -> (vec -> mat)
+val hessian : ?y:mat -> t -> (float -> float -> float -> float) -> (vec -> mat)
   (** [hessian kap f u] returns the matrix of the Hessian assotiated
       to [f], i.e. [int f(x,u) \phi_i \phi_j] *)
 

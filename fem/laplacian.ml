@@ -238,7 +238,7 @@ let hessian ?y lap f =
   let m = match y with
     | None -> Mat.create (Mat.dim1 lap.inner) (Mat.dim2 lap.inner)
     | Some y -> y in
-  fun u ->
+  fun (u:vec) ->
     let band = Mat.dim1 m in
     Array2.fill m 0.;
     let tr = lap.mesh#triangle in
@@ -268,7 +268,7 @@ let hessian ?y lap f =
       let j = band + i3 - i2 in
       m.{j, i2} <- m.{j, i2} +. w *. f x23 y23 u23;
     done;
-    y
+    m
 
 (* Use the formulas in "Symmetric quadrature rules on a triangle",
    S. Wandzurat* and H. Xiao, for a higher order integration scheme? *)
