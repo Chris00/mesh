@@ -99,6 +99,10 @@ val vec_of_fun : t -> (float -> float -> float) -> vec
       boundary points with Dirichlet boundary conditions, these are
       enforced in the returned vector. *)
 
+val impose_bc : t -> vec -> unit
+  (** [impose_bc lap u] modify [u] so that it satisfies the boundary
+      conditions. *)
+
 val pos : vec -> unit
   (** [pos u] project [u] on its positive part (as a function), i.e. x
       -> max{u(x), 0}. *)

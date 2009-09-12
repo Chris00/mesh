@@ -32,19 +32,21 @@ let () =
   for i = 1 to Array2.dim2 (L.mesh square)#triangle do
     area := !area +. L.area square i;
   done;
-  printf "total area = %g\n" !area;
+  printf "total area = %.g (err = %g)\n" !area (!area -. 1.);
 
   let sol x y = sin(pi *. x) *. sin(pi *. y) in
   let u = L.vec_of_fun square sol in
-  printf "norm^2 = %g (exact %g)\n" (L.norm2 square u) (pi**2. /. 2.);
+  let n = L.norm square u in
+  printf "norm u = %g (err = %e)\n" n (n -. pi /. sqrt 2.);
   let integ = L.integrate square (fun _ _ u -> u) u in
-  printf "integ u = %g (exact %g)\n" integ (4. /. pi**2.);
+  printf "integ u = %g (err = %e)\n" integ (integ -. 4. /. pi**2.);
 
   let rhs x y = 2. *. pi**2. *. sol x y in
   let u = L.nonlin square (fun x y _ -> rhs x y) u in
   printf "integ rhs = %g (exact 8)\n" (Vec.sum u);
   L.solve square u;
-  printf "norm^2 sol = %g (exact %g)\n" (L.norm2 square u) (pi**2. /. 2.);
+  let n = L.norm square u in
+  printf "norm sol = %g (err = %e)\n" n (n -. pi /. sqrt 2.);
 
   let fname = "/tmp/square" in
   Mesh.matlab (L.mesh square) u fname;
@@ -54,3 +56,19 @@ let () =
   let h = L.hessian square (fun x y u -> 1.) u (* u not used *) in
   let l2norm = dot u (sbmv h u) in
   printf "L2 norm = %g (err = %e)\n" l2norm (l2norm -. 0.25);
+
+  let u' = L.dual square u in
+  L.solve square u';
+  axpy u' ~alpha:(-1.) ~x:u;
+  printf "error going to the dual and back = %g\n" (sqrt(nrm2 u'));
+
+  let v = copy u in
+  L.solve square v;
+  let u' = L.dual square v in
+  L.impose_bc square u';
+  axpy u' ~alpha:(-1.) ~x:u;
+  printf "error coming from the dual and back = %g\n" (sqrt(nrm2 u'));
+
+  let v = copy u in
+  L.solve square v;
+  printf "Diff two computations of the norm: %g\n" (dot v u -. L.norm2 square v);
