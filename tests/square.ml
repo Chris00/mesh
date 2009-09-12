@@ -48,4 +48,9 @@ let () =
 
   let fname = "/tmp/square" in
   Mesh.matlab (L.mesh square) u fname;
-  printf "Display the graph in Matlab with: run('%s');\n" fname
+  printf "Display the graph in Matlab with: run('%s');\n" fname;
+
+  let u = L.vec_of_fun square sol in
+  let h = L.hessian square (fun x y u -> 1.) u (* u not used *) in
+  let l2norm = dot u (sbmv h u) in
+  printf "L2 norm = %g (err = %e)\n" l2norm (l2norm -. 0.25);

@@ -152,13 +152,12 @@ let norm lap u = sqrt(inner lap u u)
 
 let dual lap ?y (u: vec) = sbmv ?y lap.inner u
 
-let add_inner ?(alpha=1.) lap m =
-  Mat.axpy m ~alpha ~x:lap.inner
+let add_inner ?alpha lap m = Mat.axpy m ?alpha ~x:lap.inner
 
 let solve_with_bc lap m b =
   (* Modify the system to impose BC.  See [make] for further details. *)
-  let nnodes = Mat.dim2 lap.inner in
-  let band = Mat.dim1 lap.inner in
+  let band = Mat.dim1 m in
+  let nnodes = Mat.dim2 m in
   let modify i =
     let v = lap.bc_rhs.{i} in
     for k = 1 + max2 0 (band - i) to band - 1 do
@@ -176,8 +175,14 @@ let solve_with_bc lap m b =
   in
   List.iter modify lap.bc_dirichlet;
   let rhs = reshape_2 (genarray_of_array1 b) (Array1.dim b) 1 in
-  pbsv m rhs
-
+  (* pbsv m rhs: does not work as the matrix is not necessarily pos def *)
+  let m' = Mat.make0 nnodes nnodes in
+  for j = 1 to nnodes do
+    for i = max2 1 (j - band + 1) to j do
+      m'.{i,j} <- m.{band + i - j, j}
+    done
+  done;
+  sysv m' rhs
 
 (* let eigenvalues lap = *)
 (*   let im_copy = Mat.create (Mat.dim1 lap.im) (Mat.dim2 lap.im) in *)
@@ -245,7 +250,7 @@ let hessian ?y lap f =
     let pt = lap.mesh#point in
     let area = lap.area in
     for t = 1 to Array2.dim2 tr do
-      let i1 = tr.{1,t}   and i2 = tr.{2,t}  and i3 = tr.{3,t} in
+      let i1, i2, i3 = sort3 tr.{1,t} tr.{2,t} tr.{3,t} in (* i1 >= i2 >= i3 *)
       let x1 = pt.{1,i1}  and y1 = pt.{2,i1} in
       let x2 = pt.{1,i2}  and y2 = pt.{2,i2} in
       let x3 = pt.{1,i3}  and y3 = pt.{2,i3} in
