@@ -87,22 +87,24 @@ let latex_end fh =
 (* PGF output *)
 let latex_begin fh width height xmin ymin =
   fprintf fh "\\begin{pgfscope}\n";
-  fprintf fh "  %% \\meshline{color}{x1}{y1}{x2}{y2}\n";
+  fprintf fh "  %% \\meshline{R,G,B}{x1}{y1}{x2}{y2}\n";
   (* We need to put the path in a scope otherwise one gets "TeX
      capacity exceeded". *)
   fprintf fh "  \\providecommand{\\meshline}[5]{%%
     \\begin{pgfscope}
-      \\pgfsetcolor{#1}
+      \\definecolor{ocamlmesh}{RGB}{#1}
+      \\pgfsetcolor{ocamlmesh}
       \\pgfpathmoveto{\\pgfpointxy{#2}{#3}}
       \\pgfpathlineto{\\pgfpointxy{#4}{#5}}
       \\pgfusepath{stroke}
     \\end{pgfscope}}\n";
   fprintf fh "  %% \\meshpoint{point number}{x}{y}\n";
   fprintf fh "  \\providecommand{\\meshpoint}[3]{}\n";
-  fprintf fh "  %% \\meshtriangle{color}{x1}{y1}{x2}{y2}{x3}{y3}\n";
+  fprintf fh "  %% \\meshtriangle{R,G,B}{x1}{y1}{x2}{y2}{x3}{y3}\n";
   fprintf fh "  \\providecommand{\\meshtriangle}[7]{%%
     \\begin{pgfscope}
-      \\pgfsetcolor{#1}
+      \\definecolor{ocamlmesh}{RGB}{#1}
+      \\pgfsetcolor{ocamlmesh}
       \\pgfpathmoveto{\\pgfpointxy{#2}{#3}}
       \\pgfpathlineto{\\pgfpointxy{#4}{#5}}
       \\pgfpathlineto{\\pgfpointxy{#6}{#7}}
@@ -118,6 +120,14 @@ let degrees_per_radian = 45. /. atan 1.
 (* More efficient than couples of floats *)
 type point = { x : float; y : float }
 
+let black = 0x000000
+
+let color_to_string c =
+  let b = c land 0xFF in
+  let g = (c lsr 8) land 0xFF in
+  let r = (c lsr 16) land 0xFF in
+  sprintf "%i,%i,%i" r g b
+
 let line fh color {x=x0; y=y0} {x=x1; y=y1} =
 (*  let dx = x1 -. x0
   and dy = y1 -. y0 in
@@ -125,7 +135,7 @@ let line fh color {x=x0; y=y0} {x=x1; y=y1} =
       color x0 y0 (degrees_per_radian *. atan2 dy dx) (norm dx dy)
 *)
   fprintf fh "  \\meshline{%s}{%.12f}{%.12f}{%.12f}{%.12f}\n%!"
-    color x0 y0 x1 y1
+    (color_to_string color) x0 y0 x1 y1
 
 let point_xy fh i x y =
   fprintf fh "  \\meshpoint{%i}{%.12f}{%.13f}\n" i x y
@@ -134,7 +144,7 @@ let point fh i {x=x; y=y} = point_xy fh i x y
 
 let triangle fh color {x=x1; y=y1} {x=x2; y=y2} {x=x3; y=y3} =
   fprintf fh "  \\meshtriangle{%s}{%.12f}{%.12f}{%.12f}{%.12f}{%.12f}{%.12f}\n"
-    color x1 y1 x2 y2 x3 y3
+    (color_to_string color) x1 y1 x2 y2 x3 y3
 
 
 (* Functions for fortran layout.

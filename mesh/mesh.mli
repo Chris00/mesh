@@ -1,4 +1,4 @@
-(* Mesh.mli                       Time-stamp: <2009-09-08 17:45:24 trch>
+(* Mesh.mli                       Time-stamp: <2009-09-13 13:22:21 trch>
 
   Copyright (C) 2001-2004
 
@@ -134,17 +134,17 @@ sig
       You will need to use the package "tikz" -- which works for
       PostScript as well as PDF output.  *)
 
-  val level_curves : ?boundary:(int -> string option) ->
+  val level_curves : ?boundary:(int -> int option) ->
     'l t -> 'l vec -> ?level_eq:(float -> float -> bool) ->
-    (float * string) list -> string -> unit
+    (float * int) list -> string -> unit
     (** [level_curves mesh z levels file] outputs into [file] LaTeX
         PGF commands to display the level curves at [levels] of the P1
         FEM surface with values [z] on the mesh [mesh].  Each level is
         a couple [(l, c)] where [l] is the lavel value and [c] is the
-        color to be used to display it. The output is done as TeX
-        macros [\meshline{color}{x1}{y1}{x2}{y2}], [\meshpoint{point
+        RGB color to be used to display it. The output is done as TeX
+        macros [\meshline{R,G,B}{x1}{y1}{x2}{y2}], [\meshpoint{point
         number}{x}{y}] and
-        [\meshtriangle{color}{x1}{y1}{x2}{y2}{x3}{y3}], so it is
+        [\meshtriangle{R,G,B}{x1}{y1}{x2}{y2}{x3}{y3}], so it is
         easily customizable from within LaTeX.  Default values for
         these macros are provided if they are not defined.
 

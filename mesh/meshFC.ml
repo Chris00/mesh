@@ -31,7 +31,7 @@ let latex (mesh: mesh) filename =
     and i2 = GET(edge, SND,e) in
     let p1 = { x = GET(pt, FST,i1);  y = GET(pt, SND,i1) }
     and p2 = { x = GET(pt, FST,i2);  y = GET(pt, SND,i2) } in
-    line fh "black" p1 p2
+    line fh black p1 p2
   done;
   (* Write points *)
   fprintf fh "  %% %i points\n" (NCOLS(pt));
@@ -98,7 +98,7 @@ let matlab (mesh: mesh) (z: vec) fname =
 
 INCLUDE "mesh_level_curvesFC.ml";;
 
-let level_curves ?(boundary=(fun _ -> Some "black")) (mesh: mesh) (z: vec)
+let level_curves ?(boundary=(fun _ -> Some black)) (mesh: mesh) (z: vec)
     ?level_eq levels fname =
   let fh = open_out fname in
   let xmin, xmax, ymin, ymax = bounding_box mesh in
