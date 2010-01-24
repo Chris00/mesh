@@ -43,7 +43,9 @@ let latex (mesh: mesh) filename =
 
 
 let scilab (mesh: mesh) (z: vec) fname =
-  let fname = try Filename.chop_extension fname with _ -> fname in
+  let fname =
+    if Filename.check_suffix fname ".sci" then Filename.chop_extension fname
+    else fname in
   let sci = fname ^ ".sci"
   and xf = fname ^ "_x.dat"
   and yf = fname ^ "_y.dat"
@@ -73,13 +75,25 @@ plot3d(xf, yf, zf)\n" sci xf yf zf;
   save_mat yf (fun i -> GET(pt, SND,i));
   save_mat zf (fun i -> z.{i})
 
+let is_allowed c =
+  ('0' <= c && c <= '9') || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || c = '_'
+
 let matlab (mesh: mesh) (z: vec) fname =
-  let fname = try Filename.chop_extension fname with _ -> fname in
+  let dir = Filename.dirname fname
+  and base = Filename.basename fname in
+  let base = (if Filename.check_suffix base ".m" then
+                 String.sub base 0 (String.length base - 2)
+               else String.copy base) in
+  (* Matlab filenames can contain only alphanumeric characters and
+     underscores.  Convert all other characters to underscore *)
+  for i = 0 to String.length base - 1 do
+    if not(is_allowed base.[i]) then base.[i] <- '_'
+  done;
+  let mat = Filename.concat dir (base ^ ".m") in
   let pt = mesh#point in
   let save_xy fh coord =
     for p = FST to LASTCOL(pt) do fprintf fh "%.13g " (GET(pt, coord,p)) done;
     fprintf fh "\n" in
-  let mat = fname ^ ".m" in
   let fh = open_out mat in
   fprintf fh "%% Created by the OCaml Mesh module (run %s)\nmesh_x = [" mat;
   save_xy fh FST;
@@ -91,7 +105,7 @@ let matlab (mesh: mesh) (z: vec) fname =
   let tr = mesh#triangle in
   for t = FST to LASTCOL(tr) do
     fprintf fh "%i %i %i; " (GET(tr, FST,t)) (GET(tr, SND,t)) (GET(tr, THIRD,t))
-    done;
+  done;
   fprintf fh "];\ntrisurf(mesh_triangles, mesh_x, mesh_y, mesh_z);\n";
   close_out fh
 ;;
