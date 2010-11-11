@@ -68,21 +68,31 @@ value ocaml_triangle_init(value vunit)
   }                                             \
   }while(0)
 
-/* Copy int a[] into the bigarray vba and free a.  */
-#define COPY_BA_INT(vba, numdims, a, dims) do{                          \
-  int *src, *end;                                                       \
-  intnat *dest;                                                         \
-  int length = dims[0];                                                 \
-  if (numdims == 2) length *= dims[1];                                  \
-  vba = alloc_bigarray(BIGARRAY_CAML_INT | LAYOUT, numdims, NULL, dims); \
-  end = a + length;                                                     \
-  dest = (intnat *) Data_bigarray_val(vba);                             \
-  for(src = a; src < end; src++) {                                      \
-    *dest = *src;                                                       \
-    dest++;                                                             \
+/* Copy int a[] into the bigarray vba and free a.
+   WARNING:  This can modify dims[DIM_1ST]. */
+#define COPY_BA_INT(vba, numdims, a, dims)                              \
+  if (a == NULL) {                                                      \
+    if (numdims == 1)                                                   \
+      vba = alloc_bigarray_dims(BIGARRAY_CAML_INT | LAYOUT, 1, NULL, 0); \
+    else {                                                              \
+      dims[DIM_1ST] = 0;                                                 \
+      vba = alloc_bigarray(BIGARRAY_CAML_INT | LAYOUT, numdims, NULL, dims); \
+    }                                                                   \
   }                                                                     \
-  free(a);                                                              \
-  } while(0)
+  else {                                                                \
+    int *src, *end;                                                     \
+    intnat *dest;                                                       \
+    int length = dims[0];                                               \
+    if (numdims == 2) length *= dims[1];                                \
+    vba = alloc_bigarray(BIGARRAY_CAML_INT | LAYOUT, numdims, NULL, dims); \
+    end = a + length;                                                   \
+    dest = (intnat *) Data_bigarray_val(vba);                           \
+    for(src = a; src < end; src++) {                                    \
+      *dest = *src;                                                     \
+      dest++;                                                           \
+    }                                                                   \
+    free(a);                                                            \
+  }
   
 
 #define NAME triangulate_fortran_layout

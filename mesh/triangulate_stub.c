@@ -88,6 +88,8 @@ CAMLexport value NAME(value switches,
   /* free the copied integer matrices for input */
   if (in.pointmarkerlist != NULL) free(in.pointmarkerlist);  
   if (in.trianglelist != NULL) free(in.trianglelist);
+  if (in.segmentlist != NULL) free(in.segmentlist);
+  if (in.segmentmarkerlist != NULL) free(in.segmentmarkerlist);
   
   /* Create a Caml structure from [out] */
   tuple = alloc(14, 0);
@@ -164,7 +166,7 @@ CAMLexport value NAME(value switches,
   vba = alloc_bigarray(PREC | LAYOUT | BIGARRAY_MANAGED,
                        2, vor.normlist, dims);
   Store_field(tuple, 13, vba);
-  
+
   CAMLreturn(tuple);
 }
 
