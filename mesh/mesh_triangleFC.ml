@@ -1,10 +1,9 @@
 
 (* check that all C "triexit" have been avoided. *)
 
-let triangulate ?(refine=true) ?triangle_attribute
-    ?min_angle ?max_area
+let triangulate ?min_angle ?max_area
     ?(convex_hull=false) ?max_steiner ?(voronoi=false) ?(edge=false)
-    ?(subparam=false) ?triangle_area pslg refine (mesh: layout t) =
+    ?(subparam=false) ?triangle_area ~pslg ~refine (mesh: layout t) =
   (* Check points *)
   if NROWS(mesh#point) <> 2 then invalid_arg(ROWS ^ " mesh#point <> 2");
   if NCOLS(mesh#point_attribute) > 0

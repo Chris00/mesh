@@ -61,7 +61,7 @@ end
 
 
 let draw ?width ?height ?color ?voronoi ?point_marker_color ?segments
-    (mesh: 'a t) =
+    (mesh: 'a #t) =
   if Mesh.is_c_layout(mesh :> _ Mesh.pslg) then
     C.draw ?width ?height ?color ?voronoi ?point_marker_color ?segments
       (Obj.magic mesh)
@@ -94,7 +94,7 @@ let display ?(width=600) ?(height=600) ?color ?voronoi ?point_marker_color
   draw ~width ~height ?color ?voronoi ?point_marker_color ~segments mesh;
   hold_graph()
 
-let level_curves ?(width=600) ?(height=600) ?boundary (mesh: 'a t) (z: 'a vec)
+let level_curves ?(width=600) ?(height=600) ?boundary (mesh: 'a #t) (z: 'a vec)
     ?level_eq levels =
   init_graph width height;
   set_window_title("Level curves (" ^ Filename.basename Sys.argv.(0) ^ ")");

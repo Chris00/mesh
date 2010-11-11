@@ -187,12 +187,12 @@ let is_c_layout (mesh: _ pslg) =
 module LaTeX =
 struct
 
-  let save (mesh: _ t) filename =
+  let save (mesh: _ #t) filename =
     if is_c_layout(mesh :> _ pslg)
     then C.latex (Obj.magic mesh) filename
     else F.latex (Obj.magic mesh) filename
 
-  let level_curves ?boundary (mesh: 'a t) (z: 'a vec)
+  let level_curves ?boundary (mesh: 'a #t) (z: 'a vec)
       ?level_eq levels filename =
     if is_c_layout(mesh :> _ pslg) then
       C.level_curves ?boundary (Obj.magic mesh) (Obj.magic z)
@@ -202,12 +202,12 @@ struct
         ?level_eq levels filename
 end
 
-let scilab (mesh: 'a t) (z: 'a vec) filename =
+let scilab (mesh: 'a #t) (z: 'a vec) filename =
   if is_c_layout(mesh :> _ pslg)
   then C.scilab (Obj.magic mesh) (Obj.magic z) filename
   else F.scilab (Obj.magic mesh) (Obj.magic z) filename
 
-let matlab (mesh: 'a t) (z: 'a vec) filename =
+let matlab (mesh: 'a #t) (z: 'a vec) filename =
   if is_c_layout(mesh :> _ pslg)
   then C.matlab (Obj.magic mesh) (Obj.magic z) filename
   else F.matlab (Obj.magic mesh) (Obj.magic z) filename

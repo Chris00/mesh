@@ -1,4 +1,4 @@
-(* Mesh.mli                       Time-stamp: <2010-11-11 17:01:21 trch>
+(* Mesh.mli                       Time-stamp: <2010-11-11 23:19:05 trch>
 
   Copyright (C) 2001-2004
 
@@ -21,6 +21,13 @@
 *)
 (** Generic mesh structure to be used with various meshers.  It also
     defines some functions to help to display and design geometries.
+
+    General remark: The two dimensional arrays below are described for
+    the [fortran_layout].  If you use a [c_layout], they are
+    transposed.  Also indices, such as the indices points,
+    triangles,..., start at [0] instead of [1] .  For example
+    [mesh#point] is of size [n * 2] and the coordinates of point [i]
+    are given by [(point.{i,0}, point.{i,1})].
 
     @version 0.7
     @author Christophe Troestler <Christophe.Troestler\@umh.ac.be>
@@ -81,12 +88,7 @@ object
       area. *)
 end
 
-(** Object describing various caracteristics of a mesh.
-
-    The two dimensional arrays are described for the [fortran_layout].
-    If you use a [c_layout], they are transposed: for example [point]
-    is of size n * 2 and the coordinates of point [i] are given by
-    [(point.{i,0}, point.{i,1})]. *)
+(** Object describing various caracteristics of a mesh. *)
 class type ['layout] t =
 object
   inherit ['layout] pslg
@@ -147,14 +149,14 @@ val is_c_layout : 'l pslg -> bool
     implementations, default ones will be used.  *)
 module LaTeX :
 sig
-  val save : 'l t -> string -> unit
+  val save : 'l #t -> string -> unit
   (** [latex mesh file] saves the mesh as LaTeX PGF commands.  You can
       input the file in a tikzpicture environment to render the mesh.
       You will need to use the package "tikz" -- which works for
       PostScript as well as PDF output.  *)
 
   val level_curves : ?boundary:(int -> int option) ->
-    'l t -> 'l vec -> ?level_eq:(float -> float -> bool) ->
+    'l #t -> 'l vec -> ?level_eq:(float -> float -> bool) ->
     (float * int) list -> string -> unit
     (** [level_curves mesh z levels file] outputs into [file] LaTeX
         PGF commands to display the level curves at [levels] of the P1
@@ -180,7 +182,7 @@ end
 
 (** {2 Scilab} *)
 
-val scilab : 'l t -> 'l vec -> string -> unit
+val scilab : 'l #t -> 'l vec -> string -> unit
   (** [scilab mesh z file] saves the mesh data and the function values
       [z] (i.e. [z.{i}] is the function value at the point
       [mesh.point.{_,i}] (fortran layout)) on that mesh so that when
@@ -189,7 +191,7 @@ val scilab : 'l t -> 'l vec -> string -> unit
 
 (** {2 Matlab} *)
 
-val matlab : 'l t -> 'l vec -> string -> unit
+val matlab : 'l #t -> 'l vec -> string -> unit
   (** [matlab mesh z file] saves the mesh data and the function values
       [z] (i.e. [z.{i}] is the function value at the point
       [mesh.point.{_,i}] (fortran layout)) on that mesh so that when

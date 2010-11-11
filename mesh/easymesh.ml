@@ -25,6 +25,8 @@ open Printf
 open Scanf
 open Mesh
 
+class ['l] pslg = ['l] Mesh.pslg
+
 module F =
 struct
   type pslg = fortran_layout Mesh.pslg;;

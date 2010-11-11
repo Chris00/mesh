@@ -19,7 +19,7 @@
 val draw :
   ?width:int -> ?height:int -> ?color: int -> ?voronoi:'a Mesh.voronoi ->
   ?point_marker_color: int -> ?segments:bool ->
-  'a Mesh.t -> unit
+  'a #Mesh.t -> unit
   (** [draw mesh] display the mesh on the current OCaml Graphics
       window with the bottom left corner at the current position.
 
@@ -33,13 +33,13 @@ val draw :
 val display :
   ?width:int -> ?height:int -> ?color: int -> ?voronoi:'a Mesh.voronoi ->
   ?point_marker_color: int -> ?segments:bool ->
-  'a Mesh.t -> unit
+  'a #Mesh.t -> unit
   (** [display mesh] open an OCaml graphic window and draw the mesh on
       it.  See {!Mesh_display.draw} for the meaning of the optional
       parameters. *)
 
 val level_curves : ?width:int -> ?height:int ->
-  ?boundary:(int -> Graphics.color option) -> 'l Mesh.t -> 'l Mesh.vec ->
+  ?boundary:(int -> Graphics.color option) -> 'l #Mesh.t -> 'l Mesh.vec ->
   ?level_eq:(float -> float -> bool) -> (float * Graphics.color) list -> unit
   (** [level_curves mesh z levels] display a graphics window with the
       requested level curves.  Each level is a couple [(l, c)] where

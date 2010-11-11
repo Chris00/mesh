@@ -20,7 +20,7 @@
  * http://www.cs.cmu.edu/~quake/triangle.html
  *)
 
-class type ['l] pslg =
+class ['l] pslg : 'l Bigarray.layout ->
 object
   inherit ['l] Mesh.pslg
 
@@ -62,8 +62,19 @@ type triunsuitable =
 *)
 
 val triangulate :
-  ?refine:bool ->
-  ?triangle_attribute:'a Mesh.mat ->
+  ?min_angle:float ->
+  ?max_area:float ->
+  ?convex_hull:bool ->
+  ?max_steiner:int ->
+  ?voronoi:bool ->
+  ?edge:bool ->
+  ?subparam:bool ->
+  ?triangle_area:'a Mesh.vec ->
+  'a pslg -> 'a t * 'a voronoi
+(** [triangulate pslg] returns a triangulation of the domain
+    described by [pslg].   *)
+
+val refine :
   ?min_angle:float ->
   ?max_area:float ->
   ?convex_hull:bool ->
@@ -73,5 +84,3 @@ val triangulate :
   ?subparam:bool ->
   ?triangle_area:'a Mesh.vec ->
   'a t -> 'a t * 'a voronoi
-(** [triangulate pslg] returns a triangulation of the domain
-    described by [pslg].   *)

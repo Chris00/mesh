@@ -1,4 +1,4 @@
-(* Easymesh.mli                    Time-stamp: <2008-06-12 22:30:30 trch>
+(* Easymesh.mli                    Time-stamp: <2010-11-11 21:58:27 trch>
 
   Copyright (C) 2001-2004
 
@@ -30,21 +30,26 @@
    @author Christophe Troestler (Christophe.Troestler\@umh.ac.be)
 *)
 
+class ['l] pslg : 'l Bigarray.layout -> ['l] Mesh.pslg
+(** An alias for {!Mesh.pslg}.  (Use this if you wan to ba able to
+    easily switch mesh generators as some may require objects with
+    more methods.) *)
+
 
 val triangulate : max_area:float -> 'layout Mesh.pslg -> 'layout Mesh.t
-  (** [triangulate ~max_area pslg] returns a triangulation of the
-      Planar Straight Line Graph [pslg] given by [pslg.Mesh.points]
-      and [pslg.Mesh.segment].  BEWARE that for EasyMesh, the boundary
-      must have a positive (counterclockwise) orientation, holes must
-      be delimited by a negatively orientated paths.
+(** [triangulate ~max_area pslg] returns a triangulation of the
+    Planar Straight Line Graph [pslg] given by [pslg.Mesh.points]
+    and [pslg.Mesh.segment].  BEWARE that for EasyMesh, the boundary
+    must have a positive (counterclockwise) orientation, holes must
+    be delimited by a negatively orientated paths.
 
-      [pslg.Mesh.points_marker] and [pslg.Mesh.segment_marker] may be set.
+    [pslg.Mesh.points_marker] and [pslg.Mesh.segment_marker] may be set.
 
-      The returned mesh sets [point], [point_marker], [triangle],
-      [neighbor] and should genrally set [edge] and [edge_marker].
+    The returned mesh sets [point], [point_marker], [triangle],
+    [neighbor] and should genrally set [edge] and [edge_marker].
 
-      @param max_area is given as an indication to the algorithm and
-      may not be respected. *)
+    @param max_area is given as an indication to the algorithm and
+    may not be respected. *)
 
 val read : 'layout Bigarray.layout -> string -> 'layout Mesh.t
   (** [read layout file] reads the mesh described by the files [file].n,

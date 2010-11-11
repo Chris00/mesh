@@ -21,10 +21,10 @@ open Bigarray
 external init : unit -> unit = "ocaml_triangle_init"
 let () = init()
 
-class type ['l] pslg =
+class ['l] pslg (layout: 'l layout) =
 object
-  inherit ['l] Mesh.pslg
-  method point_attribute : 'l Mesh.mat
+  inherit [_] Mesh.pslg layout
+  method point_attribute = Array2.create float64 layout 0 0
 end
 
 class type ['l] t =
@@ -32,6 +32,26 @@ object
   inherit ['l] Mesh.t
   method point_attribute : 'l Mesh.mat
   method triangle_attribute : 'l Mesh.mat
+end
+
+class ['a] mesh_of_pslg (pslg: 'a pslg) =
+  let layout = Array2.layout pslg#point in
+  let empty_int_mat : 'a Mesh.int_mat = Array2.create int layout 2 0 in
+object
+  method point = pslg#point
+  method point_marker = pslg#point_marker
+  method segment = pslg#segment
+  method segment_marker = pslg#segment_marker
+  method hole = pslg#hole
+  method region = pslg#region
+
+  method triangle = empty_int_mat
+  method neighbor = empty_int_mat
+  method edge = empty_int_mat
+  method edge_marker = Array1.create int layout 0
+
+  method point_attribute = pslg#point_attribute
+  method triangle_attribute = Array2.create float64 layout 2 0
 end
 
 class type ['l] voronoi =
@@ -104,18 +124,17 @@ struct
   INCLUDE "mesh_triangleFC.ml";;
 end
 
-let triangulate ?refine ?triangle_attribute
-    ?min_angle ?max_area ?convex_hull ?max_steiner ?voronoi ?edge
-    ?subparam ?triangle_area mesh =
+let triangle ?min_angle ?max_area ?convex_hull ?max_steiner
+    ?voronoi ?edge ?subparam ?triangle_area ~pslg ~refine mesh =
   let layout = Array2.layout mesh#point in
   if (Obj.magic layout) = fortran_layout then
     let triangle_area = match triangle_area with
       | None -> None
       | Some v -> Some((Obj.magic(v: 'a Mesh.vec)) : F.layout Mesh.vec) in
     let res =
-      F.triangulate ?refine ?triangle_attribute
+      F.triangulate
         ?min_angle ?max_area ?convex_hull ?max_steiner ?voronoi ?edge
-        ?subparam ?triangle_area false false
+        ?subparam ?triangle_area ~pslg ~refine
         ((Obj.magic(mesh: 'a t)) : F.layout t) in
     (Obj.magic(res:F.layout t * F.layout voronoi) : 'a t * 'a voronoi)
   else
@@ -123,13 +142,23 @@ let triangulate ?refine ?triangle_attribute
       | None -> None
       | Some v -> Some((Obj.magic(v: 'a Mesh.vec)) : C.layout Mesh.vec) in
     let res =
-      C.triangulate ?refine ?triangle_attribute
+      C.triangulate
         ?min_angle ?max_area ?convex_hull ?max_steiner ?voronoi ?edge
-        ?subparam ?triangle_area false false
+        ?subparam ?triangle_area ~pslg ~refine
         ((Obj.magic(mesh: 'a t)) : C.layout t) in
     (Obj.magic(res:C.layout t * C.layout voronoi) : 'a t * 'a voronoi)
 
 
+let triangulate ?min_angle ?max_area ?convex_hull ?max_steiner ?voronoi ?edge
+    ?subparam ?triangle_area pslg =
+  let mesh = new mesh_of_pslg pslg in
+  triangle ?min_angle ?max_area ?convex_hull ?max_steiner ?voronoi ?edge
+    ?subparam ?triangle_area ~pslg:true ~refine:false mesh
+
+let refine ?min_angle ?max_area ?convex_hull ?max_steiner ?voronoi ?edge
+    ?subparam ?triangle_area mesh =
+  triangle ?min_angle ?max_area ?convex_hull ?max_steiner ?voronoi ?edge
+    ?subparam ?triangle_area ~pslg:false ~refine:true mesh
 
 
 (* Loading various formats *)
@@ -137,10 +166,10 @@ let triangulate ?refine ?triangle_attribute
 
 
 (* Save to triangle format *)
-let save mesh filename =
+  let save mesh filename =
   (* .node file *)
-  let fh = open_out (filename ^ ".node") in
-  close_out fh
+    let fh = open_out (filename ^ ".node") in
+    close_out fh
   (* .ele file *)
   (* .poly file *)
   (* .edge file *)
