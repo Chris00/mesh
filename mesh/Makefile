@@ -1,84 +1,60 @@
-CC	 	= gcc
-OCAMLC	 	= ocamlc
-OCAMLOPT 	= ocamlopt
-OCAMLDEP 	= ocamldep
-OCAMLDOC 	= ocamldoc
-OCAMLMKLIB 	= ocamlmklib
-LIBDIR 		= /usr/local/lib/ocaml/$(shell ocamlc -version)
-STUBLIBDIR 	= $(LIBDIR)/stublibs/
+ROOT = ..
+STUBS_LIB = mesh_triangle
+GENERATED_PATT = easymeshFC.ml
 
-PP = -pp "camlp4o pa_macro.cmo"
-OCAMLCFLAGS 	= -dtypes -g $(PP)
-OCAMLOPTFLAGS 	= -dtypes $(PP)
+INSTALL_FILES = META mesh.cmi mesh.cma mesh.cmxa \
+	$(wildcard dll$(STUBS_LIB).* lib$(STUBS_LIB).*)
+
+PP = camlp4o pa_macro.cmo
+OCAMLCFLAGS 	= -annot -g
+OCAMLOPTFLAGS 	= -annot
 OCAMLDOCFLAGS 	= -stars -colorize-code
 
-VERSION		= 0.6
-SED		= sed
-LATEX		= latex
+VERSION = $(shell grep @version mesh.mli | sed -e "s/ *@version *//")
+
+PKG_NAME =  mesh
+SED = sed
+LATEX = latex
 
 .PHONY: all byte opt
 all: byte opt
-byte: mesh.cma
-opt: mesh.cmxa
+byte: mesh.cma mesh_triangle.cma
+opt: mesh.cmxa mesh_triangle.cmxa
 
 mesh.cma: mesh.cmo mesh_display.cmo easymesh.cmo
 mesh.cmxa: mesh.cmx mesh_display.cmx easymesh.cmx
 
-mesh.cmo: mesh.ml mesh.cmi
-mesh.cmx: mesh.ml mesh.cmi
-easymesh.cmo: easymesh.ml easymesh.cmi mesh.cmo
-easymesh.cmx: easymesh.ml easymesh.cmi mesh.cmx
-mesh_display.cmo: mesh_display.ml mesh_display.cmi mesh.cmo
-mesh_display.cmx: mesh_display.ml mesh_display.cmi mesh.cmx
+mesh_triangle.cma mesh_triangle.cmxa: mesh.cma \
+  triangle.o triangle_stubs.o
+	$(OCAMLMKLIB) -o $(basename $@) $^
 
-triangle.cma: mesh.cma triangle/triangle.o triangle_stubs.o
-	$(OCAMLMKLIB) -o $(@:.cma=) $^
-
-triangle.cmxa: mesh.cmxa triangle/triangle.o triangle_stubs.o
-	$(OCAMLMKLIB) -o $(@:.cmxa=) $^
-
-triangle/triangle.o: triangle/triangle.c
-	$(CC) -c -o $@ -DTRILIBRARY $<
+triangle.o: triangle/triangle.c
+	$(OCAMLC) -c -o $@ -ccopt -DTRILIBRARY -ccopt -DEXTERNAL_TEST $<
 
 triangle/triangle.c:
-	wget http://cm.bell-labs.com/netlib/voronoi/triangle.zip
+	wget "http://cm.bell-labs.com/netlib/voronoi/triangle.zip"
 	cd triangle && unzip ../triangle.zip
 
-# Tests
-
-test.exe: mesh.cma test.ml
-	$(OCAMLC) -o $@ $(OCAMLCFLAGS) bigarray.cma graphics.cma $^
+%.o: %.c
+	$(OCAMLC) -c -o $@ $<
 
 # Documentation
-
+.PHONY: doc
 doc:   doc/index.html
 
-INTERFACES = $(wildcard *.mli)
 doc/index.html: $(INTERFACES) $(INTERFACES:.mli=.cmi)
 	[ -d doc/ ] || mkdir doc
 	$(OCAMLDOC) -d doc -html $(OCAMLDOCFLAGS) $(INTERFACES)
-#	Setup the $VERSION strings
-	cd doc; \
-	for f in *; do \
-		cp $$f $$f.bak; \
-		$(SED) -e 's/$$VERSION/$(VERSION)/' < $$f.bak > $$f; \
-		rm -f $$f.bak; \
-	done
 
 # (Un)install
-.PHONY: install install-byte install-opt uninstall
-install: install-byte install-opt
-install-byte: byte mesh.cmi
-	[ -d $(LIBDIR) ] || mkdir -p $(LIBDIR)
-	cp mesh.cma mesh.cmi $(LIBDIR)
-	[ -d $(STUBLIBDIR) ] || mkdir -p $(STUBLIBDIR)
-	cp dllmesh.so $(STUBLIBDIR)
-install-opt: opt mesh.cmi
-	[ -d $(LIBDIR) ] || mkdir -p $(LIBDIR)
-	cp mesh.cmxa mesh.cmi $(LIBDIR)
-	[ -d $(STUBLIBDIR) ] || mkdir -p $(STUBLIBDIR)
-	cp dllmesh.so $(STUBLIBDIR)
+.PHONY: install uninstall reinstall
+install: META
+	$(OCAMLFIND) install $(PKG_NAME) $(INSTALL_FILES)
 uninstall:
+	$(OCAMLFIND) remove $(PKG_NAME)
+reinstall:
+	$(MAKE) uninstall
+	$(MAKE) install
 
 # Test
 .PHONY: test
@@ -89,41 +65,25 @@ test.opt: mesh.cmxa test.ml
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) -o $@ -cclib -L. bigarray.cmxa \
 		graphics.cmxa $^
 
+test.exe: mesh.cma test.ml
+	$(OCAMLC) -o $@ $(OCAMLCFLAGS) bigarray.cma graphics.cma $^
+
 testmesh.tex: test.bc
 	./$<
 
 mesh_display.dvi: mesh_display.tex testmesh.tex
 	$(LATEX) $<
 
-# Generic rules
-%.cmi: %.mli
-	$(OCAMLC) $(OCAMLCFLAGS) -c $<
-%.cmo: %.ml
-	$(OCAMLC) $(OCAMLCFLAGS) -c $<
-%.cma: %.cmo
-	$(OCAMLC) $(OCAMLCFLAGS) -a -o $@ $^
-%.cmx: %.ml
-	$(OCAMLOPT) $(OCAMLOPTFLAGS) -c $<
-%.cmxa: %.cmx
-	$(OCAMLOPT) $(OCAMLOPTFLAGS) -a -o $@ $^
-
-
-.depend: $(wildcard *.mli) $(filter-out %FC.ml,$(wildcard *.ml))
-	$(OCAMLDEP) $(PP) $^ > $@
-
-include .depend
-
 ########################################################################
 
+include $(ROOT)/Makefile.ocaml
+
 .PHONY: clean
-clean:
-	-rm -f *~ .*~ *.o *.cm[aiox] *.cmxa *.a *.annot
-	-rm -f *.log *.aux *.dvi *.ps testmesh.tex
-	-rm *.gen.ml
-	-find . -type f -perm -u=x -exec rm -f {} \;
-	-if [ -d ./doc ]; then rm -rf ./doc; fi
-	-$(MAKE) -C triangle distclean
+clean::
+	-if [ -d ./doc ]; then $(RM) -rf ./doc; fi
+	$(RM) $(wildcard *.so)
 
 distclean:
+	$(RM) META
 #	Files generated for the two layouts:
 #	rm easymesh.ml mesh_display.ml

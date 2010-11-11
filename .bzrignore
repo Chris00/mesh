@@ -1,14 +1,11 @@
 # OCaml							-*-conf-unix-*-
 *.annot
-*.cmi
-*.cmo
-*.cma
-*.cmx
+*.cm[ioax]
 *.cmxa
 *.exe
 *.com
 doc
-*/.depend
+.depend.ocaml
 ._d/
 mesh/triangle
 mesh/triangle.zip
