@@ -2,7 +2,8 @@ ROOT = ..
 STUBS_LIB = mesh_triangle
 DEPEND_EXCLUDE = easymeshFC.ml
 
-INSTALL_FILES = META mesh.cmi mesh.cma mesh.cmxa \
+INSTALL_FILES = META mesh.cmi mesh.cma mesh.cmxa mesh_triangle.cmi \
+	mesh_triangle.cma mesh_triangle.cmx mesh_triangle.cmxa \
 	$(wildcard dll$(STUBS_LIB).* lib$(STUBS_LIB).*)
 
 PP = camlp4o pa_macro.cmo
@@ -48,13 +49,16 @@ doc/index.html: $(INTERFACES) $(INTERFACES:.mli=.cmi)
 
 # (Un)install
 .PHONY: install uninstall reinstall
-install: META
+install: META all
 	$(OCAMLFIND) install $(PKG_NAME) $(INSTALL_FILES)
 uninstall:
 	$(OCAMLFIND) remove $(PKG_NAME)
 reinstall:
 	$(MAKE) uninstall
 	$(MAKE) install
+
+META: META.in mesh.mli
+	sed -e "s/@PACKAGE_VERSION@/$(VERSION)/" $< > $@
 
 # Test
 .PHONY: test
