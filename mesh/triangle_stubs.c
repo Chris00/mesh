@@ -63,7 +63,7 @@ value ocaml_triangle_init(value vunit)
   a = (int *) malloc(dim * sizeof(int));        \
   dest = a;                                     \
   for(; src < end; src++) {                     \
-    *dest = Long_val(*src);                     \
+    *dest = *src;                               \
     dest++;                                     \
   }                                             \
   }while(0)
@@ -78,7 +78,7 @@ value ocaml_triangle_init(value vunit)
   end = a + length;                                                     \
   dest = (intnat *) Data_bigarray_val(vba);                             \
   for(src = a; src < end; src++) {                                      \
-    *dest = Val_long(*src);                                             \
+    *dest = *src;                                                       \
     dest++;                                                             \
   }                                                                     \
   free(a);                                                              \
