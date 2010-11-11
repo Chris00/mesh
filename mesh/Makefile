@@ -1,6 +1,6 @@
 ROOT = ..
 STUBS_LIB = mesh_triangle
-GENERATED_PATT = easymeshFC.ml
+DEPEND_EXCLUDE = easymeshFC.ml
 
 INSTALL_FILES = META mesh.cmi mesh.cma mesh.cmxa \
 	$(wildcard dll$(STUBS_LIB).* lib$(STUBS_LIB).*)
@@ -14,7 +14,7 @@ VERSION = $(shell grep @version mesh.mli | sed -e "s/ *@version *//")
 
 PKG_NAME =  mesh
 SED = sed
-LATEX = latex
+PDFLATEX = pdflatex
 
 .PHONY: all byte opt
 all: byte opt
@@ -59,20 +59,22 @@ reinstall:
 # Test
 .PHONY: test
 test: test.bc test.opt
-test.bc: mesh.cma test.ml
+test.bc: test.ml byte
 	$(OCAMLC) $(OCAMLCFLAGS) -o $@ -cclib -L. bigarray.cma graphics.cma $^
-test.opt: mesh.cmxa test.ml
+test.opt: test.ml native
 	$(OCAMLOPT) $(OCAMLOPTFLAGS) -o $@ -cclib -L. bigarray.cmxa \
 		graphics.cmxa $^
 
-test.exe: mesh.cma test.ml
+test.exe: mesh.cma mesh_triangle.cma test.ml
 	$(OCAMLC) -o $@ $(OCAMLCFLAGS) bigarray.cma graphics.cma $^
+test.com: mesh.cmxa mesh_triangle.cmxa test.ml
+	$(OCAMLOPT) -o $@ $(OCAMLCFLAGS) bigarray.cmxa graphics.cmxa -I . $^
 
 testmesh.tex: test.bc
 	./$<
 
-mesh_display.dvi: mesh_display.tex testmesh.tex
-	$(LATEX) $<
+mesh_display.pdf: mesh_display.tex testmesh.tex
+	$(PDFLATEX) $<
 
 ########################################################################
 
@@ -81,9 +83,7 @@ include $(ROOT)/Makefile.ocaml
 .PHONY: clean
 clean::
 	-if [ -d ./doc ]; then $(RM) -rf ./doc; fi
-	$(RM) $(wildcard *.so)
+	$(RM) $(wildcard *.so) triangle.sci levels.tex
 
 distclean:
 	$(RM) META
-#	Files generated for the two layouts:
-#	rm easymesh.ml mesh_display.ml

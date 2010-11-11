@@ -58,7 +58,7 @@ OCAMLOPT_FLAGS += $(if $(OCAMLINCLUDES), $(addprefix -I , $(OCAMLINCLUDES)))
 	  $(OCAML_PACKAGES) $(LINKPKG) \
 	  $(LIBS_CMXA) $(filter %.cmx %.cmxa,$(filter-out $<,$+)) $<
 
-.depend.ocaml: $(filter-out $(GENERATED_PATT),$(wildcard *.ml *.mli))
+.depend.ocaml: $(filter-out $(DEPEND_EXCLUDE),$(wildcard *.ml *.mli))
 	@echo "Building $@ ... "
 	-@test -z "$^" || $(OCAMLDEP) $(PP_FLAGS) $(SYNTAX_OPTS) $^ > $@
 include .depend.ocaml
