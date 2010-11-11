@@ -29,18 +29,14 @@ object
       number of attributes per point and [n] is the number of points. *)
 end
 
-class type ['l] refinable =
-object
-  inherit ['l] Mesh.t
-
-  method triangle_area : 'l Mesh.vec
-  (** A vector of triangle area constraints. *)
-end
-
 class type ['l] t =
 object
   inherit ['l] Mesh.t
+
   method point_attribute : 'l Mesh.mat
+  (** A matrix of size [a * n] ([fortran_layout]) where [a] is the
+      number of attributes per point and [n] is the number of points. *)
+
   method triangle_attribute : 'l Mesh.mat
 end
 
@@ -49,6 +45,8 @@ object
   inherit ['l] Mesh.voronoi
   method point_attribute : 'l Mesh.mat
 end
+
+exception Invalid_argument of string
 
 type triunsuitable =
   float -> float -> float -> float -> float -> float -> float -> bool
@@ -64,7 +62,6 @@ type triunsuitable =
 *)
 
 val triangulate :
-  ?point_attribute:'a Mesh.mat ->
   ?refine:bool ->
   ?triangle_attribute:'a Mesh.mat ->
   ?min_angle:float ->
@@ -75,6 +72,6 @@ val triangulate :
   ?edge:bool ->
   ?subparam:bool ->
   ?triangle_area:'a Mesh.vec ->
-  'a Mesh.t -> 'a Mesh.t * 'a voronoi
+  'a t -> 'a t * 'a voronoi
 (** [triangulate pslg] returns a triangulation of the domain
     described by [pslg].   *)

@@ -29,7 +29,6 @@ static value meth_point_attribute;
 static value meth_point_marker;
 static value meth_triangle;
 static value meth_triangle_attribute;
-static value meth_triangle_area;
 static value mesh_segment;
 static value meth_segment_marker;
 static value meth_hole;
@@ -43,7 +42,6 @@ value ocaml_triangle_init(value vunit)
   meth_point_marker = hash_variant("point_marker");
   meth_triangle = hash_variant("triangle");
   meth_triangle_attribute = hash_variant("triangle_attribute");
-  meth_triangle_area = hash_variant("triangle_area");
   mesh_segment = hash_variant("segment");
   meth_segment_marker = hash_variant("segment_marker");
   meth_hole = hash_variant("hole");
@@ -54,7 +52,7 @@ value ocaml_triangle_init(value vunit)
 
 #define METHOD(v, m) callback(caml_get_public_method(v, m), v)
 
-#define BA_METHOD(v, m) (Caml_ba_array_val(METHOD(v, m)))
+#define BA_METHOD(v, m) (Bigarray_val(METHOD(v, m)))
 #define VEC_OF_BA(ba) ((REAL *) ba->data)
 #define MAT_OF_BA(ba) ((REAL *) ba->data)
 

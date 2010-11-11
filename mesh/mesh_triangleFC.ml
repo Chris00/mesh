@@ -1,56 +1,55 @@
 
 (* check that all C "triexit" have been avoided. *)
 
-let triangulate ?point_attribute ?(refine=true) ?triangle_attribute
+let triangulate ?(refine=true) ?triangle_attribute
     ?min_angle ?max_area
     ?(convex_hull=false) ?max_steiner ?(voronoi=false) ?(edge=false)
-    ?(subparam=false) ?triangle_area mesh =
+    ?(subparam=false) ?triangle_area pslg refine (mesh: layout t) =
   (* Check points *)
-  if NROWS(mesh.point) <> 2 then
-    invalid_arg("triangle: " ^ ROWS ^ " mesh.point <> 2");
-  if NCOLS(mesh.point_attribute) > 0
-    && NCOLS(mesh.point_attribute) < NCOLS(mesh.point) then
-    invalid_arg("triangle: " ^ COLS ^ " mesh.point_attribute < "
-                ^ COLS ^ " mesh.point");
-  if Array1.dim mesh.point_marker > 0
-    && Array1.dim mesh.point_marker < NCOLS(mesh.point) then
-    invalid_arg("triangle: dim mesh.point_marker < " ^ COLS ^ " mesh.point");
+  if NROWS(mesh#point) <> 2 then invalid_arg(ROWS ^ " mesh#point <> 2");
+  if NCOLS(mesh#point_attribute) > 0
+    && NCOLS(mesh#point_attribute) < NCOLS(mesh#point) then
+    invalid_arg(COLS ^ " mesh#point_attribute < " ^ COLS ^ " mesh#point");
+  if Array1.dim mesh#point_marker > 0
+    && Array1.dim mesh#point_marker < NCOLS(mesh#point) then
+    invalid_arg("dim mesh#point_marker < " ^ COLS ^ " mesh#point");
+  let switches = default_switches in
   (* Check for PSLG *)
   let switches =
     if pslg then begin
-      if dim1 mesh.segment > 0 then begin
-        if dim2 mesh.segment <> 2 then invalid_arg(sdim2 ^ " segment <> 2");
-        if Array1.dim mesh.segment_marker > 0
-          && Array1.dim mesh.segment_marker < dim1 mesh.segment then
-          invalid_arg("dim segment_marker < " ^ sdim1 ^ " segment");
+      if NCOLS(mesh#segment) > 0 then begin
+        if NROWS(mesh#segment) <> 2 then invalid_arg(ROWS ^ " segment <> 2");
+        if Array1.dim mesh#segment_marker > 0
+          && Array1.dim mesh#segment_marker < NCOLS(mesh#segment) then
+          invalid_arg("dim mesh#segment_marker < " ^ COLS ^ " mesh#segment");
       end;
       if not refine then begin
-        if dim1 mesh.hole > 0 && dim2 mesh.hole <> 2 then
-          invalid_arg(sdim2 ^ " hole <> 2");
-        if dim1 mesh.region > 0 && dim2 mesh.region <> 4 then
-          invalid_arg(sdim2 ^ " region <> 4");
+        if NCOLS(mesh#hole) > 0 && NROWS(mesh#hole) <> 2 then
+          invalid_arg(ROWS ^ " hole <> 2");
+        if NCOLS(mesh#region) > 0 && NROWS(mesh#region) <> 4 then
+          invalid_arg(ROWS ^ " region <> 4");
       end;
       switches ^ "p"
     end else switches in
   (* Check for refinement -- triangles *)
   let switches =
     if refine then begin
-      if dim1 mesh.triangle > 0 then begin
-        if dim2 mesh.triangle <> 3 && dim2 mesh.triangle <> 6 then
-          invalid_arg(sdim2 ^ " triangle must be 3 or 6");
-        if dim2 mesh.triangle_attribute > 0
-          && dim1 mesh.triangle_attribute < dim1 mesh.triangle then
-          invalid_arg(sdim1 ^ " triangle_attribute < "
-                      ^ sdim1 ^ " triangle");
+      if NCOLS(mesh#triangle) > 0 then begin
+        if NROWS(mesh#triangle) < 3 then
+          invalid_arg(ROWS ^ " mesh#triangle < 3");
+        if NROWS(mesh#triangle_attribute) > 0
+          && NCOLS(mesh#triangle_attribute) < NCOLS(mesh#triangle) then
+          invalid_arg(COLS ^ " mesh#triangle_attribute < "
+                      ^ COLS ^ " mesh#triangle");
       end;
       switches ^ "r"
     end else switches in
   (* Check triangle_area *)
   let switches, triangle_area = match triangle_area with
-    | None -> switches, Array1.create prec layout 0
+    | None -> switches, Array1.create float64 layout 0
     | Some a ->
-      if Array1.dim a < dim1 mesh.triangle then
-        invalid_arg("dim triangle_area < " ^ sdim1 ^ " triangle");
+      if Array1.dim a < NCOLS(mesh#triangle) then
+        invalid_arg("dim triangle_area < " ^ COLS ^ " mesh#triangle");
       (switches ^ "a", a) in
   (* Other switches *)
   let switches = match min_angle with
@@ -71,7 +70,7 @@ let triangulate ?point_attribute ?(refine=true) ?triangle_attribute
     neighbor, segment, segment_marker, edge, edge_marker,
     vor_point, vor_point_attribute, vor_edge, vor_normal =
     triangle switches mesh triangle_area in
-  let mesh_out : layout mesh =
+  let mesh_out : layout t =
     (object
       method point               = point
       method point_attribute     = point_attribute

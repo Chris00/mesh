@@ -39,7 +39,7 @@ CAMLexport value NAME(value switches,
     ba = BA_METHOD(mesh_in, meth_triangle_attribute);
     in.numberoftriangleattributes = ba->dim[DIM_1ST];
     in.triangleattributelist   = MAT_OF_BA(ba);
-    in.trianglearealist = VEC_OF_BA(BA_METHOD(mesh_in, meth_triangle_area));
+    in.trianglearealist = VEC_OF_BA(Bigarray_val(triangle_area));
   }
   in.neighborlist = NULL;
   
