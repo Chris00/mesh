@@ -106,7 +106,7 @@ typedef REAL *vertex; /* taken from triangle.c */
 
 int triunsuitable(vertex triorg, vertex tridest, vertex triapex, REAL area)
 {
-  CAMLparam0;
+  CAMLparam0();
   CAMLlocal1(vd);
   static value * closure = NULL;
   value args[NARGS_TRIUNSUITABLE];
