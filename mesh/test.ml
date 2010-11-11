@@ -14,7 +14,7 @@ let pi = 4. *. atan 1.
 (* Round [x] to the nearest integer *)
 let round x = floor(x +. 0.5)
 
-let mesh, _ = M.triangulate ~max_area:0.05
+let mesh, _ = M.triangulate ~max_area:0.01
   (object
      inherit [_] M.pslg fortran_layout
      (* Fortran layout: point coordinates in columns *)

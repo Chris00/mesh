@@ -74,9 +74,10 @@ val triangulate :
   'a pslg -> 'a t * 'a voronoi
 (** [triangulate pslg] returns a triangulation of the domain
     described by [pslg].
-
     If [pslg#segment] is empty, the convex hull of the set of points
-    is used. FIXME: fails.
+    is used.
+
+    @param max_area Imposes a maximum triangle area.
 
     @param debug if true, outputs some explanation of what Triangle is
     doing and some statistics.  Default: [true] as it can contain
