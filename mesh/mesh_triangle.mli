@@ -62,6 +62,7 @@ type triunsuitable =
 *)
 
 val triangulate :
+  ?delaunay:bool ->
   ?min_angle:float ->
   ?max_area:float ->
   ?convex_hull:bool ->
@@ -77,6 +78,10 @@ val triangulate :
     If [pslg#segment] is empty, the convex hull of the set of points
     is used.
 
+    @param delaunay generates a truly Delaunay (not just constrained
+    Delaunay) triangulation.  It usually increases the number of
+    vertices and triangles.  Default: [true].
+
     @param max_area Imposes a maximum triangle area.
 
     @param debug if true, outputs some explanation of what Triangle is
@@ -84,6 +89,7 @@ val triangulate :
     interesting information during program development. *)
 
 val refine :
+  ?delaunay:bool ->
   ?min_angle:float ->
   ?max_area:float ->
   ?convex_hull:bool ->

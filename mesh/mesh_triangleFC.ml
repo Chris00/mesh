@@ -1,7 +1,7 @@
 
 (* check that all C "triexit" have been avoided. *)
 
-let triangulate ?min_angle ?max_area
+let triangulate ?(delaunay=true) ?min_angle ?max_area
     ?(convex_hull=false) ?max_steiner ?(voronoi=false) ?(edge=false)
     ?(subparam=false) ?triangle_area ?(debug=true) ~pslg ~refine
     (mesh: layout t) =
@@ -53,6 +53,7 @@ let triangulate ?min_angle ?max_area
         invalid_arg("dim triangle_area < " ^ COLS ^ " mesh#triangle");
       (switches ^ "a", a) in
   (* Other switches *)
+  let switches = if delaunay then switches ^ "D" else switches in
   let switches = match min_angle with
     | None -> switches
     | Some a -> switches ^ "q" ^ (string_of_float a) in

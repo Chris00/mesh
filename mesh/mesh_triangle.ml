@@ -124,7 +124,7 @@ struct
   INCLUDE "mesh_triangleFC.ml";;
 end
 
-let triangle ?min_angle ?max_area ?convex_hull ?max_steiner
+let triangle ?delaunay ?min_angle ?max_area ?convex_hull ?max_steiner
     ?voronoi ?edge ?subparam ?triangle_area ?debug ~pslg ~refine mesh =
   let layout = Array2.layout mesh#point in
   if (Obj.magic layout) = fortran_layout then
@@ -132,7 +132,7 @@ let triangle ?min_angle ?max_area ?convex_hull ?max_steiner
       | None -> None
       | Some v -> Some((Obj.magic(v: 'a Mesh.vec)) : F.layout Mesh.vec) in
     let res =
-      F.triangulate
+      F.triangulate ?delaunay
         ?min_angle ?max_area ?convex_hull ?max_steiner ?voronoi ?edge
         ?subparam ?triangle_area ?debug ~pslg ~refine
         ((Obj.magic(mesh: 'a t)) : F.layout t) in
@@ -142,23 +142,23 @@ let triangle ?min_angle ?max_area ?convex_hull ?max_steiner
       | None -> None
       | Some v -> Some((Obj.magic(v: 'a Mesh.vec)) : C.layout Mesh.vec) in
     let res =
-      C.triangulate
+      C.triangulate ?delaunay
         ?min_angle ?max_area ?convex_hull ?max_steiner ?voronoi ?edge
         ?subparam ?triangle_area ?debug ~pslg ~refine
         ((Obj.magic(mesh: 'a t)) : C.layout t) in
     (Obj.magic(res:C.layout t * C.layout voronoi) : 'a t * 'a voronoi)
 
 
-let triangulate ?min_angle ?max_area ?convex_hull ?max_steiner ?voronoi ?edge
-    ?subparam ?triangle_area ?debug pslg =
+let triangulate ?delaunay ?min_angle ?max_area ?convex_hull ?max_steiner
+    ?voronoi ?edge ?subparam ?triangle_area ?debug pslg =
   let mesh = new mesh_of_pslg pslg in
-  triangle ?min_angle ?max_area ?convex_hull ?max_steiner ?voronoi ?edge
-    ?subparam ?triangle_area ?debug ~pslg:true ~refine:false mesh
+  triangle ?delaunay ?min_angle ?max_area ?convex_hull ?max_steiner ?voronoi
+    ?edge ?subparam ?triangle_area ?debug ~pslg:true ~refine:false mesh
 
-let refine ?min_angle ?max_area ?convex_hull ?max_steiner ?voronoi ?edge
-    ?subparam ?triangle_area ?debug mesh =
-  triangle ?min_angle ?max_area ?convex_hull ?max_steiner ?voronoi ?edge
-    ?subparam ?triangle_area ?debug ~pslg:false ~refine:true mesh
+let refine ?delaunay ?min_angle ?max_area ?convex_hull ?max_steiner
+    ?voronoi ?edge ?subparam ?triangle_area ?debug mesh =
+  triangle ?delaunay ?min_angle ?max_area ?convex_hull ?max_steiner ?voronoi
+    ?edge ?subparam ?triangle_area ?debug ~pslg:false ~refine:true mesh
 
 
 (* Loading various formats *)
