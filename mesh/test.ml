@@ -14,7 +14,7 @@ let pi = 4. *. atan 1.
 (* Round [x] to the nearest integer *)
 let round x = floor(x +. 0.5)
 
-let mesh, _ = M.triangulate ~max_area:0.01
+let mesh, _ = M.triangulate ~max_area:0.005
   (object
      inherit [_] M.pslg fortran_layout
      (* Fortran layout: point coordinates in columns *)
@@ -43,7 +43,7 @@ let () =
   (* Round to 4 decimal places *)
   for i = 1 to Array2.dim2 pt do z.{i} <- round(1e4 *. z.{i}) *. 1e-4 done;
 
-  List.iter (fun i -> printf "z.{%i} = %g\n" i z.{i}) [1;2;3; 196];
+  List.iter (fun i -> printf "z.{%i} = %g\n" i z.{i}) [1;2;3; Array2.dim2 pt];
   let in_black l = List.map (fun l -> (l, 0x000000)) l in
   Mesh.LaTeX.level_curves ~boundary:(fun _ -> Some 0xFF0000)
     mesh z (in_black [-0.5; -0.2; 0.; 0.1; 0.5; 0.8; 0.95]) "levels.tex"
