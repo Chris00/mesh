@@ -7,9 +7,9 @@ INSTALL_FILES = META mesh.cmi mesh.cma mesh.cmxa mesh_triangle.cmi \
 	$(wildcard dll$(STUBS_LIB).* lib$(STUBS_LIB).*)
 
 PP = camlp4o pa_macro.cmo
-OCAMLCFLAGS 	= -annot -g
-OCAMLOPTFLAGS 	= -annot
-OCAMLDOCFLAGS 	= -stars -colorize-code
+OCAMLC_FLAGS 	= -annot -g
+OCAMLOPT_FLAGS 	= -annot
+OCAMLDOC_FLAGS 	= -stars -colorize-code
 
 VERSION = $(shell grep @version mesh.mli | sed -e "s/ *@version *//")
 
@@ -45,7 +45,7 @@ doc:   doc/index.html
 
 doc/index.html: $(INTERFACES) $(INTERFACES:.mli=.cmi)
 	[ -d doc/ ] || mkdir doc
-	$(OCAMLDOC) -d doc -html $(OCAMLDOCFLAGS) $(INTERFACES)
+	$(OCAMLDOC) -d doc -html $(OCAMLDOC_FLAGS) $(INTERFACES)
 
 # (Un)install
 .PHONY: install uninstall reinstall
@@ -62,17 +62,11 @@ META: META.in mesh.mli
 
 # Test
 .PHONY: test
-test: test.bc test.opt
-test.bc: test.ml byte
-	$(OCAMLC) $(OCAMLCFLAGS) -o $@ -cclib -L. bigarray.cma graphics.cma $^
-test.opt: test.ml native
-	$(OCAMLOPT) $(OCAMLOPTFLAGS) -o $@ -cclib -L. bigarray.cmxa \
-		graphics.cmxa $^
-
+test: test.exe test.com
 test.exe: mesh.cma mesh_triangle.cma test.ml
-	$(OCAMLC) -o $@ $(OCAMLCFLAGS) bigarray.cma graphics.cma $^
+	$(OCAMLC) -o $@ $(OCAMLC_FLAGS) bigarray.cma graphics.cma $^
 test.com: mesh.cmxa mesh_triangle.cmxa test.ml
-	$(OCAMLOPT) -o $@ $(OCAMLCFLAGS) bigarray.cmxa graphics.cmxa -I . $^
+	$(OCAMLOPT) -o $@ $(OCAMLC_FLAGS) bigarray.cmxa graphics.cmxa -I . $^
 
 testmesh.tex: test.bc
 	./$<
