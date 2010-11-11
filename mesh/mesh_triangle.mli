@@ -20,12 +20,35 @@
  * http://www.cs.cmu.edu/~quake/triangle.html
  *)
 
-type 'l voronoi = {
-  vor_point : 'l Mesh.mat;
-  vor_point_attribute : 'l Mesh.mat;
-  vor_edge : 'l Mesh.int_mat;
-  vor_normal : 'l Mesh.mat;
-}
+class type ['l] pslg =
+object
+  inherit ['l] Mesh.pslg
+
+  method point_attribute : 'l Mesh.mat
+  (** A matrix of size [a * n] ([fortran_layout]) where [a] is the
+      number of attributes per point and [n] is the number of points. *)
+end
+
+class type ['l] refinable =
+object
+  inherit ['l] Mesh.t
+
+  method triangle_area : 'l Mesh.vec
+  (** A vector of triangle area constraints. *)
+end
+
+class type ['l] t =
+object
+  inherit ['l] Mesh.t
+  method point_attribute : 'l Mesh.mat
+  method triangle_attribute : 'l Mesh.mat
+end
+
+class type ['l] voronoi =
+object
+  inherit ['l] Mesh.voronoi
+  method point_attribute : 'l Mesh.mat
+end
 
 val triangulate :
   ?point_attribute:'a Mesh.mat ->
@@ -40,5 +63,5 @@ val triangulate :
   ?subparam:bool ->
   ?triangle_area:'a Mesh.vec ->
   'a Mesh.t -> 'a Mesh.t * 'a voronoi
-  (** [triangulate pslg] returns a triangulation of the domain
-      described by [pslg].   *)
+(** [triangulate pslg] returns a triangulation of the domain
+    described by [pslg].   *)

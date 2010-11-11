@@ -1,72 +1,79 @@
+/* The notations of this file are to be thought for the Bigarray
+   fortran_layout.  Macros are used to transform it for the C layout. */
+
 CAMLexport value NAME(value switches,
                       value mesh_in,
                       value triangle_area)
 {
   CAMLparam3(switches, mesh_in, triangle_area);
-  CAMLlocal3(mesh_out, vor_out, tuple);
+  CAMLlocal2(vba, tuple);
+  struct caml_ba_array *ba;
   struct triangulateio in, out, vor;
   long int dims[2];
-#ifdef INT_IS_NOT_LONG
-  /* Needed by TRI_INT_OF_BIGARRAY and BIGARRAY_OF_TRI_INT */
-  int *p, *p_end, n;
-  long int *q;
-#endif
 
   /* IN structure */
-  in.pointlist               = POINT_VAL(mesh_in);
-  in.pointattributelist      = POINT_ATTRIBUTE_VAL(mesh_in);
-  if (POINT_MARKER_ARR(mesh_in)->dim[0] == 0)
+  ba = BA_METHOD(mesh_in, meth_point);
+  in.pointlist               = MAT_OF_BA(ba);
+  in.numberofpoints          = ba->dim[DIM_2ND];
+  ba = BA_METHOD(mesh_in, meth_point_attribute);
+  in.pointattributelist      = MAT_OF_BA(ba);
+  in.numberofpointattributes = ba->dim[DIM_1ST];
+  ba = BA_METHOD(mesh_in, meth_point_marker);
+  if (ba->dim[0] == 0)
     in.pointmarkerlist       = NULL;
-  else
-    TRI_INT_OF_BIGARRAY(in.pointmarkerlist, POINT_MARKER_VAL(mesh_in),
-                        POINT_MARKER_ARR(mesh_in)->dim[0]);
-  in.numberofpoints          = POINT_ARR(mesh_in)->dim[DIM_1ST];
-  in.numberofpointattributes = POINT_ATTRIBUTE_ARR(mesh_in)->dim[DIM_AUX];
+  else {
+    COPY_INT_BA(in.pointmarkerlist, ba, ba->dim[0]);
+  }
 
-  in.numberoftriangles       = TRIANGLE_ARR(mesh_in)->dim[DIM_1ST];
-  in.numberofcorners         = TRIANGLE_ARR(mesh_in)->dim[DIM_AUX];
-  in.numberoftriangleattributes =
-    TRIANGLE_ATTRIBUTE_ARR(mesh_in)->dim[DIM_AUX];
-  TRI_INT_OF_BIGARRAY(in.trianglelist, TRIANGLE_VAL(mesh_in),
-                      in.numberoftriangles * in.numberofcorners);
-  in.triangleattributelist   = TRIANGLE_ATTRIBUTE_VAL(mesh_in);
-  in.trianglearealist        = REAL_BIGARRAY_VAL(triangle_area);
-
-  in.numberofsegments        = SEGMENT_ARR(mesh_in)->dim[DIM_1ST];
-  TRI_INT_OF_BIGARRAY(in.segmentlist, SEGMENT_VAL(mesh_in),
-                      in.numberofsegments * 2);
-  if (SEGMENT_MARKER_ARR(mesh_in)->dim[0] == 0)
+  ba = BA_METHOD(mesh_in, meth_triangle);
+  if ((in.numberoftriangles = ba->dim[DIM_2ND]) == 0) {
+    in.numberofcorners = 0;
+    in.trianglelist = NULL;
+    in.numberoftriangleattributes = 0;
+    in.triangleattributelist = NULL;
+  }
+  else {
+    /* For mesh refinement (with `r' switch) */
+    in.numberofcorners         = ba->dim[DIM_1ST];
+    COPY_INT_BA(in.trianglelist, ba, in.numberoftriangles * in.numberofcorners);
+    ba = BA_METHOD(mesh_in, meth_triangle_attribute);
+    in.numberoftriangleattributes = ba->dim[DIM_1ST];
+    in.triangleattributelist   = MAT_OF_BA(ba);
+    in.trianglearealist = VEC_OF_BA(BA_METHOD(mesh_in, meth_triangle_area));
+  }
+  in.neighborlist = NULL;
+  
+  ba = BA_METHOD(mesh_in, mesh_segment);
+  in.numberofsegments        = ba->dim[DIM_2ND];
+  COPY_INT_BA(in.segmentlist, ba, 2 * in.numberofsegments);
+  ba = BA_METHOD(mesh_in, meth_segment_marker);
+  if (ba->dim[0] == 0)
     in.segmentmarkerlist     = NULL;
-  else
-    TRI_INT_OF_BIGARRAY(in.segmentmarkerlist, SEGMENT_MARKER_VAL(mesh_in),
-                        in.numberofsegments);
-
-  in.holelist                = HOLE_VAL(mesh_in);
-  in.numberofholes           = HOLE_ARR(mesh_in)->dim[DIM_1ST];
-  in.regionlist              = REGION_VAL(mesh_in);
-  in.numberofregions         = REGION_ARR(mesh_in)->dim[DIM_1ST];
+  else {
+    COPY_INT_BA(in.segmentmarkerlist, ba, in.numberofsegments);
+  }
+  
+  ba = BA_METHOD(mesh_in, meth_hole);
+  in.numberofholes           = ba->dim[DIM_2ND];
+  in.holelist                = MAT_OF_BA(ba);
+  ba = BA_METHOD(mesh_in, meth_region);
+  in.numberofregions         = ba->dim[DIM_2ND];
+  in.regionlist              = MAT_OF_BA(ba);
   /* in.neighborlist in.edgelist in.edgemarkerlist in.normlist
-   * in.numberofedges ignored */
+   * in.numberofedges ignored for input. */
 
-  /* OUT structure */
+  /* OUT structure ("all scalars may be ignored") */
   out.pointlist = NULL;
   out.pointattributelist = NULL;
   out.pointmarkerlist = NULL;
-  out.numberofpoints = 0;
-  out.numberofpointattributes = 0;
   out.trianglelist = NULL;
   out.triangleattributelist = NULL;
-  out.numberoftriangles = 0;
-  out.numberofcorners = 0;
-  out.numberoftriangleattributes = 0;
   out.neighborlist = NULL;
   out.segmentlist = NULL;
   out.segmentmarkerlist = NULL;
-  out.numberofsegments = 0;
   out.edgelist = NULL;
   out.edgemarkerlist = NULL;
-  out.numberofedges = 0;
-
+  
   /* Voronoi structure */
   vor.pointlist = NULL;
   vor.pointattributelist = NULL;
@@ -78,74 +85,90 @@ CAMLexport value NAME(value switches,
   /* Call [triangle] */
   triangulate(String_val(switches), &in, &out, &vor);
 
+  /* free the copied integer matrices for input */
+  if (in.pointmarkerlist != NULL) free(in.pointmarkerlist);  
+  if (in.trianglelist != NULL) free(in.trianglelist);
+  
   /* Create a Caml structure from [out] */
-  mesh_out = alloc(12, 0);
-  dims[DIM_1ST] = out.numberofpoints;
-  dims[DIM_AUX] = 2;
-  Store_field(mesh_out, 0, /* point */
-              alloc_bigarray(PREC | LAYOUT | BIGARRAY_MANAGED,
-                             2, BIGARRAY_OF_TRI_INT(out.pointlist), dims));
-  dims[DIM_AUX] = out.numberofpointattributes;
-  Store_field(mesh_out, 1, /* point_attribute */
-              alloc_bigarray(PREC | LAYOUT, 2, out.pointattributelist, dims));
+  tuple = alloc(14, 0);
+
+  /* Point.  The array has been allocated by triangle but must be
+     freed by OCaml => MANAGED. */
+  dims[DIM_1ST] = 2;
+  dims[DIM_2ND] = out.numberofpoints;
+  vba = alloc_bigarray(PREC | LAYOUT | BIGARRAY_MANAGED,
+                       2, out.pointlist, dims);
+  Store_field(tuple, 0, vba);
+  /* point_attribute */
+  dims[DIM_1ST] = out.numberofpointattributes;
+  vba = alloc_bigarray(PREC | LAYOUT | BIGARRAY_MANAGED,
+                       2, out.pointattributelist, dims);
+  Store_field(tuple, 1, vba);
+  /* point_marker */
   dims[0] = out.numberofpoints;
-  Store_field(mesh_out, 2, /* point_marker */
-              alloc_bigarray(INT | LAYOUT, 1, out.pointmarkerlist, dims));
-  dims[DIM_1ST] = out.numberoftriangles;
-  dims[DIM_AUX] = out.numberofcorners;
-  Store_field(mesh_out, 3, /* triangle */
-              alloc_bigarray(INT | LAYOUT, 2, out.trianglelist, dims));
-  dims[DIM_AUX] = out.numberoftriangleattributes;
-  Store_field(mesh_out, 4, /* triangle_attribute */
-              alloc_bigarray(PREC | LAYOUT, 2,
-                             out.triangleattributelist, dims));
+  COPY_BA_INT(vba, 1, out.pointmarkerlist, dims);
+  Store_field(tuple, 2, vba);
+  /* triangle */
+  dims[DIM_1ST] = out.numberofcorners;
+  dims[DIM_2ND] = out.numberoftriangles;
+  COPY_BA_INT(vba, 2, out.trianglelist, dims);
+  Store_field(tuple, 3, vba);
+  /* triangle_attribute */
+  dims[DIM_1ST] = out.numberoftriangleattributes;
+  vba = alloc_bigarray(PREC | LAYOUT | BIGARRAY_MANAGED,
+                       2, out.triangleattributelist, dims);
+  Store_field(tuple, 4, vba);
+  /* neighbor */
   if (out.neighborlist == NULL)
-    dims[DIM_1ST] = 0;
-  dims[DIM_AUX] = 3;
-  Store_field(mesh_out, 5, /* neighbor */
-              alloc_bigarray(INT | LAYOUT, 2, out.trianglelist, dims));
-  dims[DIM_1ST] = out.numberofsegments;
-  dims[DIM_AUX] = 2;
-  Store_field(mesh_out, 6, /* segment */
-              alloc_bigarray(INT | LAYOUT, 2, out.segmentlist, dims));
+    dims[DIM_2ND] = 0;
+  dims[DIM_1ST] = 3;
+  COPY_BA_INT(vba, 2, out.trianglelist, dims);
+  Store_field(tuple, 5, vba);
+  /* segment */
+  dims[DIM_1ST] = 2;
+  dims[DIM_2ND] = out.numberofsegments;
+  COPY_BA_INT(vba, 2, out.segmentlist, dims);
+  Store_field(tuple, 6, vba);
+  /* segment_marker */
   dims[0] = out.numberofsegments;
-  Store_field(mesh_out, 7, /* segment_marker */
-              alloc_bigarray(INT | LAYOUT, 1, out.segmentmarkerlist, dims));
-  Store_field(mesh_out, 8, /* hole */ HOLE(mesh_in));
-  Store_field(mesh_out, 9, /* region */ REGION(mesh_in));
-  dims[DIM_1ST] = out.numberofedges;
-  dims[DIM_AUX] = 2;
-  Store_field(mesh_out, 10, /* edge */
-              alloc_bigarray(INT | LAYOUT, 2, out.edgelist, dims));
+  COPY_BA_INT(vba, 1, out.segmentmarkerlist, dims);
+  Store_field(tuple, 7, vba);
+  /* edge */  
+  dims[DIM_1ST] = 2;
+  dims[DIM_2ND] = out.numberofedges;
+  COPY_BA_INT(vba, 2, out.edgelist, dims);
+  Store_field(tuple, 8, vba);
+  /* edge_marker */
   dims[0] = out.numberofedges;
-  Store_field(mesh_out, 1, /* edge_marker */
-              alloc_bigarray(INT | LAYOUT, 1, out.edgemarkerlist, dims));
-
-  /* Create a Caml structure from [vor] */
-  vor_out = alloc(4, 0);
-  dims[DIM_1ST] = vor.numberofpoints;
-  dims[DIM_AUX] = 2;
-  Store_field(vor_out, 0, /* point */
-              alloc_bigarray(PREC | LAYOUT, 2, vor.pointlist, dims));
-  dims[DIM_AUX] = vor.numberofpointattributes;
-  Store_field(vor_out, 1, /* point_attribute */
-              alloc_bigarray(PREC | LAYOUT, 2, vor.pointattributelist, dims));
-  dims[DIM_1ST] = vor.numberofedges;
-  dims[DIM_AUX] = 2;
-  Store_field(vor_out, 2, /* edge */
-              alloc_bigarray(INT | LAYOUT, 2, vor.edgelist, dims));
-  Store_field(vor_out, 3, /* normal */
-              alloc_bigarray(PREC | LAYOUT, 2, vor.normlist, dims));
-
-  /* Create a Caml tuple */
-  tuple = alloc(2, 0);
-  Store_field(tuple, 0, mesh_out);
-  Store_field(tuple, 1, vor_out);
-
+  COPY_BA_INT(vba, 1, out.edgemarkerlist, dims);
+  Store_field(tuple, 9, vba);
+  
+  /* Add the fields for [vor] */
+  /* point */
+  dims[DIM_1ST] = 2;
+  dims[DIM_2ND] = vor.numberofpoints;
+  vba = alloc_bigarray(PREC | LAYOUT | BIGARRAY_MANAGED,
+                       2, vor.pointlist, dims);
+  Store_field(tuple, 10, vba);
+  /* point_attribute */
+  dims[DIM_1ST] = vor.numberofpointattributes;
+  vba = alloc_bigarray(PREC | LAYOUT | BIGARRAY_MANAGED,
+                       2, vor.pointattributelist, dims);
+  Store_field(tuple, 11, vba);
+  /* edge */
+  dims[DIM_1ST] = 2;
+  dims[DIM_2ND] = vor.numberofedges;
+  COPY_BA_INT(vba, 2, vor.edgelist, dims);
+  Store_field(tuple, 12, vba);
+  /* normal */
+  vba = alloc_bigarray(PREC | LAYOUT | BIGARRAY_MANAGED,
+                       2, vor.normlist, dims);
+  Store_field(tuple, 13, vba);
+  
   CAMLreturn(tuple);
 }
 
 #undef NAME
 #undef DIM_1ST
-#undef DIM_AUX
+#undef DIM_2ND
 #undef LAYOUT

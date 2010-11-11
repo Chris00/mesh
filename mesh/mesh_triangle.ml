@@ -18,13 +18,14 @@
 
 open Bigarray
 
-type 'l voronoi = {
-  vor_point : 'l Mesh.mat;
-  vor_point_attribute : 'l Mesh.mat;
-  vor_edge : 'l Mesh.int_mat;
-  vor_normal : 'l Mesh.mat;
-}
+external init : unit -> unit = "ocaml_triangle_init"
+let () = init()
 
+class type ['l] voronoi =
+object
+  inherit ['l] Mesh.voronoi
+  method point_attribute : 'l Mesh.mat
+end
 
 type triunsuitable =
     float -> float -> float -> float -> float -> float -> float -> bool
@@ -34,6 +35,7 @@ let triunsuitable : triunsuitable -> unit =
 
 module F =
 struct
+  type layout = fortran_layout
   external triangle :
     string ->                           (* options *)
     'l Mesh.t ->
@@ -44,18 +46,19 @@ struct
   DEFINE NROWS(a) = Array2.dim1 a;;
   DEFINE COLS = "dim2";;
   DEFINE ROWS = "dim1";;
-  INCLUDE "triangleFC.ml";;
+  INCLUDE "mesh_triangleFC.ml";;
 end
 
 module C =
 struct
+  type layout = c_layout
   external triangle : string -> 'l Mesh.t -> 'l vec (* trianglearea *)
   -> 'l Mesh.t * 'l voronoi = "triangulate_c_layout"
   DEFINE NCOLS(a) = Array2.dim1 a;;
   DEFINE NROWS(a) = Array2.dim2 a;;
   DEFINE COLS = "dim1";;
   DEFINE ROWS = "dim2";;
-  INCLUDE "triangleFC.ml";;
+  INCLUDE "mesh_triangleFC.ml";;
 end
 
 let invalid_arg m = invalid_arg ("Mesh.triangulate: " ^ m)

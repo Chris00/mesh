@@ -20,80 +20,86 @@
 #endif /* SINGLE */
 #include "triangle/triangle.h"
 
-#define INT BIGARRAY_CAML_INT
 #define REAL_BIGARRAY_VAL(v) ((REAL *) Data_bigarray_val(v))
 #define INT_BIGARRAY_VAL(v) ((long int *) Data_bigarray_val(v))
 
-#if INT_MAX != LONG_MAX
-/* if int and long are different, INT_IS_NOT_LONG must be defined */
-#define INT_IS_NOT_LONG
-#endif
+/* WARNING: Keep in sync with ['l Mesh.t] Caml data type */
+static value meth_point;
+static value meth_point_attribute;
+static value meth_point_marker;
+static value meth_triangle;
+static value meth_triangle_attribute;
+static value meth_triangle_area;
+static value mesh_segment;
+static value meth_segment_marker;
+static value meth_hole;
+static value meth_region;
 
-#ifdef INT_IS_NOT_LONG
-/* Need to copy betwenn (long *) and (int *) arrays */
-#define TRI_INT_OF_BIGARRAY(dest, src, length) \
-  n = length; \
-  dest = malloc(n * sizeof(int)); \
-  p_end = dest + n; \
-  for(p = dest, q = src; p < p_end; p++, q++) *p = *q;
-/* Free the allocated input */
-#define TRI_INT_FREE(v) free(v)
-/* Convert back to OCaml and free output */
-#define BIGARRAY_OF_TRI_INT_FREE(dest, src, length) \
-  n = length; \
-  dest = malloc(n * sizeof(long)); \
-  p_end = src + n; \
-  for(p = src, q = dest; p < p_end; p++, q++) *q = *p;
-#else
-/* int has the same size as long */
-#define TRI_INT_OF_BIGARRAY(dest, src, length) dest = (int *) src
-#define TRI_INT_FREE(v)
-#define BIGARRAY_OF_TRI_INT_FREE(dest, src, length) dest = (long int *) src
-#endif
-
-
-/* WARNING: Keep in sync with ['l Mesh.t] Caml data type -- same order */
-#define POINT_VAL(v) REAL_BIGARRAY_VAL(Field(v,0))
-#define POINT_ARR(v) Bigarray_val(Field(v,0))
-#define POINT_ATTRIBUTE_VAL(v) REAL_BIGARRAY_VAL(Field(v,1))
-#define POINT_ATTRIBUTE_ARR(v) Bigarray_val(Field(v,1))
-#define POINT_MARKER_VAL(v) INT_BIGARRAY_VAL(Field(v,2))
-#define POINT_MARKER_ARR(v) Bigarray_val(Field(v,2))
-
-#define TRIANGLE_VAL(v) INT_BIGARRAY_VAL(Field(v,3))
-#define TRIANGLE_ARR(v) Bigarray_val(Field(v,3))
-#define TRIANGLE_ATTRIBUTE_VAL(v) REAL_BIGARRAY_VAL(Field(v,4))
-#define TRIANGLE_ATTRIBUTE_ARR(v) Bigarray_val(Field(v,4))
-#define NEIGHBOR_VAL(v) INT_BIGARRAY_VAL(Field(v,5))
-
-#define SEGMENT_VAL(v) INT_BIGARRAY_VAL(Field(v,6))
-#define SEGMENT_ARR(v) Bigarray_val(Field(v,6))
-#define SEGMENT_MARKER_VAL(v) INT_BIGARRAY_VAL(Field(v,7))
-#define SEGMENT_MARKER_ARR(v) Bigarray_val(Field(v,7))
-
-#define HOLE(v) Field(v,8)
-#define HOLE_VAL(v) REAL_BIGARRAY_VAL(Field(v,8))
-#define HOLE_ARR(v) Bigarray_val(Field(v,8))
-#define REGION(v) Field(v,9)
-#define REGION_VAL(v) REAL_BIGARRAY_VAL(Field(v,9))
-#define REGION_ARR(v) Bigarray_val(Field(v,9))
+value ocaml_triangle_init(value vunit)
+{
+  /* noalloc */
+  meth_point = hash_variant("point");
+  meth_point_attribute = hash_variant("point_attribute");
+  meth_point_marker = hash_variant("point_marker");
+  meth_triangle = hash_variant("triangle");
+  meth_triangle_attribute = hash_variant("triangle_attribute");
+  meth_triangle_area = hash_variant("triangle_area");
+  mesh_segment = hash_variant("segment");
+  meth_segment_marker = hash_variant("segment_marker");
+  meth_hole = hash_variant("hole");
+  meth_region = hash_variant("region");
+  return Val_unit;
+}
 
 
-#define NAME triangulate_c_layout
-#define DIM_1ST 0 /* main dim (number of points, triangles,...) */
-#define DIM_AUX 1 /* auxiliary dim (number of attrib.,...) */
-#define LAYOUT BIGARRAY_C_LAYOUT
-#include "triangulate_stub.c"
+#define METHOD(v, m) callback(caml_get_public_method(v, m), v)
+
+#define BA_METHOD(v, m) (Caml_ba_array_val(METHOD(v, m)))
+#define VEC_OF_BA(ba) ((REAL *) ba->data)
+#define MAT_OF_BA(ba) ((REAL *) ba->data)
+
+#define COPY_INT_BA(a, ba, dim) do{             \
+  int *dest;                                    \
+  intnat *src = ba->data;                       \
+  intnat *end = src + dim;                      \
+  a = (int *) malloc(dim * sizeof(int));        \
+  dest = a;                                     \
+  for(; src < end; src++) {                     \
+    *dest = Long_val(*src);                     \
+    dest++;                                     \
+  }                                             \
+  }while(0)
+
+/* Copy int a[] into the bigarray vba and free a.  */
+#define COPY_BA_INT(vba, numdims, a, dims) do{                          \
+  int *src, *end;                                                       \
+  intnat *dest;                                                         \
+  int length = dims[0];                                                 \
+  if (numdims == 2) length *= dims[1];                                  \
+  vba = alloc_bigarray(BIGARRAY_CAML_INT | LAYOUT, numdims, NULL, dims); \
+  end = a + length;                                                     \
+  dest = (intnat *) Data_bigarray_val(vba);                             \
+  for(src = a; src < end; src++) {                                      \
+    *dest = Val_long(*src);                                             \
+    dest++;                                                             \
+  }                                                                     \
+  free(a);                                                              \
+  } while(0)
+  
 
 #define NAME triangulate_fortran_layout
-#define DIM_1ST 1
-#define DIM_AUX 0
+#define DIM_1ST 0
+#define DIM_2ND 1 /* main dim (number of points, triangles,...) */
 #define LAYOUT BIGARRAY_FORTRAN_LAYOUT
 #include "triangulate_stub.c"
 
+#define NAME triangulate_c_layout
+#define DIM_1ST 1 /* main dim (number of points, triangles,...) */
+#define DIM_2ND 0 /* auxiliary dim (number of attrib.,...) */
+#define LAYOUT BIGARRAY_C_LAYOUT
+#include "triangulate_stub.c"
 
 
-#ifdef EXTERNAL_TEST
 
 #define NARGS_TRIUNSUITABLE 7 /* Number of Caml args */
 typedef REAL *vertex; /* taken from triangle.c */
@@ -114,6 +120,3 @@ int triunsuitable(vertex triorg, vertex tridest, vertex triapex, REAL area)
   args[6] = area;
   return(Bool_val(callbackN(*closure, NARGS_TRIUNSUITABLE, args)));
 }
-
-
-#endif /* EXTERNAL_TEST */
