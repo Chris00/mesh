@@ -106,17 +106,26 @@ typedef REAL *vertex; /* taken from triangle.c */
 
 int triunsuitable(vertex triorg, vertex tridest, vertex triapex, REAL area)
 {
+  CAMLparam0;
+  CAMLlocal1(vd);
   static value * closure = NULL;
   value args[NARGS_TRIUNSUITABLE];
   if (closure == NULL) {
     closure = caml_named_value("triunsuitable_callback");
   }
-  args[0] = triorg[0];
-  args[1] = triorg[1];
-  args[2] = tridest[0];
-  args[3] = tridest[1];
-  args[4] = triapex[0];
-  args[5] = triapex[1];
-  args[6] = area;
-  return(Bool_val(callbackN(*closure, NARGS_TRIUNSUITABLE, args)));
+
+#define COPY_DOUBLE(dest, d) \
+  vd = caml_copy_double(d);  \
+  dest = vd
+
+  COPY_DOUBLE(args[0], triorg[0]);
+  COPY_DOUBLE(args[1], triorg[1]);
+  COPY_DOUBLE(args[2], tridest[0]);
+  COPY_DOUBLE(args[3], tridest[1]);
+  COPY_DOUBLE(args[4], triapex[0]);
+  COPY_DOUBLE(args[5], triapex[1]);
+  COPY_DOUBLE(args[6], area);
+  CAMLreturn(Bool_val(callbackN(*closure, NARGS_TRIUNSUITABLE, args)));
+
+#undef COPY_DOUBLE
 }
