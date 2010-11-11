@@ -3,7 +3,8 @@
 
 let triangulate ?min_angle ?max_area
     ?(convex_hull=false) ?max_steiner ?(voronoi=false) ?(edge=false)
-    ?(subparam=false) ?triangle_area ~pslg ~refine (mesh: layout t) =
+    ?(subparam=false) ?triangle_area ?(debug=true) ~pslg ~refine
+    (mesh: layout t) =
   (* Check points *)
   if NROWS(mesh#point) <> 2 then invalid_arg(ROWS ^ " mesh#point <> 2");
   if NCOLS(mesh#point_attribute) > 0
@@ -28,7 +29,8 @@ let triangulate ?min_angle ?max_area
         if NCOLS(mesh#region) > 0 && NROWS(mesh#region) <> 4 then
           invalid_arg(ROWS ^ " region <> 4");
       end;
-      switches ^ "p"
+      if NCOLS(mesh#segment) = 0 then switches ^ "pc"
+      else switches ^ "p"
     end else switches in
   (* Check for refinement -- triangles *)
   let switches =
@@ -64,6 +66,7 @@ let triangulate ?min_angle ?max_area
   let switches = if voronoi then switches ^ "v" else switches in
   let switches = if edge then switches ^ "e" else switches in
   let switches = if subparam then switches ^ "o2" else switches in
+  let switches = if debug then switches else switches ^ "Q" in
   (* Call triangle and build the resulting objects *)
   let point, point_attribute, point_marker, triangle, triangle_attribute,
     neighbor, segment, segment_marker, edge, edge_marker,

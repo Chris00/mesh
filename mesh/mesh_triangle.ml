@@ -79,7 +79,7 @@ struct
   type int_vec = layout Mesh.int_vec
 
   let layout = fortran_layout
-  let default_switches = ""
+  let default_switches = "VV"
 
   external triangle :
     string ->                        (* options *)
@@ -125,7 +125,7 @@ struct
 end
 
 let triangle ?min_angle ?max_area ?convex_hull ?max_steiner
-    ?voronoi ?edge ?subparam ?triangle_area ~pslg ~refine mesh =
+    ?voronoi ?edge ?subparam ?triangle_area ?debug ~pslg ~refine mesh =
   let layout = Array2.layout mesh#point in
   if (Obj.magic layout) = fortran_layout then
     let triangle_area = match triangle_area with
@@ -134,7 +134,7 @@ let triangle ?min_angle ?max_area ?convex_hull ?max_steiner
     let res =
       F.triangulate
         ?min_angle ?max_area ?convex_hull ?max_steiner ?voronoi ?edge
-        ?subparam ?triangle_area ~pslg ~refine
+        ?subparam ?triangle_area ?debug ~pslg ~refine
         ((Obj.magic(mesh: 'a t)) : F.layout t) in
     (Obj.magic(res:F.layout t * F.layout voronoi) : 'a t * 'a voronoi)
   else
@@ -144,21 +144,21 @@ let triangle ?min_angle ?max_area ?convex_hull ?max_steiner
     let res =
       C.triangulate
         ?min_angle ?max_area ?convex_hull ?max_steiner ?voronoi ?edge
-        ?subparam ?triangle_area ~pslg ~refine
+        ?subparam ?triangle_area ?debug ~pslg ~refine
         ((Obj.magic(mesh: 'a t)) : C.layout t) in
     (Obj.magic(res:C.layout t * C.layout voronoi) : 'a t * 'a voronoi)
 
 
 let triangulate ?min_angle ?max_area ?convex_hull ?max_steiner ?voronoi ?edge
-    ?subparam ?triangle_area pslg =
+    ?subparam ?triangle_area ?debug pslg =
   let mesh = new mesh_of_pslg pslg in
   triangle ?min_angle ?max_area ?convex_hull ?max_steiner ?voronoi ?edge
-    ?subparam ?triangle_area ~pslg:true ~refine:false mesh
+    ?subparam ?triangle_area ?debug ~pslg:true ~refine:false mesh
 
 let refine ?min_angle ?max_area ?convex_hull ?max_steiner ?voronoi ?edge
-    ?subparam ?triangle_area mesh =
+    ?subparam ?triangle_area ?debug mesh =
   triangle ?min_angle ?max_area ?convex_hull ?max_steiner ?voronoi ?edge
-    ?subparam ?triangle_area ~pslg:false ~refine:true mesh
+    ?subparam ?triangle_area ?debug ~pslg:false ~refine:true mesh
 
 
 (* Loading various formats *)

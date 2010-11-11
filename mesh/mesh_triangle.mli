@@ -70,9 +70,17 @@ val triangulate :
   ?edge:bool ->
   ?subparam:bool ->
   ?triangle_area:'a Mesh.vec ->
+  ?debug:bool ->
   'a pslg -> 'a t * 'a voronoi
 (** [triangulate pslg] returns a triangulation of the domain
-    described by [pslg].   *)
+    described by [pslg].
+
+    If [pslg#segment] is empty, the convex hull of the set of points
+    is used. FIXME: fails.
+
+    @param debug if true, outputs some explanation of what Triangle is
+    doing and some statistics.  Default: [true] as it can contain
+    interesting information during program development. *)
 
 val refine :
   ?min_angle:float ->
@@ -83,4 +91,5 @@ val refine :
   ?edge:bool ->
   ?subparam:bool ->
   ?triangle_area:'a Mesh.vec ->
+  ?debug:bool ->
   'a t -> 'a t * 'a voronoi
