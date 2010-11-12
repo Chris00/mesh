@@ -3,8 +3,8 @@
 
 let triangulate ?(delaunay=true) ?min_angle ?max_area
     ?max_steiner ?(voronoi=false) ?(edge=true) ?(neighbor=false)
-    ?(subparam=false) ?triangle_area ?(debug=true) ~pslg ~refine
-    (mesh: layout t) =
+    ?(subparam=false) ?triangle_area ?triunsuitable ?(debug=true)
+    ~pslg ~refine (mesh: layout t) =
   (* Check points *)
   if NROWS(mesh#point) <> 2 then invalid_arg(ROWS ^ " mesh#point <> 2");
   if NCOLS(mesh#point_attribute) > 0
@@ -52,6 +52,10 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area
         invalid_arg("dim triangle_area < " ^ COLS ^ " mesh#triangle");
       Buffer.add_char switches 'a';
       a in
+  (* Check for a triunsuitable function *)
+  (match triunsuitable with
+  | None -> ()
+  | Some f -> register_triunsuitable f;  Buffer.add_char switches 'u');
   (* Other switches *)
   if delaunay then Buffer.add_char switches 'D';
   (match min_angle with

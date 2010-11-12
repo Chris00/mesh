@@ -63,8 +63,8 @@ end
 type triunsuitable =
   float -> float -> float -> float -> float -> float -> float -> bool
 
-let triunsuitable : triunsuitable -> unit =
-  Callback.register "triunsuitable_callback"
+let register_triunsuitable (f: triunsuitable) =
+  Callback.register "triunsuitable_callback" f
 
 exception Invalid_argument of string
 
@@ -125,7 +125,8 @@ struct
 end
 
 let triangle ?delaunay ?min_angle ?max_area ?max_steiner ?voronoi ?edge
-    ?neighbor ?subparam ?triangle_area ?debug ~pslg ~refine mesh =
+    ?neighbor ?subparam ?triangle_area ?debug ?triunsuitable
+    ~pslg ~refine mesh =
   let layout = Array2.layout mesh#point in
   if (Obj.magic layout) = fortran_layout then
     let triangle_area = match triangle_area with
@@ -134,7 +135,7 @@ let triangle ?delaunay ?min_angle ?max_area ?max_steiner ?voronoi ?edge
     let res =
       F.triangulate ?delaunay
         ?min_angle ?max_area ?max_steiner ?voronoi ?neighbor ?edge
-        ?subparam ?triangle_area ?debug ~pslg ~refine
+        ?subparam ?triangle_area ?triunsuitable ?debug ~pslg ~refine
         ((Obj.magic(mesh: 'a t)) : F.layout t) in
     (Obj.magic(res:F.layout t * F.layout voronoi) : 'a t * 'a voronoi)
   else
@@ -144,22 +145,24 @@ let triangle ?delaunay ?min_angle ?max_area ?max_steiner ?voronoi ?edge
     let res =
       C.triangulate ?delaunay
         ?min_angle ?max_area ?max_steiner ?voronoi ?neighbor ?edge
-        ?subparam ?triangle_area ?debug ~pslg ~refine
+        ?subparam ?triangle_area ?triunsuitable ?debug ~pslg ~refine
         ((Obj.magic(mesh: 'a t)) : C.layout t) in
     (Obj.magic(res:C.layout t * C.layout voronoi) : 'a t * 'a voronoi)
 
 
 let triangulate ?delaunay ?min_angle ?max_area ?max_steiner
-    ?voronoi ?edge ?neighbor ?subparam ?triangle_area ?debug pslg =
+    ?voronoi ?edge ?neighbor ?subparam ?triangle_area ?triunsuitable
+    ?debug pslg =
   let mesh = new mesh_of_pslg pslg in
   triangle ?delaunay ?min_angle ?max_area ?max_steiner ?voronoi
-    ?edge ?neighbor ?subparam ?triangle_area ?debug
+    ?edge ?neighbor ?subparam ?triangle_area ?triunsuitable ?debug
     ~pslg:true ~refine:false mesh
 
 let refine ?delaunay ?min_angle ?max_area ?max_steiner
-    ?voronoi ?edge ?neighbor ?subparam ?triangle_area ?debug mesh =
+    ?voronoi ?edge ?neighbor ?subparam ?triangle_area ?triunsuitable
+    ?debug mesh =
   triangle ?delaunay ?min_angle ?max_area ?max_steiner ?voronoi
-    ?edge ?neighbor ?subparam ?triangle_area ?debug
+    ?edge ?neighbor ?subparam ?triangle_area ?triunsuitable ?debug
     ~pslg:false ~refine:true mesh
 
 

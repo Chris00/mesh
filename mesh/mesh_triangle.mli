@@ -71,6 +71,7 @@ val triangulate :
   ?neighbor:bool ->
   ?subparam:bool ->
   ?triangle_area:'a Mesh.vec ->
+  ?triunsuitable:triunsuitable ->
   ?debug:bool ->
   'a pslg -> 'a t * 'a voronoi
 (** [triangulate pslg] returns a triangulation and a possibly a
@@ -104,5 +105,6 @@ val refine :
   ?neighbor:bool ->
   ?subparam:bool ->
   ?triangle_area:'a Mesh.vec ->
+  ?triunsuitable:triunsuitable ->
   ?debug:bool ->
   'a t -> 'a t * 'a voronoi
