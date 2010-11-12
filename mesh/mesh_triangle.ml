@@ -79,7 +79,7 @@ struct
   type int_vec = layout Mesh.int_vec
 
   let layout = fortran_layout
-  let default_switches = ""
+  let default_switches = "en"
 
   external triangle :
     string ->                        (* options *)
@@ -106,7 +106,7 @@ struct
   type int_vec = layout Mesh.int_vec
 
   let layout = c_layout
-  let default_switches = "z"
+  let default_switches = "zen"
 
   external triangle :
     string ->                        (* options *)

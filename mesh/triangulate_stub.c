@@ -121,10 +121,8 @@ CAMLexport value NAME(value switches,
                        2, out.triangleattributelist, dims);
   Store_field(tuple, 4, vba);
   /* neighbor */
-  if (out.neighborlist == NULL)
-    dims[DIM_2ND] = 0;
   dims[DIM_1ST] = 3;
-  COPY_BA_INT(vba, 2, out.trianglelist, dims);
+  COPY_BA_INT(vba, 2, out.neighborlist, dims);
   Store_field(tuple, 5, vba);
   /* segment */
   dims[DIM_1ST] = 2;
