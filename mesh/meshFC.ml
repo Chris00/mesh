@@ -71,7 +71,7 @@ let scilab (mesh: mesh) (z: vec) fname =
 xf = fscanfMat('%s');
 yf = fscanfMat('%s');
 zf = fscanfMat('%s');
-xbasc();
+clf();
 plot3d(xf, yf, zf)\n" sci xf yf zf;
   close_out fh;
   let save_mat fname coord =
