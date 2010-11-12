@@ -19,13 +19,19 @@ let bounding_box (mesh: mesh) =
   (!xmin, !xmax, !ymin, !ymax)
 
 let latex (mesh: mesh) filename =
+  let edge = mesh#edge in
+  let pt = mesh#point in
+  if NCOLS(edge) = 0 then invalid_arg "Mesh.latex: mesh#edge must be nonempty";
+  if NROWS(edge) <> 2 then
+    invalid_arg "Mesh.latex: mesh#edge must have 2 rows (fortran)";
+  if NCOLS(pt) = 0 then invalid_arg "Mesh.latex: mesh#point must be nonempty";
+  if NROWS(pt) <> 2 then
+    invalid_arg "Mesh.latex: mesh#point must have 2 rows (fortran)";
   let fh = open_out filename in
   let xmin, xmax, ymin, ymax = bounding_box mesh in
   latex_begin fh (xmax -. xmin) (ymax -. ymin) xmin ymin;
   (* Write lines *)
   fprintf fh "  %% %i triangles\n" (NCOLS(mesh#triangle));
-  let edge = mesh#edge in
-  let pt = mesh#point in
   for e = FST to LASTCOL(edge) do
     let i1 = GET(edge, FST,e)
     and i2 = GET(edge, SND,e) in
@@ -43,6 +49,16 @@ let latex (mesh: mesh) filename =
 
 
 let scilab (mesh: mesh) (z: vec) fname =
+  let triangle = mesh#triangle in
+  let pt = mesh#point in
+  if NCOLS(triangle) = 0 then
+    invalid_arg "Mesh.scilab: mesh#triangle must be nonempty";
+  if NROWS(triangle) < 3 then
+    invalid_arg "Mesh.scilab: mesh#triangle must have at least \
+	3 rows (fortran)";
+  if NCOLS(pt) = 0 then invalid_arg "Mesh.scilab: mesh#point must be nonempty";
+  if NROWS(pt) <> 2 then
+    invalid_arg "Mesh.scilab: mesh#point must have 2 rows (fortran)";
   let fname =
     if Filename.check_suffix fname ".sci" then Filename.chop_extension fname
     else fname in
@@ -62,7 +78,6 @@ plot3d(xf, yf, zf)\n" sci xf yf zf;
     let fh = open_out fname in
     (* We traverse several times the triangles but Scilab will not
        have to transpose the matrices. *)
-    let triangle = mesh#triangle in
     for point = FST to THIRD do
       for t = FST to LASTCOL(triangle) do
         fprintf fh "%.13g " (coord (GET(triangle, point,t)))
@@ -70,7 +85,6 @@ plot3d(xf, yf, zf)\n" sci xf yf zf;
       fprintf fh "\n";
     done;
     close_out fh in
-  let pt = mesh#point in
   save_mat xf (fun i -> GET(pt, FST,i));
   save_mat yf (fun i -> GET(pt, SND,i));
   save_mat zf (fun i -> z.{i})
@@ -79,6 +93,16 @@ let is_allowed c =
   ('0' <= c && c <= '9') || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || c = '_'
 
 let matlab (mesh: mesh) (z: vec) fname =
+  let tr = mesh#triangle in
+  let pt = mesh#point in
+  if NCOLS(tr) = 0 then
+    invalid_arg "Mesh.scilab: mesh#triangle must be nonempty";
+  if NROWS(tr) < 3 then
+    invalid_arg "Mesh.scilab: mesh#triangle must have at least \
+	3 rows (fortran)";
+  if NCOLS(pt) = 0 then invalid_arg "Mesh.scilab: mesh#point must be nonempty";
+  if NROWS(pt) <> 2 then
+    invalid_arg "Mesh.scilab: mesh#point must have 2 rows (fortran)";
   let dir = Filename.dirname fname
   and base = Filename.basename fname in
   let base = (if Filename.check_suffix base ".m" then
@@ -90,7 +114,6 @@ let matlab (mesh: mesh) (z: vec) fname =
     if not(is_allowed base.[i]) then base.[i] <- '_'
   done;
   let mat = Filename.concat dir (base ^ ".m") in
-  let pt = mesh#point in
   let save_xy fh coord =
     for p = FST to LASTCOL(pt) do fprintf fh "%.13g " (GET(pt, coord,p)) done;
     fprintf fh "\n" in
@@ -102,7 +125,6 @@ let matlab (mesh: mesh) (z: vec) fname =
   fprintf fh "];\nmesh_z = [";
   for i = FST to LASTEL(z) do fprintf fh "%.13f " z.{i} done;
   fprintf fh "];\nmesh_triangles = [";
-  let tr = mesh#triangle in
   for t = FST to LASTCOL(tr) do
     fprintf fh "%i %i %i; " (GET(tr, FST,t)) (GET(tr, SND,t)) (GET(tr, THIRD,t))
   done;
@@ -110,6 +132,7 @@ let matlab (mesh: mesh) (z: vec) fname =
   close_out fh
 ;;
 
+DEFINE FUN = "Mesh.level_curves";;
 INCLUDE "mesh_level_curvesFC.ml";;
 
 let level_curves ?(boundary=(fun _ -> Some black)) (mesh: mesh) (z: vec)

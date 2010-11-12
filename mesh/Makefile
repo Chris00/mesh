@@ -1,6 +1,6 @@
 ROOT = ..
 STUBS_LIB = mesh_triangle
-DEPEND_EXCLUDE = easymeshFC.ml
+DEPEND_EXCLUDE = %FC.ml
 
 INSTALL_FILES = META mesh.cmi mesh.cma mesh.cmxa mesh_triangle.cmi \
 	mesh_triangle.cma mesh_triangle.cmx mesh_triangle.cmxa \

@@ -48,11 +48,19 @@ let intercept {x=x1; y=y1} z1 {x=x2; y=y2} z2 l =
 
 let draw_levels ~boundary (mesh: mesh) (z: vec)
     ?(level_eq=default_level_eq) levels surf =
-  let bd = Edge.make() in
-  (* Draw the boundary edges *)
   let edge = mesh#edge in
   let marker = mesh#edge_marker in
   let pt = mesh#point in
+  if NCOLS(edge) = 0 then invalid_arg(FUN ^ ": mesh#edge must be nonempty");
+  if NROWS(edge) <> 2 then
+    invalid_arg(FUN ^ ": mesh#edge must have 2 rows (fortran)");
+  if Array1.dim marker < NCOLS(edge) then
+    invalid_arg(FUN ^ ": dim mesh#edge_marker < number edges");
+  if NCOLS(pt) = 0 then invalid_arg(FUN ^ ": mesh#point must be nonempty");
+  if NROWS(pt) <> 2 then
+    invalid_arg(FUN ^ ": mesh#point must have 2 rows (fortran)");
+  let bd = Edge.make() in
+  (* Draw the boundary edges *)
   for e = FST to LASTCOL(edge) do
     let m = marker.{e} in
     if m <> 0 (* not an interior point *) then begin
@@ -68,6 +76,10 @@ let draw_levels ~boundary (mesh: mesh) (z: vec)
     end
   done;
   let tr = mesh#triangle in
+  if NCOLS(tr) = 0 then
+    invalid_arg(FUN ^ ": mesh#triangle must be nonempty");
+  if NROWS(tr) < 3 then
+    invalid_arg(FUN ^ ": mesh#triangle must have at least 3 rows (fortran)");
   let marker = mesh#point_marker in
   for t = FST to LASTCOL(tr) do
     let i1 = GET(tr, FST,t)

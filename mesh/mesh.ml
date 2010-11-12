@@ -157,6 +157,7 @@ struct
   type vec = fortran_layout vector;;    (* local vec *)
   type matrix = fortran_layout mat;;
   DEFINE NCOLS(a) = Array2.dim2 a;;
+  DEFINE NROWS(a) = Array2.dim1 a;;
   DEFINE FST = 1;;
   DEFINE SND = 2;;
   DEFINE THIRD = 3;;
@@ -172,6 +173,7 @@ struct
   type 'a vector = 'a vec               (* global vec *)
   type vec = c_layout vector;;
   DEFINE NCOLS(a) = Array2.dim1 a;;
+  DEFINE NROWS(a) = Array2.dim2 a;;
   DEFINE FST = 0;;
   DEFINE SND = 1;;
   DEFINE THIRD = 2;;

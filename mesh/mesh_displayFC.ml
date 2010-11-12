@@ -105,6 +105,7 @@ let triangle s color {x=x0; y=y0} {x=x1; y=y1} {x=x2; y=y2} =
   set_color color;
   fill_poly [| (x0, y0); (x1, y1); (x2, y2) |]
 
+DEFINE FUN = "Mesh_display.level_curves"
 INCLUDE "mesh_level_curvesFC.ml";;
 
 let level_curves ~width ~height ?(boundary=(fun _ -> Some 0))
