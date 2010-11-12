@@ -2,7 +2,7 @@
 (* check that all C "triexit" have been avoided. *)
 
 let triangulate ?(delaunay=true) ?min_angle ?max_area
-    ?(convex_hull=false) ?max_steiner ?(voronoi=false) ?(edge=false)
+    ?max_steiner ?(voronoi=false) ?(edge=true) ?(neighbor=false)
     ?(subparam=false) ?triangle_area ?(debug=true) ~pslg ~refine
     (mesh: layout t) =
   (* Check points *)
@@ -60,12 +60,12 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area
   let switches = match max_area with
     | None -> switches
     | Some a -> switches ^ "a" ^ (string_of_float a) in
-  let switches = if convex_hull then switches ^ "c" else switches in
   let switches = match max_steiner with
     | None -> switches
     | Some a -> switches ^ "S" ^ (string_of_int a) in
   let switches = if voronoi then switches ^ "v" else switches in
   let switches = if edge then switches ^ "e" else switches in
+  let switches = if neighbor then switches ^ "n" else switches in
   let switches = if subparam then switches ^ "o2" else switches in
   let switches = if debug then switches else switches ^ "Q" in
   (* Call triangle and build the resulting objects *)

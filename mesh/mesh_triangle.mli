@@ -65,22 +65,28 @@ val triangulate :
   ?delaunay:bool ->
   ?min_angle:float ->
   ?max_area:float ->
-  ?convex_hull:bool ->
   ?max_steiner:int ->
   ?voronoi:bool ->
   ?edge:bool ->
+  ?neighbor:bool ->
   ?subparam:bool ->
   ?triangle_area:'a Mesh.vec ->
   ?debug:bool ->
   'a pslg -> 'a t * 'a voronoi
-(** [triangulate pslg] returns a triangulation of the domain
-    described by [pslg].
-    If [pslg#segment] is empty, the convex hull of the set of points
-    is used.
+(** [triangulate pslg] returns a triangulation and a possibly a
+    Voronoi diagram of the domain described by [pslg].  If
+    [pslg#segment] is empty, the convex hull of the set of points is
+    used.
 
     @param delaunay generates a truly Delaunay (not just constrained
     Delaunay) triangulation.  It usually increases the number of
     vertices and triangles.  Default: [true].
+
+    @param edge return the edges of the triangulation in [#edge].
+    Default: [true].
+
+    @param neighbor Outputs an array of triangles neighboring each
+    triangle in [#neighbor].  Default: [false].
 
     @param max_area Imposes a maximum triangle area.
 
@@ -92,10 +98,10 @@ val refine :
   ?delaunay:bool ->
   ?min_angle:float ->
   ?max_area:float ->
-  ?convex_hull:bool ->
   ?max_steiner:int ->
   ?voronoi:bool ->
   ?edge:bool ->
+  ?neighbor:bool ->
   ?subparam:bool ->
   ?triangle_area:'a Mesh.vec ->
   ?debug:bool ->
