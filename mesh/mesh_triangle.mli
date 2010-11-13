@@ -17,18 +17,30 @@
    LICENSE for more details. *)
 
 (** Interface for the Triangle 2D mesh generator.
- * http://www.cs.cmu.edu/~quake/triangle.html
- *)
 
+    {{:http://www.cs.cmu.edu/~quake/triangle.html}Triangle} is a
+    two-dimensional quality mesh generator and delaunay triangulator
+    which was awarded the 2003 Wilkinson Prize.
+
+    @version 0.5
+    @author Christophe Troestler (Christophe.Troestler\@umons.ac.be)
+*)
+
+(** Planar Straight Line Graph datastructure ({!Mesh.pslg} enriched
+    with methods specific to Triangle).  By default, creating an
+    object from this class results in all methods being initialized
+    with empty arrays. *)
 class ['l] pslg : 'l Bigarray.layout ->
 object
   inherit ['l] Mesh.pslg
 
   method point_attribute : 'l Mesh.mat
-  (** A matrix of size [a * n] ([fortran_layout]) where [a] is the
-      number of attributes per point and [n] is the number of points. *)
+(** A matrix of size [a * n] ([fortran_layout]) where [a] is the
+    number of attributes per point and [n] is the number of points. *)
 end
 
+(** Object describing various caracteristics of a mesh ({!Mesh.t}
+    enriched with methods specific to Triangle). *)
 class type ['l] t =
 object
   inherit ['l] Mesh.t
@@ -40,13 +52,19 @@ object
   method triangle_attribute : 'l Mesh.mat
 end
 
+(** Voronoi diagram ({!Mesh.voronoi} enriched with methods specific to
+    Triangle). *)
 class type ['l] voronoi =
 object
   inherit ['l] Mesh.voronoi
   method point_attribute : 'l Mesh.mat
+  (** A matrix of size [a * n] ([fortran_layout]) where [a] is the
+      number of attributes per point and [n] is the number of points. *)
 end
 
 exception Invalid_argument of string
+(** Exception raised by the functions of this module to indicate that
+    an argument not respecting the specifications was given. *)
 
 type triunsuitable =
   float -> float -> float -> float -> float -> float -> float -> bool
@@ -56,7 +74,7 @@ type triunsuitable =
     big. The arguments are as follow:
     - [x0] and [y0] are the X an Y coordinates of the triangle's origin vertex.
     - [x1] and [y2] are the X an Y coordinates of the triangle's
-      destination vertex.
+    destination vertex.
     - [x2] and [y2] are the X an Y coordinates of the triangle's apex vertex.
     - [area] is the area of the triangle.
 *)
@@ -109,7 +127,7 @@ val refine :
   'a t -> 'a t * 'a voronoi
 (** [refine mesh] returns a refined version of the [mesh].
 
-    @triangle_area allows to specify, for each triangle, a maximum
-    area.  If both [max_area] and [triangle_area] are specified,
-    [triangle_area] is used.
+    @param triangle_area allows to specify, for each triangle [i], a
+    maximum area [triangle_area.{i}].  If both [max_area] and
+    [triangle_area] are specified, [triangle_area] is used.
 *)

@@ -3,8 +3,8 @@
    Copyright (C) 2006
 
      Christophe Troestler
-     email: Christophe.Troestler@umh.ac.be
-     WWW: http://math.umh.ac.be/an/software/
+     email: Christophe.Troestler@umons.ac.be
+     WWW: http://math.umons.ac.be/an/en/software/
 
    This library is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License version 2.1 or
@@ -15,6 +15,12 @@
    WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the file
    LICENSE for more details. *)
+
+(** Draw meshes and level curves in a Caml Graphics window.
+
+    @version 0.5
+    @author Christophe Troestler <Christophe.Troestler\@umons.ac.be>
+*)
 
 val draw :
   ?width:int -> ?height:int -> ?color: int -> ?voronoi:'a Mesh.voronoi ->

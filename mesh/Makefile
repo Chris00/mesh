@@ -1,10 +1,13 @@
 ROOT = ..
+DOC_DIR = $(ROOT)/doc
 STUBS_LIB = mesh_triangle
 DEPEND_EXCLUDE = %FC.ml
 
 INSTALL_FILES = META mesh.cmi mesh.cma mesh.cmxa mesh_triangle.cmi \
 	mesh_triangle.cma mesh_triangle.cmx mesh_triangle.cmxa \
 	$(wildcard dll$(STUBS_LIB).* lib$(STUBS_LIB).*)
+
+INTERFACES = $(wildcard *.mli)
 
 PP = camlp4o pa_macro.cmo
 OCAMLC_FLAGS 	= -annot -g
@@ -41,11 +44,11 @@ triangle/triangle.c:
 
 # Documentation
 .PHONY: doc
-doc:   doc/index.html
+doc:   $(DOC_DIR)/index.html
 
-doc/index.html: $(INTERFACES) $(INTERFACES:.mli=.cmi)
-	[ -d doc/ ] || mkdir doc
-	$(OCAMLDOC) -d doc -html $(OCAMLDOC_FLAGS) $(INTERFACES)
+$(DOC_DIR)/index.html: $(INTERFACES) $(INTERFACES:.mli=.cmi)
+	mkdir -p $(DOC_DIR)
+	$(OCAMLDOC) -d $(DOC_DIR) -html $(OCAMLDOC_FLAGS) $(INTERFACES)
 
 # (Un)install
 .PHONY: install uninstall reinstall

@@ -1,4 +1,4 @@
-(* Mesh.mli                       Time-stamp: <2010-11-13 10:44:26 trch>
+(* Mesh.mli                       Time-stamp: <2010-11-13 11:42:28 trch>
 
   Copyright (C) 2001-2004
 
@@ -30,7 +30,7 @@
     are given by [(point.{i,0}, point.{i,1})].
 
     @version 0.7
-    @author Christophe Troestler <Christophe.Troestler\@umons.ac.be>
+    @author Christophe Troestler (Christophe.Troestler\@umons.ac.be)
 *)
 
 open Bigarray
@@ -52,10 +52,10 @@ type 'layout int_mat = (int, int_elt, 'layout) Array2.t
 class ['l] pslg : 'l layout ->
 object
   method point : 'l mat
-  (** Array of points coordinates (x,y).  It is of size 2 * n
-      (fortran_layout) where n >= 3 is the number of points.  So the
-      coordinates of point number [i] are [(point.{1,i},
-      point.{2,i})]. *)
+  (** Array of points coordinates (x,y).  It is of size [2 * n]
+      ([fortran_layout]) where [n >= 3] is the number of points.  So the
+      coordinates of point number [i] are [(point.{1,i}, point.{2,i})].
+  *)
   method point_marker : 'l int_vec
   (** Array of points markers.  Points inside the domain receive the
       marker [0], so assign markers [>= 1] to distinguish different
@@ -83,7 +83,7 @@ object
   (** Array of regional attributes and area constraints.  It is of
       size [4 * n] ([fortran_layout]) where [n >= 0] is the number of
       regions.  For a region [i], [region{1,i}] and [region{2,i}] are
-      the x and y coordinates of a point in the region, [region{3,i}]
+      the x and y coordinates of a point inside the region, [region{3,i}]
       is the regional attribute, and [region{4,i}] is the maximum
       area. *)
 end
@@ -102,7 +102,7 @@ object
       nodes. *)
   method neighbor : 'layout int_mat
   (** Array of triangle neighbors; 3 int per triangle.  It is of size
-      3 * n (fortran_layout) where n is 0 (i.e., neighbouring
+      [3 * n] ([fortran_layout]) where [n] is 0 (i.e., neighbouring
       information is not given) or the number of triangles. *)
   method edge : 'layout int_mat
     (** Array of edge endpoints; 2 int per edge.  It is of size [2 * n]
@@ -145,15 +145,15 @@ val is_c_layout : 'l pslg -> bool
     The LaTex output is given in terms of three macros [\meshline],
     [\meshpoint], and [\meshtriangle] to plot edges, points and
     (filled) triangles.  The arguments of these macros are described
-    by comments in the output.  If you do not provide your own
-    implementations, default ones will be used.  *)
+    by comments in the output files.  If you do not provide your own
+    implementations, default ones will be used.  The LaTeX package
+    {{:https://sourceforge.net/projects/pgf/}tikz} is required --
+    which works for PostScript as well as PDF output. *)
 module LaTeX :
 sig
   val save : 'l #t -> string -> unit
-  (** [latex mesh file] saves the mesh as LaTeX PGF commands.  You can
-      input the file in a tikzpicture environment to render the mesh.
-      You will need to use the package "tikz" -- which works for
-      PostScript as well as PDF output.  *)
+  (** [save mesh file] saves the mesh as LaTeX PGF commands.  You can
+      input the file in a [tikzpicture] environment to render the mesh. *)
 
   val level_curves : ?boundary:(int -> int option) ->
     'l #t -> 'l vec -> ?level_eq:(float -> float -> bool) ->
@@ -161,7 +161,7 @@ sig
     (** [level_curves mesh z levels file] outputs into [file] LaTeX
         PGF commands to display the level curves at [levels] of the P1
         FEM surface with values [z] on the mesh [mesh].  Each level is
-        a couple [(l, c)] where [l] is the lavel value and [c] is the
+        a couple [(l, c)] where [l] is the level value and [c] is the
         RGB color to be used to display it. The output is done as TeX
         macros [\meshline{R,G,B}{x1}{y1}{x2}{y2}], [\meshpoint{point
         number}{x}{y}] and
@@ -185,7 +185,7 @@ end
 val scilab : 'l #t -> 'l vec -> string -> unit
   (** [scilab mesh z file] saves the mesh data and the function values
       [z] (i.e. [z.{i}] is the function value at the point
-      [mesh.point.{_,i}] (fortran layout)) on that mesh so that when
+      [mesh.point.{_,i}] ([fortran layout])) on that mesh so that when
       Scilab runs the created [file].sci script, the graph of the
       function is drawn. *)
 
@@ -194,6 +194,6 @@ val scilab : 'l #t -> 'l vec -> string -> unit
 val matlab : 'l #t -> 'l vec -> string -> unit
   (** [matlab mesh z file] saves the mesh data and the function values
       [z] (i.e. [z.{i}] is the function value at the point
-      [mesh.point.{_,i}] (fortran layout)) on that mesh so that when
+      [mesh.point.{_,i}] ([fortran layout])) on that mesh so that when
       Matlab runs the created [file].m script, the graph of the
       function is drawn. *)

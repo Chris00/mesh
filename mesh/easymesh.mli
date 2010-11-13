@@ -1,10 +1,10 @@
-(* Easymesh.mli                    Time-stamp: <2010-11-11 21:58:27 trch>
+(* Easymesh.mli                    Time-stamp: <2010-11-13 11:16:09 trch>
 
   Copyright (C) 2001-2004
 
      Christophe Troestler
-     email: Christophe.Troestler@umh.ac.be
-     WWW: http://www.umh.ac.be/math/an/software/
+     email: Christophe.Troestler@umons.ac.be
+     WWW: http://math.umons.ac.be/an/en/software/
 
    This library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -20,14 +20,14 @@
    02111-1307, USA.
 *)
 (**
-   OCaml interface for EasyMesh.
+   OCaml interface to EasyMesh.
 
    {{:http://www-dinma.univ.trieste.it/nirftc/research/easymesh/}EasyMesh}
    is a simple and easy to use mesh generator.  However, it is not
    very robust and can segfault instead of reporting an error.
 
    @version 0.5
-   @author Christophe Troestler (Christophe.Troestler\@umh.ac.be)
+   @author Christophe Troestler (Christophe.Troestler\@umons.ac.be)
 *)
 
 class ['l] pslg : 'l Bigarray.layout -> ['l] Mesh.pslg
@@ -41,7 +41,7 @@ val triangulate : max_area:float -> 'layout Mesh.pslg -> 'layout Mesh.t
     Planar Straight Line Graph [pslg] given by [pslg.Mesh.points]
     and [pslg.Mesh.segment].  BEWARE that for EasyMesh, the boundary
     must have a positive (counterclockwise) orientation, holes must
-    be delimited by a negatively orientated paths.
+    be delimited by a negatively oriented paths.
 
     [pslg.Mesh.points_marker] and [pslg.Mesh.segment_marker] may be set.
 
