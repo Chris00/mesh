@@ -43,12 +43,15 @@ triangle/triangle.c:
 	$(OCAMLC) -c -o $@ $<
 
 # Documentation
-.PHONY: doc
+.PHONY: doc upload-doc
 doc:   $(DOC_DIR)/index.html
 
 $(DOC_DIR)/index.html: $(INTERFACES) $(INTERFACES:.mli=.cmi)
 	mkdir -p $(DOC_DIR)
 	$(OCAMLDOC) -d $(DOC_DIR) -html $(OCAMLDOC_FLAGS) $(INTERFACES)
+
+upload-doc:
+	$(MAKE) -C $(ROOT) $@
 
 # (Un)install
 .PHONY: install uninstall reinstall
