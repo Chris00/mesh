@@ -151,11 +151,10 @@ let triangle ?delaunay ?min_angle ?max_area ?max_steiner ?voronoi ?edge
 
 
 let triangulate ?delaunay ?min_angle ?max_area ?max_steiner
-    ?voronoi ?edge ?neighbor ?subparam ?triangle_area ?triunsuitable
-    ?debug pslg =
+    ?voronoi ?edge ?neighbor ?subparam ?triunsuitable ?debug pslg =
   let mesh = new mesh_of_pslg pslg in
   triangle ?delaunay ?min_angle ?max_area ?max_steiner ?voronoi
-    ?edge ?neighbor ?subparam ?triangle_area ?triunsuitable ?debug
+    ?edge ?neighbor ?subparam ?triunsuitable ?debug
     ~pslg:true ~refine:false mesh
 
 let refine ?delaunay ?min_angle ?max_area ?max_steiner

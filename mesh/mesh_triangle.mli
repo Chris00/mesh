@@ -70,7 +70,6 @@ val triangulate :
   ?edge:bool ->
   ?neighbor:bool ->
   ?subparam:bool ->
-  ?triangle_area:'a Mesh.vec ->
   ?triunsuitable:triunsuitable ->
   ?debug:bool ->
   'a pslg -> 'a t * 'a voronoi
@@ -108,3 +107,9 @@ val refine :
   ?triunsuitable:triunsuitable ->
   ?debug:bool ->
   'a t -> 'a t * 'a voronoi
+(** [refine mesh] returns a refined version of the [mesh].
+
+    @triangle_area allows to specify, for each triangle, a maximum
+    area.  If both [max_area] and [triangle_area] are specified,
+    [triangle_area] is used.
+*)

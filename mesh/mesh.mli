@@ -1,4 +1,4 @@
-(* Mesh.mli                       Time-stamp: <2010-11-11 23:19:05 trch>
+(* Mesh.mli                       Time-stamp: <2010-11-13 10:44:26 trch>
 
   Copyright (C) 2001-2004
 
@@ -30,7 +30,7 @@
     are given by [(point.{i,0}, point.{i,1})].
 
     @version 0.7
-    @author Christophe Troestler <Christophe.Troestler\@umh.ac.be>
+    @author Christophe Troestler <Christophe.Troestler\@umons.ac.be>
 *)
 
 open Bigarray

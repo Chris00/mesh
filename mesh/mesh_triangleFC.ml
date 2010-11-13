@@ -29,8 +29,9 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area
       if NCOLS(mesh#region) > 0 && NROWS(mesh#region) <> 4 then
         invalid_arg(ROWS ^ " region <> 4");
     end;
-    if NCOLS(mesh#segment) = 0 then Buffer.add_string switches "pc"
-    else Buffer.add_char switches 'p'
+    Buffer.add_char switches 'p';
+    if NROWS(mesh#segment) = 0 || NCOLS(mesh#segment) = 0 then
+      Buffer.add_char switches 'c';
   end;
   (* Check for refinement -- triangles *)
   if refine then begin
@@ -46,7 +47,13 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area
   end;
   (* Check triangle_area *)
   let triangle_area = match triangle_area with
-    | None -> Array1.create float64 layout 0
+    | None ->
+      (match max_area with
+      | None -> ()
+      | Some a ->
+        Buffer.add_char switches 'a';
+        Buffer.add_string switches (string_of_float a));
+      Array1.create float64 layout 0
     | Some a ->
       if Array1.dim a < NCOLS(mesh#triangle) then
         invalid_arg("dim triangle_area < " ^ COLS ^ " mesh#triangle");
@@ -62,11 +69,6 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area
   | None -> ()
   | Some a ->
     Buffer.add_char switches 'q';
-    Buffer.add_string switches (string_of_float a));
-  (match max_area with
-  | None -> ()
-  | Some a ->
-    Buffer.add_char switches 'a';
     Buffer.add_string switches (string_of_float a));
   (match max_steiner with
   | None -> ()
