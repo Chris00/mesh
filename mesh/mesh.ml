@@ -26,6 +26,9 @@ type 'layout mat = (float, float64_elt, 'layout) Array2.t
 type 'layout int_vec = (int, int_elt, 'layout) Array1.t
 type 'layout int_mat = (int, int_elt, 'layout) Array2.t
 
+let max2 a b = if (a:int) > b then a else b
+let max4 a b c d = max2 (max2 a b) (max2 c d)
+
 class ['l] pslg (layout : 'l layout) =
 object
   method point = Array2.create float64 layout 2 0
@@ -185,6 +188,13 @@ end
 
 let is_c_layout (mesh: _ pslg) =
   Array2.layout mesh#point = (Obj.magic c_layout : 'a Bigarray.layout)
+
+let band_height_P1 mesh =
+  if Array2.layout mesh#triangle = (Obj.magic c_layout : 'a Bigarray.layout)
+  then
+    C.band_height_P1 (Obj.magic(mesh: _ t) : c_layout t)
+  else
+    F.band_height_P1 (Obj.magic(mesh: _ t) : fortran_layout t)
 
 module LaTeX =
 struct

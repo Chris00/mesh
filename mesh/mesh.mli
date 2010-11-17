@@ -1,4 +1,4 @@
-(* Mesh.mli                       Time-stamp: <2010-11-13 11:42:28 trch>
+(* Mesh.mli                       Time-stamp: <2010-11-17 14:00:25 trch>
 
   Copyright (C) 2001-2004
 
@@ -135,9 +135,12 @@ end
 val is_c_layout : 'l pslg -> bool
 (** [is_c_layout] returns true if the mesh layout is C. *)
 
-
-(** {2 Level curves} *)
-
+val band_height_P1 : 'l t -> int
+(** [band_height mesh] returns the number of nonzero super-diagonals +
+    1 (for the diagonal) of symmetric band matrices for P1 finite
+    elements inner products.  It is the maximum on all triangles T of
+    max(|i1 - i2|, |i2 - i3|, |i3 - i1|) where i1, i2, and i3 are
+    the indices of the nodes of the three corners of the triangle T.  *)
 
 
 (** {2 LaTeX output}

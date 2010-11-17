@@ -145,6 +145,20 @@ let level_curves ?(boundary=(fun _ -> Some black)) (mesh: mesh) (z: vec)
   close_out fh
 
 
+(* Determine the number of superdiagonals + 1 main diagonal *)
+let band_height_P1 (mesh: mesh) =
+  let tr = mesh#triangle in
+  let kd = ref 0 in
+  for i = 1 to Array2.dim2 tr do
+    let i1 = tr.{1,i}
+    and i2 = tr.{2,i}
+    and i3 = tr.{3,i} in
+    kd := max4 !kd (abs(i1 - i2)) (abs(i2 -i3)) (abs(i3 - i1))
+  done;
+  !kd + 1
+
+
+
 (* Local Variables: *)
 (* compile-command: "make -k" *)
 (* End: *)
