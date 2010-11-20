@@ -1,4 +1,4 @@
-(* Easymesh.mli                    Time-stamp: <2010-11-13 11:16:09 trch>
+(* Easymesh.mli                    Time-stamp: <2010-11-20 19:01:31 trch>
 
   Copyright (C) 2001-2004
 
@@ -56,3 +56,7 @@ val read : 'layout Bigarray.layout -> string -> 'layout Mesh.t
       [file].e and [file].s into a Mesh.t structure.  Only the fact that
       the files are well formed is checked (various exceptions may be
       thrown), not the fact that the data describe a real mesh. *)
+
+val write : 'layout #Mesh.t -> string -> unit
+(** [write mesh file] writes the [mesh] in the files [file].n,
+    [file].e and [file].s in easymesh format. *)

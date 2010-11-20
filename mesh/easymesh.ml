@@ -99,3 +99,9 @@ let triangulate ~max_area (pslg: 'a Mesh.pslg) =
   Sys.remove (fname ^ ".e");
   Sys.remove (fname ^ ".s");
   mesh
+
+let write (mesh: _ #Mesh.t) file =
+  if is_c_layout (mesh :> _ Mesh.pslg) then
+    C.write (Obj.magic mesh : c_layout Mesh.t) file
+  else
+    F.write (Obj.magic mesh : fortran_layout Mesh.t) file

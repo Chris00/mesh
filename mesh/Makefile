@@ -29,6 +29,10 @@ opt: mesh.cmxa mesh_triangle.cmxa
 mesh.cma: mesh.cmo mesh_display.cmo easymesh.cmo
 mesh.cmxa: mesh.cmx mesh_display.cmx easymesh.cmx
 
+mesh.cmo mesh.cmx: meshFC.ml
+easymesh.cmo easymesh.cmx: easymeshFC.ml
+mesh_triangle.cmo mesh_triangle.cmx: mesh_triangleFC.ml
+
 mesh_triangle.cma mesh_triangle.cmxa: mesh_triangle.cmo mesh_triangle.cmx \
   triangle.o triangle_stubs.o
 	$(OCAMLMKLIB) -o $(basename $@) $^

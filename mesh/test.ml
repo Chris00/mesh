@@ -28,6 +28,7 @@ let mesh, _ = M.triangulate ~max_area:0.001
    end)
 
 let () =
+  Easymesh.write mesh (Filename.temp_dir_name ^ "/mesh");
   Mesh_display.display mesh;
   Mesh.LaTeX.save mesh "testmesh.tex";
 
