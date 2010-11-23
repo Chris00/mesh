@@ -5,7 +5,7 @@ DEPEND_EXCLUDE = %FC.ml
 
 INTERFACES = $(wildcard *.mli)
 
-INSTALL_FILES = META $(INTERFACES) $(INTERFACES:mli=.cmi) mesh.cma mesh.cmxa \
+INSTALL_FILES = META $(INTERFACES) $(INTERFACES:.mli=.cmi) mesh.cma mesh.cmxa \
 	mesh_triangle.cma mesh_triangle.cmx mesh_triangle.cmxa \
 	mesh.a mesh_triangle.a \
 	$(wildcard dll$(STUBS_LIB).* lib$(STUBS_LIB).*)
