@@ -2,9 +2,8 @@ OCAMLMAKEFILE = ../OCamlMakefile
 ANNOTATE := yes
 OCAMLNCFLAGS = -inline 10
 
-INCDIRS += ../mesh
 LIBS += 
-PACKS = lacaml
+PACKS = lacaml,mesh
 
 SOURCES = laplacian.ml
 RESULT = laplacian

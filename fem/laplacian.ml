@@ -19,14 +19,14 @@ open Bigarray
 open Mesh
 open Lacaml.Impl.D
 
-type mesh = fortran_layout Mesh.t
+type 'a mesh = fortran_layout #Mesh.t as 'a
 type vec = (float, float64_elt, fortran_layout) Array1.t
 
 let max2 a b = if (a:int) > b then a else b
 let max4 a b c d = max2 (max2 a b) (max2 c d)
 
 (* Determine the number of superdiagonals + 1 main diagonal *)
-let band_height (mesh: mesh) =
+let band_height (mesh: _ mesh) =
   let tr = mesh#triangle in
   let kd = ref 0 in
   for i = 1 to Array2.dim2 tr do
@@ -47,7 +47,7 @@ let sort3 (a:int) b c =
     else if a > c then (b, a, c) else (b, c, a)
 
 
-let inner_band_matrix (mesh: mesh) =
+let inner_band_matrix (mesh: _ mesh) =
   let band = band_height mesh in
   let tr = mesh#triangle in
   let pt = mesh#point in
@@ -81,7 +81,7 @@ let inner_band_matrix (mesh: mesh) =
   im, tr_area
 
 type t = {
-  mesh: mesh;                   (* original mesh *)
+  mesh: fortran_layout Mesh.t;  (* original mesh *)
   area : vec;                   (* area of each triangle *)
   inner: mat;                   (* inner prodict matrix *)
   lap : mat;                    (* FEM band matrix of laplacian with BC *)
@@ -89,7 +89,7 @@ type t = {
   bc_dirichlet : int list;      (* Boundary Dirichlet nodes *)
 }
 
-let make ?(bc=(fun _ _ _ -> None)) (mesh: mesh) =
+let make ?(bc=(fun _ _ _ -> None)) (mesh: _ mesh) =
   let inner, area = inner_band_matrix mesh in
   (* Each boundary equation is changed and the contribution of the
      boundary nodes is kept in [bc_rhs].  If I denotes the initial
@@ -124,7 +124,8 @@ let make ?(bc=(fun _ _ _ -> None)) (mesh: mesh) =
           lap.{band, i} <- 1.;
           bc_dirichlet := i :: !bc_dirichlet
   done;
-  { mesh = mesh;  area = area;  inner = inner;  lap = lap;
+  { mesh = (mesh :> fortran_layout Mesh.t);
+    area = area;  inner = inner;  lap = lap;
     bc_rhs = bc_rhs;
     bc_dirichlet = !bc_dirichlet }
 ;;

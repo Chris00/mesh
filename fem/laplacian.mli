@@ -23,7 +23,7 @@ open Lacaml.Impl.D
 type t
 
 val make : ?bc: (int -> float -> float -> float option) ->
-  fortran_layout Mesh.t -> t
+  fortran_layout #Mesh.t -> t
   (** [make mesh] returns representation of the Laplacian on the [mesh].
 
       @param bc allows to define the boundary conditions (this it is
