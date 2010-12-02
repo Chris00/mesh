@@ -159,14 +159,17 @@ struct
   type 'a vector = 'a vec               (* global vec *)
   type vec = fortran_layout vector;;    (* local vec *)
   type matrix = fortran_layout mat;;
+  let layout = fortran_layout;;
   DEFINE NCOLS(a) = Array2.dim2 a;;
   DEFINE NROWS(a) = Array2.dim1 a;;
   DEFINE FST = 1;;
   DEFINE SND = 2;;
   DEFINE THIRD = 3;;
   DEFINE LASTCOL(a) = Array2.dim2 a;;
+  DEFINE LASTROW(a) = Array2.dim1 a;;
   DEFINE LASTEL(v) = Array1.dim v;;
   DEFINE GET(a,i,j) = a.{i,j};; (* the type of [a] must known at use point *)
+  DEFINE ARRAY2(kind, n, m) = Array2.create kind fortran_layout n m
   INCLUDE "meshFC.ml";;
 end
 
@@ -175,14 +178,17 @@ struct
   type mesh = c_layout t;;
   type 'a vector = 'a vec               (* global vec *)
   type vec = c_layout vector;;
+  let layout = c_layout;;
   DEFINE NCOLS(a) = Array2.dim1 a;;
   DEFINE NROWS(a) = Array2.dim2 a;;
   DEFINE FST = 0;;
   DEFINE SND = 1;;
   DEFINE THIRD = 2;;
   DEFINE LASTCOL(a) = Array2.dim1 a - 1;;
+  DEFINE LASTROW(a) = Array2.dim2 a - 1;;
   DEFINE LASTEL(v) = Array1.dim v - 1;;
   DEFINE GET(a,i,j) = a.{j,i};;
+  DEFINE ARRAY2(kind, n, m) = Array2.create kind c_layout m n
   INCLUDE "meshFC.ml";;
 end
 
@@ -192,9 +198,21 @@ let is_c_layout (mesh: _ pslg) =
 let band_height_P1 mesh =
   if Array2.layout mesh#triangle = (Obj.magic c_layout : 'a Bigarray.layout)
   then
-    C.band_height_P1 (Obj.magic(mesh: _ t) : c_layout t)
+    C.band_height_P1 (Obj.magic(mesh: _ #t) : c_layout t)
   else
-    F.band_height_P1 (Obj.magic(mesh: _ t) : fortran_layout t)
+    F.band_height_P1 (Obj.magic(mesh: _ #t) : fortran_layout t)
+
+let cuthill_mckee ?(rev=true) ?(perm: 'l int_vec option) (mesh: 'l #t) =
+  if is_c_layout(mesh :> _ pslg) then
+    let m = C.cuthill_mckee ~rev (Obj.magic perm : c_layout int_vec option)
+      (Obj.magic mesh : c_layout t) in
+    (Obj.magic (m: c_layout t) : 'l t)
+  else
+    let m = F.cuthill_mckee ~rev
+      (Obj.magic perm : fortran_layout int_vec option)
+      (Obj.magic mesh : fortran_layout t) in
+    (Obj.magic (m: fortran_layout t) : 'l t)
+
 
 module LaTeX =
 struct

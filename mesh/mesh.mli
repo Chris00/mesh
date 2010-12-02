@@ -1,4 +1,4 @@
-(* Mesh.mli                       Time-stamp: <2010-11-17 14:00:25 trch>
+(* Mesh.mli                       Time-stamp: <2010-12-02 18:12:07 trch>
 
   Copyright (C) 2001-2004
 
@@ -95,11 +95,10 @@ object
 
   method triangle : 'layout int_mat
   (** Array of triangle corners: for each triangle, give the 3 indices
-      of its corners in counterclockwise order, followed by (the
-      indices of) other nodes if the triangle represents a nonlinear
-      element.  Its size is [c * n] ([fortran_layout]) where [n > 0]
-      is the number of triangles and [c >= 3] is the number of
-      nodes. *)
+      of its corners, followed by (the indices of) other nodes if the
+      triangle represents a nonlinear element.  Its size is [c * n]
+      ([fortran_layout]) where [n > 0] is the number of triangles and
+      [c >= 3] is the number of nodes. *)
   method neighbor : 'layout int_mat
   (** Array of triangle neighbors; 3 int per triangle.  It is of size
       [3 * n] ([fortran_layout]) where [n] is 0 (i.e., neighbouring
@@ -135,12 +134,26 @@ end
 val is_c_layout : 'l pslg -> bool
 (** [is_c_layout] returns true if the mesh layout is C. *)
 
-val band_height_P1 : 'l t -> int
+val band_height_P1 : 'l #t -> int
 (** [band_height mesh] returns the number of nonzero super-diagonals +
     1 (for the diagonal) of symmetric band matrices for P1 finite
     elements inner products.  It is the maximum on all triangles T of
     max(|i1 - i2|, |i2 - i3|, |i3 - i1|) where i1, i2, and i3 are
     the indices of the nodes of the three corners of the triangle T.  *)
+
+val cuthill_mckee : ?rev:bool -> ?perm:'l int_vec -> 'l #t -> 'l t
+(** [cuthill_mckee mesh] return a new mesh that is identical to [mesh]
+    except that the labelling of the nodes has been changed to lower
+    its band (as computed by {!band_height_P1}).
+
+    @rev whether if true, use the Reverse CutHill-McKee algorithm.
+    Default: [true].
+
+    @perm if provided, the permutation will be stored in that vector.
+    More precisely, [perm.{l} = i] means that [l] is the new label for
+    the node initially labeled [i].  This permutation is needed to
+    transfer vectors defined on the initial labeling.  The length
+    of the permutation vector must be the number of nodes. *)
 
 
 (** {2 LaTeX output}

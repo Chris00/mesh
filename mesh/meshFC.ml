@@ -149,14 +149,116 @@ let level_curves ?(boundary=(fun _ -> Some black)) (mesh: mesh) (z: vec)
 let band_height_P1 (mesh: mesh) =
   let tr = mesh#triangle in
   let kd = ref 0 in
-  for i = 1 to Array2.dim2 tr do
-    let i1 = tr.{1,i}
-    and i2 = tr.{2,i}
-    and i3 = tr.{3,i} in
+  for t = FST to LASTCOL(tr) do
+    let i1 = GET(tr, FST, t)
+    and i2 = GET(tr, SND, t)
+    and i3 = GET(tr, THIRD, t) in
     kd := max4 !kd (abs(i1 - i2)) (abs(i2 -i3)) (abs(i3 - i1))
   done;
   !kd + 1
 
+(* Return the index with the lowest nonnegative [deg] (negative
+   degrees are ignored).  Return [-1] if all degrees are < 0. *)
+let min_deg (deg: int array) =
+  let i = ref(-1) in
+  let degi = ref(max_int) in
+  for j = FST to Array.length deg - 1 do
+    if deg.(j) >= 0 && deg.(j) < !degi then (i := j;  degi := deg.(j))
+  done;
+  !i
+
+(* http://ciprian-zavoianu.blogspot.com/2009/01/project-bandwidth-reduction.html
+*)
+let cuthill_mckee ~rev perm (mesh: mesh) : mesh =
+  let n = NCOLS(mesh#point) in
+  let perm = match perm with
+    | None -> Array1.create int layout n
+    | Some p ->
+      if Array1.dim p <> n then
+        invalid_arg "Mesh.cuthill_mckee: dim perm <> number of points";
+      p in
+  Array1.fill perm (-1);
+  let deg = Array.make (n + FST) 0 in (* degree of adjacency of each node *)
+  let nbh = Array.make (n + FST) [] in (* list of adjacent nodes *)
+  let old_edge = mesh#edge in
+  for e = FST to LASTCOL(old_edge) do
+    let i1 = GET(old_edge, FST, e)
+    and i2 = GET(old_edge, SND, e) in
+    nbh.(i1) <- i2 :: nbh.(i1);
+    deg.(i1) <- deg.(i1) + 1;
+    nbh.(i2) <- i1 :: nbh.(i2);
+    deg.(i2) <- deg.(i2) + 1;
+  done;
+  let free = ref(FST) in (* first free position in [perm] *)
+  let q = Queue.create () in
+  let add node =
+    perm.{!free} <- node;
+    incr free;
+    deg.(node) <- -1; (* [i] put in the final vec. *)
+    let nbhs = List.filter (fun i -> deg.(i) >= 0) nbh.(node) in
+    let nbhs = List.fast_sort (fun i1 i2 -> compare deg.(i1) deg.(i2)) nbhs in
+    List.iter (fun i -> Queue.add i q) nbhs
+  in
+  let last_pt = LASTEL(perm) in
+  while !free <= last_pt do
+    add (min_deg deg);
+    while not(Queue.is_empty q) do
+      let c = Queue.take q in
+      if deg.(c) >= 0 then add c
+    done
+  done;
+  if rev then (
+    let s = if FST = 0 then n-1 else n+1 in (* FIXME: cond known at compil. *)
+    for i = FST to n/2 -1 + FST do
+      let t = perm.{i} in
+      perm.{i} <- perm.{s-i};
+      perm.{s-i} <- t;
+    done
+  );
+  (* Inverse perm *)
+  let inv_perm = Array1.create int layout n in
+  for i = FST to LASTEL(perm) do inv_perm.{perm.{i}} <- i done;
+  (* Build the new mesh *)
+  let old_pt = mesh#point in
+  let pt = ARRAY2(float64, 2, n) in
+  for i = FST to LASTCOL(pt) do
+    let old_i = perm.{i} in
+    GET(pt, FST, i) <- GET(old_pt, FST, old_i);
+    GET(pt, SND, i) <- GET(old_pt, SND, old_i);
+  done;
+  let old_ptm = mesh#point_marker in
+  let ptm = Array1.create int layout (Array1.dim old_ptm) in
+  for i = FST to LASTEL(ptm) do ptm.{i} <- old_ptm.{perm.{i}} done;
+  let old_seg = mesh#segment in
+  let seg = ARRAY2(int, 2, NCOLS(old_seg)) in
+  for s = FST to LASTCOL(seg) do
+    GET(seg, FST, s) <- inv_perm.{GET(old_seg, FST, s)};
+    GET(seg, SND, s) <- inv_perm.{GET(old_seg, SND, s)};
+  done;
+  let old_tr = mesh#triangle in
+  let tr = ARRAY2(int, NROWS(old_tr), NCOLS(old_tr)) in
+  for t = FST to LASTCOL(tr) do
+    for c = FST to LASTROW(tr) do
+      GET(tr, c, t) <- inv_perm.{GET(old_tr, c, t)}
+    done;
+  done;
+  let edge = ARRAY2(int, 2, NCOLS(old_edge)) in
+  for e = FST to LASTCOL(edge) do
+    GET(edge, FST, e) <- inv_perm.{GET(old_edge, FST, e)};
+    GET(edge, SND, e) <- inv_perm.{GET(old_edge, SND, e)};
+  done;
+  object
+    method point = pt
+    method point_marker = ptm
+    method segment = seg
+    method segment_marker = mesh#segment_marker
+    method hole = mesh#hole
+    method region = mesh#region
+    method triangle = tr
+    method neighbor = mesh#neighbor
+    method edge = edge
+    method edge_marker = mesh#edge_marker
+  end
 
 
 (* Local Variables: *)
