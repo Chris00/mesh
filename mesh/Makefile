@@ -80,7 +80,7 @@ test.exe: mesh.cma mesh_triangle.cma test.ml
 test.com: mesh.cmxa mesh_triangle.cmxa test.ml
 	$(OCAMLOPT) -o $@ $(OCAMLC_FLAGS) bigarray.cmxa graphics.cmxa -I . $^
 
-testmesh.tex: test.bc
+testmesh.tex testmesh1.tex: test.bc
 	./$<
 
 mesh_display.pdf: mesh_display.tex testmesh.tex
@@ -94,6 +94,7 @@ include $(ROOT)/Makefile.ocaml
 clean::
 	-if [ -d ./doc ]; then $(RM) -rf ./doc; fi
 	$(RM) $(wildcard *.so) triangle.sci levels.tex .depend.ocaml
+	$(RM) $(wildcard testmesh*.tex)
 
 distclean:
 	$(RM) META

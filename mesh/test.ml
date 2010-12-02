@@ -30,7 +30,12 @@ let mesh, _ = M.triangulate ~max_area:0.001
 let () =
   Easymesh.write mesh (Filename.temp_dir_name ^ "/mesh");
   Mesh_display.display mesh;
-  Mesh.LaTeX.save mesh "testmesh.tex";
+  Mesh.LaTeX.save mesh "testmesh.tex"  ~edge:(fun _ -> Some 0x00FF00);
+
+  printf "Band of original mesh: %i\n" (Mesh.band_height_P1 mesh);
+  let mesh' = Mesh.cuthill_mckee mesh in
+  printf "Band after CutHill-McKee algorithm: %i\n" (Mesh.band_height_P1 mesh');
+  Mesh.LaTeX.save mesh' "testmesh1.tex";
 
   (* Save the graph of [f] on [m] so it can be displayed by Scilab.  *)
   let f x y = sin(pi *. (2. *. x -. y)) *. sin(pi *. y) in
