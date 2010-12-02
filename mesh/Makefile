@@ -80,8 +80,12 @@ test.exe: mesh.cma mesh_triangle.cma test.ml
 test.com: mesh.cmxa mesh_triangle.cmxa test.ml
 	$(OCAMLOPT) -o $@ $(OCAMLC_FLAGS) bigarray.cmxa graphics.cmxa -I . $^
 
-testmesh.tex testmesh1.tex: test.bc
+TEST_DATA = testmesh.tex testmesh1.tex
+$(TEST_DATA): test.bc
 	./$<
+
+test.pdf: test.tex $(TEST_DATA)
+	pdflatex $<
 
 mesh_display.pdf: mesh_display.tex testmesh.tex
 	$(PDFLATEX) $<
