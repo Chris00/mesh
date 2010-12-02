@@ -1,4 +1,4 @@
-(* Mesh.mli                       Time-stamp: <2010-12-02 19:21:27 trch>
+(* Mesh.mli                       Time-stamp: <2010-12-02 20:00:43 trch>
 
   Copyright (C) 2001-2004
 
@@ -146,14 +146,14 @@ val cuthill_mckee : ?rev:bool -> ?perm:'l int_vec -> 'l #t -> 'l t
     except that the labelling of the nodes has been changed to lower
     its band (as computed by {!band_height_P1}).
 
-    @rev whether if true, use the Reverse CutHill-McKee algorithm.
+    @param rev whether if true, use the Reverse CutHill-McKee algorithm.
     Default: [true].
 
-    @perm if provided, the permutation will be stored in that vector.
-    More precisely, [perm.{l} = i] means that [l] is the new label for
-    the node initially labeled [i].  This permutation is needed to
-    transfer vectors defined on the initial labeling.  The length
-    of the permutation vector must be the number of nodes. *)
+    @param perm if provided, the permutation will be stored in that
+    vector.  More precisely, [perm.{l} = i] means that [l] is the new
+    label for the node initially labeled [i].  This permutation is
+    needed to transfer vectors defined on the initial labeling.  The
+    length of the permutation vector must be the number of nodes. *)
 
 
 (** {2 LaTeX output}
