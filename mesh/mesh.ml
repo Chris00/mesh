@@ -216,11 +216,12 @@ let cuthill_mckee ?(rev=true) ?(perm: 'l int_vec option) (mesh: 'l #t) =
 
 module LaTeX =
 struct
+  type color = int
 
-  let save (mesh: _ #t) filename =
+  let save ?edge (mesh: _ #t) filename =
     if is_c_layout(mesh :> _ pslg)
-    then C.latex (Obj.magic mesh) filename
-    else F.latex (Obj.magic mesh) filename
+    then C.latex ?edge (Obj.magic mesh) filename
+    else F.latex ?edge (Obj.magic mesh) filename
 
   let level_curves ?boundary (mesh: 'a #t) (z: 'a vec)
       ?level_eq levels filename =

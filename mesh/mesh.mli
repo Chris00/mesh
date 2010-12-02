@@ -1,4 +1,4 @@
-(* Mesh.mli                       Time-stamp: <2010-12-02 18:12:07 trch>
+(* Mesh.mli                       Time-stamp: <2010-12-02 19:21:27 trch>
 
   Copyright (C) 2001-2004
 
@@ -167,13 +167,21 @@ val cuthill_mckee : ?rev:bool -> ?perm:'l int_vec -> 'l #t -> 'l t
     which works for PostScript as well as PDF output. *)
 module LaTeX :
 sig
-  val save : 'l #t -> string -> unit
-  (** [save mesh file] saves the mesh as LaTeX PGF commands.  You can
-      input the file in a [tikzpicture] environment to render the mesh. *)
+  type color = int
+  (** RGB Color representation [0xRRGGBB].  It will be converted to
+      TeX by the functions below. *)
 
-  val level_curves : ?boundary:(int -> int option) ->
+  val save : ?edge:(int -> color option) -> 'l #t -> string -> unit
+  (** [save mesh file] saves the mesh as LaTeX PGF commands.  You can
+      input the file in a [tikzpicture] environment to render the mesh.
+
+      @param edge allows to specify the color of each edge.  If the
+      function returns [None], the edge is not drawn.  Default: all
+      are black. *)
+
+  val level_curves : ?boundary:(int -> color option) ->
     'l #t -> 'l vec -> ?level_eq:(float -> float -> bool) ->
-    (float * int) list -> string -> unit
+    (float * color) list -> string -> unit
     (** [level_curves mesh z levels file] outputs into [file] LaTeX
         PGF commands to display the level curves at [levels] of the P1
         FEM surface with values [z] on the mesh [mesh].  Each level is

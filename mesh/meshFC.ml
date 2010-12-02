@@ -18,7 +18,7 @@ let bounding_box (mesh: mesh) =
   done;
   (!xmin, !xmax, !ymin, !ymax)
 
-let latex (mesh: mesh) filename =
+let latex ?edge:(edge_color=fun _ -> Some black) (mesh: mesh) filename =
   let edge = mesh#edge in
   let pt = mesh#point in
   if NCOLS(edge) = 0 then invalid_arg "Mesh.latex: mesh#edge must be nonempty";
@@ -33,11 +33,14 @@ let latex (mesh: mesh) filename =
   (* Write lines *)
   fprintf fh "  %% %i triangles\n" (NCOLS(mesh#triangle));
   for e = FST to LASTCOL(edge) do
-    let i1 = GET(edge, FST,e)
-    and i2 = GET(edge, SND,e) in
-    let p1 = { x = GET(pt, FST,i1);  y = GET(pt, SND,i1) }
-    and p2 = { x = GET(pt, FST,i2);  y = GET(pt, SND,i2) } in
-    line fh black p1 p2
+    match edge_color e with
+    | None -> ()
+    | Some color ->
+      let i1 = GET(edge, FST,e)
+      and i2 = GET(edge, SND,e) in
+      let p1 = { x = GET(pt, FST,i1);  y = GET(pt, SND,i1) }
+      and p2 = { x = GET(pt, FST,i2);  y = GET(pt, SND,i2) } in
+      line fh color p1 p2
   done;
   (* Write points *)
   fprintf fh "  %% %i points\n" (NCOLS(pt));
