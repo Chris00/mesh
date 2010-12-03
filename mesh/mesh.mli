@@ -1,4 +1,4 @@
-(* Mesh.mli                       Time-stamp: <2010-12-02 20:00:43 trch>
+(* Mesh.mli                       Time-stamp: <2010-12-03 17:31:57 trch>
 
   Copyright (C) 2001-2004
 
@@ -134,6 +134,8 @@ end
 val is_c_layout : 'l pslg -> bool
 (** [is_c_layout] returns true if the mesh layout is C. *)
 
+(** {2:band  Band computation and reduction} *)
+
 val band_height_P1 : 'l #t -> int
 (** [band_height mesh] returns the number of nonzero super-diagonals +
     1 (for the diagonal) of symmetric band matrices for P1 finite
@@ -156,9 +158,10 @@ val cuthill_mckee : ?rev:bool -> ?perm:'l int_vec -> 'l #t -> 'l t
     length of the permutation vector must be the number of nodes. *)
 
 
-(** {2 LaTeX output}
 
-    The LaTex output is given in terms of three macros [\meshline],
+(** {2 LaTeX output} *)
+
+(** LaTex output.  It is given in terms of three macros [\meshline],
     [\meshpoint], and [\meshtriangle] to plot edges, points and
     (filled) triangles.  The arguments of these macros are described
     by comments in the output files.  If you do not provide your own

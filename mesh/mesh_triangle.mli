@@ -94,7 +94,8 @@ val triangulate :
 (** [triangulate pslg] returns a triangulation and a possibly a
     Voronoi diagram of the domain described by [pslg].  If
     [pslg#segment] is empty, the convex hull of the set of points is
-    used.
+    used.  Note that the numbering of nodes returned by this function
+    may be far from optimal for the FEM.  See {!Mesh.band}.
 
     @param delaunay generates a truly Delaunay (not just constrained
     Delaunay) triangulation.  It usually increases the number of
