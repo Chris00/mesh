@@ -334,6 +334,28 @@ let cuthill_mckee ~rev perm (mesh: mesh) : mesh =
   );
   permute perm mesh
 
+(* A Generalized GPS Algorithm For Reducing The Bandwidth And Profile
+   Of A Sparse Matrix, Q. Wang, Y. C. Guo, and X. W. Shi
+   http://www.jpier.org/PIER/pier90/09.09010512.pdf *)
+let ggps perm (mesh: mesh) : mesh =
+  let n = NCOLS(mesh#point) in
+  let perm = match perm with
+    | None -> Array1.create int layout n
+    | Some p ->
+      if Array1.dim p <> n then
+        invalid_arg "Mesh.ggps: dim perm <> number of points";
+      p in
+  let deg = Array.make (n + FST) 0 in (* degree of adjacency of each node *)
+  let edge = mesh#edge in
+  for e = FST to LASTCOL(edge) do
+    let i1 = GET(edge, FST, e)
+    and i2 = GET(edge, SND, e) in
+    deg.(i1) <- deg.(i1) + 1;
+    deg.(i2) <- deg.(i2) + 1;
+  done;
+  let v = min_deg deg in
+
+  permute perm mesh
 
 (* Local Variables: *)
 (* compile-command: "make -k" *)
