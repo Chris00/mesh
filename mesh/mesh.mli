@@ -1,4 +1,4 @@
-(* Mesh.mli                       Time-stamp: <2010-12-03 17:31:57 trch>
+(* Mesh.mli                       Time-stamp: <2010-12-13 18:37:57 trch>
 
   Copyright (C) 2001-2004
 
@@ -224,3 +224,14 @@ val matlab : 'l #t -> 'l vec -> string -> unit
       [mesh.point.{_,i}] ([fortran layout])) on that mesh so that when
       Matlab runs the created [file].m script, the graph of the
       function is drawn. *)
+
+(** {2 Mathematica} *)
+
+val mathematica : 'l #t -> 'l vec -> string -> unit
+(** [mathematica mesh z file] saves the mesh data and the function
+    values [z] (i.e. [z.{i}] is the function value at the point
+    [mesh.point.{_,i}] ([fortran layout])) in the file [file].m so
+    that running "<< file.m" in mathematica plots the function.  The
+    variables [file]_xyz and [file]_mesh are defined such that the
+    mathematica command [TriangularSurfacePlot[file_xyz, file_mesh]]
+    does the plot. *)

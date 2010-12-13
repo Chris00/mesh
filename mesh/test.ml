@@ -45,6 +45,9 @@ let () =
   let sci = Filename.temp_dir_name ^ "/triangle.sci" in
   Mesh.scilab mesh z sci;
   printf "Run Scilab script with: exec('%s')\n" sci;
+  let m = Filename.temp_dir_name ^ "/triangle.m" in
+  Mesh.mathematica mesh z m;
+  printf "Run Mathematica script with: \"<< %s\"\n" m;
 
   (* Round to 4 decimal places *)
   for i = 1 to Array2.dim2 pt do z.{i} <- round(1e4 *. z.{i}) *. 1e-4 done;

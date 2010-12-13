@@ -11,7 +11,7 @@ mesh/META
 mesh/triangle
 mesh/triangle.zip
 mesh/levels.tex
-mesh/testmesh.tex
+mesh/testmesh*.tex
 # LaTeX and AUCTeX
 *.aux
 *.log

@@ -165,6 +165,7 @@ struct
   DEFINE FST = 1;;
   DEFINE SND = 2;;
   DEFINE THIRD = 3;;
+  DEFINE TO_FORTRAN(i) = i;;
   DEFINE LASTCOL(a) = Array2.dim2 a;;
   DEFINE LASTROW(a) = Array2.dim1 a;;
   DEFINE LASTEL(v) = Array1.dim v;;
@@ -184,6 +185,7 @@ struct
   DEFINE FST = 0;;
   DEFINE SND = 1;;
   DEFINE THIRD = 2;;
+  DEFINE TO_FORTRAN(i) = i + 1;;
   DEFINE LASTCOL(a) = Array2.dim1 a - 1;;
   DEFINE LASTROW(a) = Array2.dim2 a - 1;;
   DEFINE LASTEL(v) = Array1.dim v - 1;;
@@ -242,6 +244,11 @@ let matlab (mesh: 'a #t) (z: 'a vec) filename =
   if is_c_layout(mesh :> _ pslg)
   then C.matlab (Obj.magic mesh) (Obj.magic z) filename
   else F.matlab (Obj.magic mesh) (Obj.magic z) filename
+
+let mathematica (mesh: 'a #t) (z: 'a vec) filename =
+  if is_c_layout(mesh :> _ pslg)
+  then C.mathematica (Obj.magic mesh: _ t) (Obj.magic z: _ vec) filename
+  else F.mathematica (Obj.magic mesh: _ t) (Obj.magic z: _ vec) filename
 
 
 (* Local Variables: *)

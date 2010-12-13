@@ -99,13 +99,13 @@ let matlab (mesh: mesh) (z: vec) fname =
   let tr = mesh#triangle in
   let pt = mesh#point in
   if NCOLS(tr) = 0 then
-    invalid_arg "Mesh.scilab: mesh#triangle must be nonempty";
+    invalid_arg "Mesh.matlab: mesh#triangle must be nonempty";
   if NROWS(tr) < 3 then
-    invalid_arg "Mesh.scilab: mesh#triangle must have at least \
+    invalid_arg "Mesh.matlab: mesh#triangle must have at least \
 	3 rows (fortran)";
-  if NCOLS(pt) = 0 then invalid_arg "Mesh.scilab: mesh#point must be nonempty";
+  if NCOLS(pt) = 0 then invalid_arg "Mesh.matlab: mesh#point must be nonempty";
   if NROWS(pt) <> 2 then
-    invalid_arg "Mesh.scilab: mesh#point must have 2 rows (fortran)";
+    invalid_arg "Mesh.matlab: mesh#point must have 2 rows (fortran)";
   let dir = Filename.dirname fname
   and base = Filename.basename fname in
   let base = (if Filename.check_suffix base ".m" then
@@ -132,6 +132,65 @@ let matlab (mesh: mesh) (z: vec) fname =
     fprintf fh "%i %i %i; " (GET(tr, FST,t)) (GET(tr, SND,t)) (GET(tr, THIRD,t))
   done;
   fprintf fh "];\ntrisurf(mesh_triangles, mesh_x, mesh_y, mesh_z);\n";
+  close_out fh
+;;
+
+(* Return an array [adj] such that [adj.(i)] is the list of the
+   adjacent nodes to [i]. *)
+let adjacency (mesh: mesh) =
+  let n = NCOLS(mesh#point) in
+  let adj = Array.make (n + FST) [] in
+  let edge = mesh#edge in
+  for e = FST to LASTCOL(edge) do
+    let i1 = GET(edge, FST, e)
+    and i2 = GET(edge, SND, e) in
+    adj.(i1) <- i2 :: adj.(i1);
+    adj.(i2) <- i1 :: adj.(i2);
+  done;
+  adj
+
+let mathematica (mesh: mesh) (z: vec) fname =
+  let pt = mesh#point in
+  if NCOLS(pt) = 0 then
+    invalid_arg "Mesh.mathematica: mesh#point must be nonempty";
+  if NROWS(pt) <> 2 then
+    invalid_arg "Mesh.mathematica: mesh#point must have 2 rows (fortran)";
+  if NCOLS(mesh#edge) = 0 then
+    invalid_arg "Mesh.mathematica: mesh#edge must be nonempty";
+  if NROWS(mesh#edge) <> 2 then
+    invalid_arg "Mesh.mathematica: mesh#edge must have 2 rows (fortran)";
+  let base = Filename.basename fname in
+  let base, fname =
+    if Filename.check_suffix base ".m" then
+      String.sub base 0 (String.length base - 2), fname
+    else String.copy base, fname ^ ".m" in
+  (* Convert all chars that are not alphanumeric ot '_' to '_'. *)
+  for i = 0 to String.length base - 1 do
+    if not(is_allowed base.[i]) then base.[i] <- '_'
+  done;
+  let fh = open_out fname in
+  fprintf fh "(* Created by the OCaml Mesh module *)\n";
+  fprintf fh "%s_xyz = {" base;
+  fprintf fh "{%.16g, %.16g, %.16g}" pt.{FST, FST} pt.{SND, FST} z.{FST};
+  for i = FST + 1 to LASTCOL(pt) do
+    fprintf fh ", {%.16g, %.16g, %.16g}" pt.{FST, i} pt.{SND, i} z.{i}
+  done;
+  fprintf fh "}\n";
+  let adj = adjacency mesh in
+  let output_adj i =
+    (* mathematica indices start at 1 *)
+    match adj.(i) with
+    | [] -> fprintf fh "{%i, {}}" (TO_FORTRAN(i))
+    | n :: tl ->
+      fprintf fh "{%i, {%i" (TO_FORTRAN(i)) (TO_FORTRAN(n));
+      List.iter (fun n -> fprintf fh ", %i" (TO_FORTRAN(n))) tl;
+      fprintf fh"}}" in
+  fprintf fh "%s_mesh = {" base;
+  output_adj FST;
+  for i = FST + 1 to Array.length adj - 1 do
+    output_string fh ", "; output_adj i
+  done;
+  fprintf fh "}\n";
   close_out fh
 ;;
 
