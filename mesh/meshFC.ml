@@ -159,6 +159,7 @@ let mathematica (mesh: mesh) (z: vec) fname =
     invalid_arg "Mesh.mathematica: mesh#edge must be nonempty";
   if NROWS(mesh#edge) <> 2 then
     invalid_arg "Mesh.mathematica: mesh#edge must have 2 rows (fortran)";
+  let dir = Filename.dirname fname in
   let base = Filename.basename fname in
   let base, fname =
     if Filename.check_suffix base ".m" then
@@ -168,14 +169,16 @@ let mathematica (mesh: mesh) (z: vec) fname =
   for i = 0 to String.length base - 1 do
     if not(is_allowed base.[i]) then base.[i] <- '_'
   done;
-  let fh = open_out fname in
+  let pkg = String.capitalize base in
+  let fh = open_out (Filename.concat dir (base ^ ".m")) in
   fprintf fh "(* Created by the OCaml Mesh module *)\n";
-  fprintf fh "%s_xyz = {" base;
+  fprintf fh "BeginPackage[\"%s`\"];\nBegin[\"`Private`\"];\n" pkg;
+  fprintf fh "xyz = {";
   fprintf fh "{%.16g, %.16g, %.16g}" pt.{FST, FST} pt.{SND, FST} z.{FST};
   for i = FST + 1 to LASTCOL(pt) do
     fprintf fh ", {%.16g, %.16g, %.16g}" pt.{FST, i} pt.{SND, i} z.{i}
   done;
-  fprintf fh "}\n";
+  fprintf fh "};\n\n";
   let adj = adjacency mesh in
   let output_adj i =
     (* mathematica indices start at 1 *)
@@ -185,12 +188,15 @@ let mathematica (mesh: mesh) (z: vec) fname =
       fprintf fh "{%i, {%i" (TO_FORTRAN(i)) (TO_FORTRAN(n));
       List.iter (fun n -> fprintf fh ", %i" (TO_FORTRAN(n))) tl;
       fprintf fh"}}" in
-  fprintf fh "%s_mesh = {" base;
+  fprintf fh "mesh = {";
   output_adj FST;
   for i = FST + 1 to Array.length adj - 1 do
     output_string fh ", "; output_adj i
   done;
-  fprintf fh "}\n";
+  fprintf fh "};\n\n";
+  fprintf fh "Needs[\"ComputationalGeometry`\"];\n";
+  fprintf fh "TriangularSurfacePlot[xyz, mesh];\n";
+  fprintf fh "End[ ];\nEndPackage[ ];\n";
   close_out fh
 ;;
 
