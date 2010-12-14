@@ -188,14 +188,14 @@ let mathematica (mesh: mesh) (z: vec) fname =
       fprintf fh "{%i, {%i" (TO_FORTRAN(i)) (TO_FORTRAN(n));
       List.iter (fun n -> fprintf fh ", %i" (TO_FORTRAN(n))) tl;
       fprintf fh"}}" in
-  fprintf fh "mesh = {";
+  fprintf fh "adj = {";
   output_adj FST;
   for i = FST + 1 to Array.length adj - 1 do
     output_string fh ", "; output_adj i
   done;
   fprintf fh "};\n\n";
   fprintf fh "Needs[\"ComputationalGeometry`\"];\n";
-  fprintf fh "TriangularSurfacePlot[xyz, mesh];\n";
+  fprintf fh "TriangularSurfacePlot[xyz, adj];\n";
   fprintf fh "End[ ];\nEndPackage[ ];\n";
   close_out fh
 ;;

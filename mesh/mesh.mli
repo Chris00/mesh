@@ -1,4 +1,4 @@
-(* Mesh.mli                       Time-stamp: <2010-12-13 23:23:54 trch>
+(* Mesh.mli                       Time-stamp: <2010-12-14 09:45:01 trch>
 
   Copyright (C) 2001-2004
 
@@ -232,7 +232,7 @@ val mathematica : 'l #t -> 'l vec -> string -> unit
     values [z] (i.e. [z.{i}] is the function value at the point
     [mesh.point.{_,i}] ([fortran layout])) in the file [file].m so
     that running "<<file.m" in mathematica plots the function.  The
-    variables [File`xyz] and [File`mesh] (where [File] is the
+    variables [File`xyz] and [File`adj] (where [File] is the
     capitalized file name which is used as the context for the
     mathematica package) are defined such that the mathematica command
-    [TriangularSurfacePlot[File`xyz, File`mesh]] does the plot. *)
+    [TriangularSurfacePlot[File`xyz, File`adj]] does the plot. *)
