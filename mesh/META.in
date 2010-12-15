@@ -6,9 +6,9 @@ archive(byte) = "mesh.cma mesh_triangle.cma"
 archive(native) = "mesh.cmxa mesh_triangle.cmxa"
 
 package "display" (
-  description = "Display meshes"
+  description = "Display meshes using the Graphics module"
   version = "@PACKAGE_VERSION@"
-  requires += "graphics"
-  archive(byte) += "mesh_display.cma"
-  archive(native) += "mesh_display.cmxa"
+  requires = "mesh graphics"
+  archive(byte) = "mesh_display.cma"
+  archive(native) = "mesh_display.cmxa"
 )

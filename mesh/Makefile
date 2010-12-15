@@ -6,8 +6,9 @@ DEPEND_EXCLUDE = %FC.ml
 INTERFACES = $(wildcard *.mli)
 
 INSTALL_FILES = META $(INTERFACES) $(INTERFACES:.mli=.cmi) mesh.cma mesh.cmxa \
+	mesh_display.cma mesh_display.cmx mesh_display.cmxa \
 	mesh_triangle.cma mesh_triangle.cmx mesh_triangle.cmxa \
-	mesh.a mesh_triangle.a \
+	mesh.a mesh_display.a mesh_triangle.a \
 	$(wildcard dll$(STUBS_LIB).* lib$(STUBS_LIB).*)
 
 PP = camlp4o pa_macro.cmo
@@ -23,11 +24,13 @@ PDFLATEX = pdflatex
 
 .PHONY: all byte opt
 all: byte opt
-byte: mesh.cma mesh_triangle.cma
-opt: mesh.cmxa mesh_triangle.cmxa
+byte: mesh.cma mesh_triangle.cma mesh_display.cma
+opt: mesh.cmxa mesh_triangle.cmxa mesh_display.cmxa
 
-mesh.cma: mesh.cmo mesh_display.cmo easymesh.cmo
-mesh.cmxa: mesh.cmx mesh_display.cmx easymesh.cmx
+mesh.cma: mesh.cmo easymesh.cmo
+mesh.cmxa: mesh.cmx easymesh.cmx
+mesh_display.cma: mesh_display.cmo
+mesh_display.cmxa: mesh_display.cmx
 
 mesh.cmo mesh.cmx: meshFC.ml
 easymesh.cmo easymesh.cmx: easymeshFC.ml
