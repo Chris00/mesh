@@ -1,4 +1,4 @@
-(* Mesh.mli                       Time-stamp: <2010-12-18 23:23:11 trch>
+(* Mesh.mli                       Time-stamp: <2010-12-19 22:55:32 trch>
 
   Copyright (C) 2001-2004
 
@@ -235,4 +235,8 @@ val mathematica : 'l #t -> 'l vec -> string -> unit
     variables [File`xyz] and [File`adj] (where [File] is the
     capitalized file name which is used as the context) are defined
     and the mathematica command [TriangularSurfacePlot[File`xyz,
-    File`adj]] does the plot. *)
+    File`adj]] does the plot.
+
+    If [file] contains other digits than alphanumeric
+    (e.g. underscores), they are removed for the context names
+    [File] used for internal variables. *)

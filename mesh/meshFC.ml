@@ -177,6 +177,29 @@ let adjacency (mesh: mesh) =
      for orientation?).  *)
   Array.mapi (fun n0 adj -> sort_counterclockwise pt n0 adj) adj
 
+let is_allowed_mathematica c =
+  ('0' <= c && c <= '9') || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')
+
+(* Remove all chars that are not alphanumeric. *)
+let mathematica_safe base =
+  let j = ref 0 in
+  for i = 0 to String.length base - 1 do
+    if is_allowed_mathematica base.[i] then (
+      base.[!j] <- base.[i];
+      incr j;
+    )
+  done;
+  if !j < String.length base then String.sub base 0 !j else base
+
+let mathematica_print_float fh f =
+  let s = sprintf "%.16g" f in
+  try
+    let e = String.index s 'e' in
+    output fh s 0 e;  output_string fh "*^";
+    output fh s (e + 1) (String.length s - e - 1)
+  with Not_found ->
+    output fh s 0 (String.length s)
+
 let mathematica (mesh: mesh) (z: vec) fname =
   let pt = mesh#point in
   if NCOLS(pt) = 0 then
@@ -187,23 +210,24 @@ let mathematica (mesh: mesh) (z: vec) fname =
     invalid_arg "Mesh.mathematica: mesh#edge must be nonempty";
   if NROWS(mesh#edge) <> 2 then
     invalid_arg "Mesh.mathematica: mesh#edge must have 2 rows (fortran)";
-  let dir = Filename.dirname fname in
   let base = Filename.basename fname in
-  let base, fname =
+  let pkg, fname =
     if Filename.check_suffix base ".m" then
-      String.sub base 0 (String.length base - 2), fname
-    else String.copy base, fname ^ ".m" in
-  (* Convert all chars that are not alphanumeric ot '_' to '_'. *)
-  for i = 0 to String.length base - 1 do
-    if not(is_allowed base.[i]) then base.[i] <- '_'
-  done;
-  let pkg = String.capitalize base in
-  let fh = open_out (Filename.concat dir (base ^ ".m")) in
+      mathematica_safe(String.sub base 0 (String.length base - 2)), fname
+    else mathematica_safe base, fname ^ ".m" in
+  let pkg = String.capitalize pkg in
+  let fh = open_out fname in
   fprintf fh "(* Created by the OCaml Mesh module *)\n";
   fprintf fh "%s`xyz = {" pkg;
-  fprintf fh "{%.16g, %.16g, %.16g}" pt.{FST, FST} pt.{SND, FST} z.{FST};
+  output_string fh "{";
+  mathematica_print_float fh pt.{FST, FST};  output_string fh ", ";
+  mathematica_print_float fh pt.{SND, FST};  output_string fh ", ";
+  mathematica_print_float fh z.{FST};        output_string fh "}";
   for i = FST + 1 to LASTCOL(pt) do
-    fprintf fh ", {%.16g, %.16g, %.16g}" pt.{FST, i} pt.{SND, i} z.{i}
+    output_string fh ", {";
+    mathematica_print_float fh pt.{FST, i};  output_string fh ", ";
+    mathematica_print_float fh pt.{SND, i};  output_string fh ", ";
+    mathematica_print_float fh z.{i};        output_string fh "}"
   done;
   fprintf fh "};\n\n";
   let adj = adjacency mesh in
