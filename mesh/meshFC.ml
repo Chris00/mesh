@@ -222,7 +222,7 @@ let mathematica (mesh: mesh) (z: vec) fname =
   done;
   fprintf fh "};\n\n";
   fprintf fh "Needs[\"ComputationalGeometry`\"];\n";
-  fprintf fh "TriangularSurfacePlot[%s`xyz, %s`adj]\n" pkg pkg;
+  fprintf fh "TriangularSurfacePlot[%s`xyz, %s`adj, Axes -> True]\n" pkg pkg;
   close_out fh
 ;;
 
