@@ -179,6 +179,7 @@ struct
   type mesh = c_layout t;;
   type 'a vector = 'a vec               (* global vec *)
   type vec = c_layout vector;;
+  type matrix = c_layout mat;;
   let layout = c_layout;;
   DEFINE NCOLS(a) = Array2.dim1 a;;
   DEFINE NROWS(a) = Array2.dim2 a;;

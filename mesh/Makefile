@@ -78,9 +78,9 @@ META: META.in mesh.mli
 # Test
 .PHONY: test
 test: test.exe test.com
-test.exe: mesh.cma mesh_triangle.cma test.ml
+test.exe: mesh.cma mesh_triangle.cma mesh_display.cma test.ml
 	$(OCAMLC) -o $@ $(OCAMLC_FLAGS) bigarray.cma graphics.cma $^
-test.com: mesh.cmxa mesh_triangle.cmxa test.ml
+test.com: mesh.cmxa mesh_triangle.cmxa mesh_display.cmxa test.ml
 	$(OCAMLOPT) -o $@ $(OCAMLC_FLAGS) bigarray.cmxa graphics.cmxa -I . $^
 
 TEST_DATA = testmesh.tex testmesh1.tex

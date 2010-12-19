@@ -135,10 +135,36 @@ let matlab (mesh: mesh) (z: vec) fname =
   close_out fh
 ;;
 
+
+(* Sort the vertices at node [n0] by increasing (counterclockwise)
+   angle w.r.t. the base vertex [i0].  [TriangularSurfacePlot] (not
+   [PlanarGraphPlot] it seems) requires the vertices to be ordered. *)
+let sort_counterclockwise (pt: matrix) n0 = function
+  | ([] | [_]) as adj -> adj
+  | n1 :: tl ->
+    let x0 = pt.{FST, n0} and y0 = pt.{SND, n0} in
+    let dx1 = pt.{FST, n1} -. x0 and dy1 = pt.{SND, n1} -. y0 in
+    (* Since [atan2] returns an angle in ]-pi, pi], the angle of
+       (dx1,dy1) will be set to pi so that the order given by the
+       angles is correct.  Also there is no need to norm the vectors
+       [(dx1,dy1)] and [(dx,dy)] because that will only dilate
+       [(e1,e2)] which does not change the value of [atan2]. *)
+    let angle n =
+      let dx = pt.{FST, n} -. x0 and dy = pt.{SND, n} -. y0 in
+      let e1 = -. dx *. dx1 -. dy *. dy1
+      and e2 = dx *. dy1 -. dy *. dx1 in
+      atan2 e2 e1 in
+    (* Add angles *)
+    let tl = List.map (fun n -> (n, angle n)) tl in
+    let tl = List.fast_sort (fun (_,a1) (_,a2) -> compare a1 a2) tl in
+    n1 :: List.map (fun (n,_) -> n) tl
+;;
+
 (* Return an array [adj] such that [adj.(i)] is the list of the
    adjacent nodes to [i]. *)
 let adjacency (mesh: mesh) =
-  let n = NCOLS(mesh#point) in
+  let pt = mesh#point in
+  let n = NCOLS(pt) in
   let adj = Array.make (n + FST) [] in
   let edge = mesh#edge in
   for e = FST to LASTCOL(edge) do
@@ -147,7 +173,9 @@ let adjacency (mesh: mesh) =
     adj.(i1) <- i2 :: adj.(i1);
     adj.(i2) <- i1 :: adj.(i2);
   done;
-  adj
+  (* This is important for TriangularSurfacePlot (that uses the order
+     for orientation?).  *)
+  Array.mapi (fun n0 adj -> sort_counterclockwise pt n0 adj) adj
 
 let mathematica (mesh: mesh) (z: vec) fname =
   let pt = mesh#point in
@@ -172,8 +200,7 @@ let mathematica (mesh: mesh) (z: vec) fname =
   let pkg = String.capitalize base in
   let fh = open_out (Filename.concat dir (base ^ ".m")) in
   fprintf fh "(* Created by the OCaml Mesh module *)\n";
-  fprintf fh "BeginPackage[\"%s`\"];\nBegin[\"`Private`\"];\n" pkg;
-  fprintf fh "xyz = {";
+  fprintf fh "%s`xyz = {" pkg;
   fprintf fh "{%.16g, %.16g, %.16g}" pt.{FST, FST} pt.{SND, FST} z.{FST};
   for i = FST + 1 to LASTCOL(pt) do
     fprintf fh ", {%.16g, %.16g, %.16g}" pt.{FST, i} pt.{SND, i} z.{i}
@@ -188,15 +215,14 @@ let mathematica (mesh: mesh) (z: vec) fname =
       fprintf fh "{%i, {%i" (TO_FORTRAN(i)) (TO_FORTRAN(n));
       List.iter (fun n -> fprintf fh ", %i" (TO_FORTRAN(n))) tl;
       fprintf fh"}}" in
-  fprintf fh "adj = {";
+  fprintf fh "%s`adj = {" pkg;
   output_adj FST;
   for i = FST + 1 to Array.length adj - 1 do
     output_string fh ", "; output_adj i
   done;
   fprintf fh "};\n\n";
   fprintf fh "Needs[\"ComputationalGeometry`\"];\n";
-  fprintf fh "TriangularSurfacePlot[xyz, adj];\n";
-  fprintf fh "End[ ];\nEndPackage[ ];\n";
+  fprintf fh "TriangularSurfacePlot[%s`xyz, %s`adj]\n" pkg pkg;
   close_out fh
 ;;
 
