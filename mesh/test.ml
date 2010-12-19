@@ -14,17 +14,19 @@ let pi = 4. *. atan 1.
 (* Round [x] to the nearest integer *)
 let round x = floor(x +. 0.5)
 
-let mesh, _ = M.triangulate ~max_area:0.001
+let triunsuitable x1 y1 x2 y2 x3 y3 area = area > 0.001
+
+let mesh, _ = M.triangulate ~triunsuitable (* ~max_area:0.001 *)
   (object
-     inherit [_] M.pslg fortran_layout
-     (* Fortran layout: point coordinates in columns *)
-     method point = Array2.of_array float64 fortran_layout
+    inherit [_] M.pslg fortran_layout
+      (* Fortran layout: point coordinates in columns *)
+    method point = Array2.of_array float64 fortran_layout
       [| [| 0.0;  1.0;  0.5 |];
          [| 0.0;  0.0;  1.0 |] |];
-     (* Fortran layout: segment enpoints in columns *)
-     method segment = Array2.of_array int fortran_layout
-       [| [| 1;  2;  3 |];
-          [| 2;  3;  1 |] |];
+      (* Fortran layout: segment enpoints in columns *)
+    method segment = Array2.of_array int fortran_layout
+      [| [| 1;  2;  3 |];
+         [| 2;  3;  1 |] |];
    end)
 
 let () =

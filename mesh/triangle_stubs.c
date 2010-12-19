@@ -97,8 +97,8 @@ value ocaml_triangle_init(value vunit)
     free(a);                                                            \
   }                                                                     \
   } while(0)
-  
-  
+
+
 
 #define NAME triangulate_fortran_layout
 #define DIM_1ST 0
@@ -117,6 +117,7 @@ value ocaml_triangle_init(value vunit)
 #define NARGS_TRIUNSUITABLE 7 /* Number of Caml args */
 typedef REAL *vertex; /* taken from triangle.c */
 
+CAMLexport
 int triunsuitable(vertex triorg, vertex tridest, vertex triapex, REAL area)
 {
   CAMLparam0();

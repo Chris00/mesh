@@ -69,13 +69,13 @@ exception Invalid_argument of string
 type triunsuitable =
   float -> float -> float -> float -> float -> float -> float -> bool
 (** Type of functions used to determine whether or not a selected
-    triangle is too big (and needs to be refined).  [triunsuitable x0
-    y0 x1 y1 x2 y2 area] must return [true] if the triangle is too
+    triangle is too big (and needs to be refined).  [triunsuitable x1
+    y1 x2 y2 x3 y3 area] must return [true] if the triangle is too
     big. The arguments are as follow:
-    - [x0] and [y0] are the X an Y coordinates of the triangle's origin vertex.
-    - [x1] and [y2] are the X an Y coordinates of the triangle's
+    - [x1] and [y1] are the X an Y coordinates of the triangle's origin vertex.
+    - [x2] and [y2] are the X an Y coordinates of the triangle's
     destination vertex.
-    - [x2] and [y2] are the X an Y coordinates of the triangle's apex vertex.
+    - [x3] and [y3] are the X an Y coordinates of the triangle's apex vertex.
     - [area] is the area of the triangle.
 *)
 
