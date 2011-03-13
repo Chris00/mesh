@@ -35,6 +35,7 @@ mesh_display.cmxa: mesh_display.cmx
 mesh.cmo mesh.cmx: meshFC.ml
 easymesh.cmo easymesh.cmx: easymeshFC.ml
 mesh_triangle.cmo mesh_triangle.cmx: mesh_triangleFC.ml
+mesh_display.cmo mesh_display.cmx: mesh_displayFC.ml
 
 mesh_triangle.cma mesh_triangle.cmxa: mesh_triangle.cmo mesh_triangle.cmx \
   triangle.o triangle_stubs.o
