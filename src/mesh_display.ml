@@ -82,7 +82,8 @@ let hold_graph () =
   try
     while true do
       let status = wait_next_event [Button_down; Key_pressed] in
-      if status.keypressed && (status.key = 'q' || status.key = 'Q') then (
+      if status.button
+        || (status.keypressed && (status.key = 'q' || status.key = 'Q')) then (
         close_graph();
         raise Exit
       );
