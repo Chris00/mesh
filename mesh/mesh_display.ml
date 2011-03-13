@@ -98,12 +98,16 @@ let display ?(width=600) ?(height=600) ?color ?voronoi ?point_marker_color
 
 let level_curves ?(width=600) ?(height=600) ?boundary (mesh: 'a #t) (z: 'a vec)
     ?level_eq levels =
-  init_graph width height;
-  set_window_title("Level curves (" ^ Filename.basename Sys.argv.(0) ^ ")");
   if Mesh.is_c_layout(mesh :> _ Mesh.pslg) then
     C.level_curves ~width ~height ?boundary
       (Obj.magic mesh) (Obj.magic z) ?level_eq levels
   else
     F.level_curves ~width ~height ?boundary
-      (Obj.magic mesh) (Obj.magic z) ?level_eq levels;
+      (Obj.magic mesh) (Obj.magic z) ?level_eq levels
+
+let display_level_curves ?(width=600) ?(height=600) ?boundary mesh z
+    ?level_eq levels =
+  init_graph width height;
+  set_window_title("Level curves (" ^ Filename.basename Sys.argv.(0) ^ ")");
+  level_curves ~width ~height ?boundary mesh z ?level_eq levels;
   hold_graph()
