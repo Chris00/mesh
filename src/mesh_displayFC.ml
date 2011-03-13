@@ -38,7 +38,8 @@ let make_surf mesh width height =
   let (xbd, ybd) = current_point() in
   { hx = hx; hy = hy;  xbd = xbd; ybd = ybd;  xmin = xmin; ymin = ymin }
 
-let draw ?(width=600) ?(height=600) ?(color=foreground) ?voronoi
+let draw ?(width=600) ?(height=600) ?(color=foreground) ?(points=true)
+    ?voronoi
     ?(segments=true) ?point_marker_color (mesh: mesh) =
   let surf = make_surf mesh width height in
   (* Triangles and Points *)
@@ -74,12 +75,14 @@ let draw ?(width=600) ?(height=600) ?(color=foreground) ?voronoi
                   draw_string(string_of_int m);
                   set_color color
                ) in
-  let pt_marker = mesh#point_marker in
-  for i = FST to LASTCOL(pt) do
-    let x = GET(pt, FST,i)  and y = GET(pt, SND,i) in
-    draw_pt surf x y;
-    marker pt_marker.{i} x y
-  done;
+  if points then begin
+    let pt_marker = mesh#point_marker in
+    for i = FST to LASTCOL(pt) do
+      let x = GET(pt, FST,i)  and y = GET(pt, SND,i) in
+      draw_pt surf x y;
+      marker pt_marker.{i} x y
+    done;
+  end;
   (* Voronoi diagram *)
   begin match voronoi with
   | None -> ()

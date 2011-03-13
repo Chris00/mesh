@@ -62,13 +62,13 @@ struct
 end
 
 
-let draw ?width ?height ?color ?voronoi ?point_marker_color ?segments
+let draw ?width ?height ?color ?points ?voronoi ?point_marker_color ?segments
     (mesh: 'a #t) =
   if Mesh.is_c_layout(mesh :> _ Mesh.pslg) then
-    C.draw ?width ?height ?color ?voronoi ?point_marker_color ?segments
+    C.draw ?width ?height ?color ?points ?voronoi ?point_marker_color ?segments
       (Obj.magic mesh)
   else
-    F.draw ?width ?height ?color ?voronoi ?point_marker_color ?segments
+    F.draw ?width ?height ?color ?points ?voronoi ?point_marker_color ?segments
       (Obj.magic mesh)
 
 let init_graph width height =
@@ -90,11 +90,12 @@ let hold_graph () =
     done
   with Exit -> ()
 
-let display ?(width=600) ?(height=600) ?color ?voronoi ?point_marker_color
-    ?(segments=true) mesh =
+let display ?(width=600) ?(height=600) ?color ?points ?voronoi
+    ?point_marker_color ?(segments=true) mesh =
   init_graph width height;
   set_window_title("Mesh (" ^ Filename.basename Sys.argv.(0) ^ ")");
-  draw ~width ~height ?color ?voronoi ?point_marker_color ~segments mesh;
+  draw ~width ~height ?color ?points ?voronoi ?point_marker_color
+    ~segments mesh;
   hold_graph()
 
 let level_curves ?(width=600) ?(height=600) ?boundary (mesh: 'a #t) (z: 'a vec)
