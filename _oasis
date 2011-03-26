@@ -32,11 +32,18 @@ Library mesh_triangle
   FindlibName:   triangle
   FindlibParent: mesh
 
-Executable square
+Executable square_easymesh
   Path:         tests/
-  MainIs:       square.ml
+  MainIs:       square_easymesh.ml
   BuildTools:	ocamlbuild
   BuildDepends: mesh.display,lacaml,graphics
+  Install:      false  
+
+Executable square_triangle
+  Path:         tests/
+  MainIs:       square_triangle.ml
+  BuildTools:	ocamlbuild
+  BuildDepends: mesh.triangle,lacaml,graphics
   Install:      false  
 
 SourceRepository ocamlforge
