@@ -1,15 +1,20 @@
 
-.PHONY: all byte native doc upload-doc install uninstall reinstall
-all byte native:
-	$(MAKE) -C src
-	$(MAKE) -C tests
+.PHONY: configure all byte native doc upload-doc install uninstall reinstall
+configure: setup.ml
+	ocaml setup.ml -configure
+
+all byte native: configure
+	ocaml setup.ml -build
+
+setup.ml:
+	oasis setup
 
 doc install uninstall reinstall:
-	$(MAKE) -C src $@
+	ocaml setup.ml -$@
 
 upload-doc: doc
 
 
 clean:
-	$(MAKE) -C src $@
-	$(MAKE) -C tests $@
+	ocaml setup.ml -clean
+	$(RM) $(wildcard setup.ml.ba* *.bak)
