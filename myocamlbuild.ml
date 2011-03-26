@@ -487,9 +487,16 @@ dispatch
     dispatch_default;
     begin function
     | After_rules ->
-      let includes = ["meshFC.ml"; "easymeshFC.ml"] in
-      dep ["ocamldep"] includes;
-      dep ["compile"; "ocaml"] includes;
+      let includes = ["src/meshFC.ml"; "src/easymeshFC.ml"; "src/mesh_level_curvesFC.ml"] in
+      dep ["ocaml"; "ocamldep"] includes;
+      dep ["ocaml"; "compile"] includes;
+      dep ["ocaml"; "doc"] includes;
+      dep ["ocaml"; "infer_interfaces"] includes;
+
+      flag ["ocaml"; "compile";  "pkg_camlp4.macro"] & S[A"-ppopt"; A"-Isrc"];
+      flag ["ocaml"; "ocamldep"; "pkg_camlp4.macro"] & S[A"-ppopt"; A"-Isrc"];
+      flag ["ocaml"; "doc";      "pkg_camlp4.macro"] & S[A"-ppopt"; A"-Isrc"];
+      flag ["ocaml"; "infer_interface"; "pkg_camlp4.macro"] & S[A"-ppopt"; A"-Isrc"];
     | _ -> ()
     end;
   ]);;
