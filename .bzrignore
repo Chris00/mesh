@@ -31,3 +31,5 @@ setup.ml
 *.mllib
 src/META
 configure
+API.docdir
+API.odocl
