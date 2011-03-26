@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 001d33596a4a9c03c7b392f631476cb6) *)
+(* DO NOT EDIT (digest: 0bde1e26d4ba7011d7f497c2caba311b) *)
 module OASISGettext = struct
 # 21 "/home/gildor/programmation/oasis/src/oasis/OASISGettext.ml"
   
@@ -296,8 +296,8 @@ module MyOCamlbuildFindlib = struct
           (* Like -package but for extensions syntax. Morover -syntax is useless
            * when linking. *)
           List.iter begin fun syntax ->
-          flag ["ocaml"; "compile";  "syntax_"^syntax] & s[a"-syntax"; a syntax];
-          flag ["ocaml"; "ocamldep"; "syntax_"^syntax] & s[a"-syntax"; a syntax];
+          flag ["ocaml"; "compile";  "syntax_"^syntax] & S[A"-syntax"; A syntax];
+          flag ["ocaml"; "ocamldep"; "syntax_"^syntax] & S[A"-syntax"; A syntax];
           flag ["ocaml"; "doc";      "syntax_"^syntax] & S[A"-syntax"; A syntax];
           flag ["ocaml"; "infer_interface"; "syntax_"^syntax] & S[A"-syntax"; A syntax];
           end (find_syntaxes ());
@@ -457,7 +457,7 @@ let package_default =
           ("src/mesh_display", ["src"]);
           ("src/mesh_triangle", ["src"])
        ];
-     lib_c = [("mesh_triangle", "src/", [])];
+     lib_c = [("mesh_triangle", "src/", ["src/triangle/triangle.h"])];
      flags =
        [
           (["oasis_library_mesh_triangle_ccopt"; "compile"],
@@ -488,7 +488,8 @@ dispatch
     begin function
     | After_rules ->
       let includes = ["meshFC.ml"; "easymeshFC.ml"; "mesh_displayFC.ml";
-                      "mesh_level_curvesFC.ml"; "mesh_triangleFC.ml"] in
+                      "mesh_level_curvesFC.ml"; "mesh_triangleFC.ml";
+                      "triangulate_stub.c" ] in
       let includes = List.map (fun f -> "src" / f) includes in
       dep ["ocaml"; "ocamldep"] includes;
       dep ["ocaml"; "compile"] includes;

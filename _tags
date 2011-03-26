@@ -1,22 +1,29 @@
 # OASIS_START
-# DO NOT EDIT (digest: 75f063bcf6b7a240c8379b30c0f2af42)
+# DO NOT EDIT (digest: f7ce729fb9e1ccbb458e2ca59a2da973)
 # Library mesh
-# Executable easymesh
-"tests/square.byte": use_mesh
-"tests/square.byte": pkg_lacaml
-"tests/square.byte": pkg_bigarray
-<tests/*.ml{,i}>: use_mesh
-<tests/*.ml{,i}>: pkg_lacaml
-<tests/*.ml{,i}>: pkg_bigarray
 # Library mesh_display
 <src/*.ml{,i}>: pkg_graphics
+# Executable square
+"tests/square.byte": use_mesh_display
+"tests/square.byte": use_mesh
+"tests/square.byte": pkg_lacaml
+"tests/square.byte": pkg_graphics
+"tests/square.byte": pkg_bigarray
+<tests/*.ml{,i}>: use_mesh_display
+<tests/*.ml{,i}>: use_mesh
+<tests/*.ml{,i}>: pkg_lacaml
+<tests/*.ml{,i}>: pkg_graphics
+<tests/*.ml{,i}>: pkg_bigarray
 # Library mesh_triangle
 "src": include
 <src/*.ml{,i}>: oasis_library_mesh_triangle_ccopt
+"src/triangle_stubs.c": oasis_library_mesh_triangle_ccopt
 "src/triangle/triangle.c": oasis_library_mesh_triangle_ccopt
 <src/mesh_triangle.{cma,cmxa}>: use_libmesh_triangle
 <src/*.ml{,i}>: use_mesh
 <src/*.ml{,i}>: pkg_bigarray
+"src/triangle_stubs.c": use_mesh
+"src/triangle_stubs.c": pkg_bigarray
 "src/triangle/triangle.c": use_mesh
 "src/triangle/triangle.c": pkg_bigarray
 # OASIS_STOP

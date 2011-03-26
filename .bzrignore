@@ -29,3 +29,4 @@ setup.data
 setup.ml
 *.clib
 *.mllib
+src/META
