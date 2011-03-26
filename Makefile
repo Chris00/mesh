@@ -18,4 +18,4 @@ upload-doc: doc
 
 clean:
 	ocaml setup.ml -clean
-	$(RM) $(wildcard setup.ml.ba* *.bak)
+	$(RM) $(wildcard *.ba[0-9] *.bak *~) setup.log
