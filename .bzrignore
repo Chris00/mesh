@@ -21,3 +21,11 @@ RE:.*\.ba[0-9]
 auto/
 # Test executables
 tests/square
+# OASIS generated files (unmodified)
+AUTHORS.txt
+INSTALL.txt
+README.txt
+setup.data
+setup.ml
+*.clib
+*.mllib
