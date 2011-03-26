@@ -11,7 +11,7 @@ Homepage:    http://forge.ocamlcore.org/projects/mesh/
 Library mesh
   Path:       src/
   BuildTools: ocamlbuild
-  Modules:    Mesh,Easymesh
+  Modules:    Mesh, Easymesh
   BuildDepends: bigarray
 
 Library mesh_display
@@ -21,6 +21,7 @@ Library mesh_display
   BuildDepends: mesh,graphics
   FindlibName:   display
   FindlibParent: mesh
+  XMETADescription: Display of meshes using OCaml Graphics module.
 
 Library mesh_triangle
   Path:       src/
@@ -31,6 +32,14 @@ Library mesh_triangle
   BuildDepends: mesh
   FindlibName:   triangle
   FindlibParent: mesh
+  XMETADescription: Binding to the triangle mesh generator.
+
+Document API
+  Title:	   API reference for Mesh
+  InstallDir:      $htmldir/api
+  BuildTools+:	   ocamldoc
+  XOCamlbuildPath: src/
+  XOCamlbuildLibraries: mesh, mesh_display, mesh_triangle
 
 Executable square_easymesh
   Path:         tests/
@@ -46,8 +55,7 @@ Executable square_triangle
   BuildDepends: mesh.triangle,lacaml,graphics
   Install:      false  
 
-SourceRepository ocamlforge
+SourceRepository trunk
   Type:       bzr
-  Location:   https://forge.ocamlcore.org/anonscm/bzr/mesh/
-  Branch:     trunk
+  Location:   https://forge.ocamlcore.org/anonscm/bzr/mesh/trunk
   Browser:    http://forge.ocamlcore.org/scm/browser.php?group_id=232
