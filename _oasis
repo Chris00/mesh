@@ -1,4 +1,4 @@
-#								-*-conf-*-
+#                                                               -*-conf-*-
 OASISFormat: 0.2
 Name:        mesh
 Version:     0.7
@@ -9,16 +9,16 @@ Plugins:     StdFiles (0.2), META (0.2)
 Homepage:    http://forge.ocamlcore.org/projects/mesh/
 
 Library mesh
-  Path:       src/
-  BuildTools: ocamlbuild
-  Modules:    Mesh, Easymesh
+  Path:         src/
+  BuildTools:   ocamlbuild
+  Modules:      Mesh, Easymesh
   BuildDepends: bigarray
 
 Library mesh_display
-  Path:       src/
-  BuildTools: ocamlbuild
-  Modules:    Mesh_display
-  BuildDepends: mesh,graphics
+  Path:          src/
+  BuildTools:    ocamlbuild
+  Modules:       Mesh_display
+  BuildDepends:  mesh,graphics
   FindlibName:   display
   FindlibParent: mesh
   XMETADescription: Display of meshes using OCaml Graphics module.
@@ -35,23 +35,24 @@ Library mesh_triangle
   XMETADescription: Binding to the triangle mesh generator.
 
 Document API
-  Title:	   API reference for Mesh
-  InstallDir:      $htmldir/api
-  BuildTools+:	   ocamldoc
-  XOCamlbuildPath: src/
-  XOCamlbuildLibraries: mesh, mesh_display, mesh_triangle
+  Title:           API reference for Mesh
+  Type:            OCamlbuild (0.2)
+  InstallDir:      $docdir/api
+  BuildTools:      ocamldoc, ocamlbuild
+  XOCamlbuildPath: .
+  XOCamlbuildLibraries: mesh, mesh.triangle, mesh.display
 
 Executable square_easymesh
   Path:         tests/
   MainIs:       square_easymesh.ml
-  BuildTools:	ocamlbuild
+  BuildTools:   ocamlbuild
   BuildDepends: mesh.display,lacaml,graphics
   Install:      false  
 
 Executable square_triangle
   Path:         tests/
   MainIs:       square_triangle.ml
-  BuildTools:	ocamlbuild
+  BuildTools:   ocamlbuild
   BuildDepends: mesh.triangle,lacaml,graphics
   Install:      false  
 

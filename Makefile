@@ -1,3 +1,4 @@
+WEB = mesh.forge.ocamlcore.org:/home/groups/mesh/htdocs/
 
 .PHONY: configure all byte native doc upload-doc install uninstall reinstall
 configure: setup.ml
@@ -13,7 +14,7 @@ doc install uninstall reinstall:
 	ocaml setup.ml -$@
 
 upload-doc: doc
-
+	scp -C -p -r _build/API.docdir $(WEB)
 
 clean:
 	ocaml setup.ml -clean
