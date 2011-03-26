@@ -36,7 +36,7 @@ Executable easymesh
   Path:         tests/
   MainIs:       square.ml
   BuildTools:	ocamlbuild
-  BuildDepends: mesh
+  BuildDepends: mesh_display,lacaml,graphics
   Install:      false  
 
 SourceRepository ocamlforge

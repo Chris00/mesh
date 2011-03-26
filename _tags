@@ -1,10 +1,12 @@
 # OASIS_START
-# DO NOT EDIT (digest: cb98ec505097904f5c72be928f632ef1)
+# DO NOT EDIT (digest: 75f063bcf6b7a240c8379b30c0f2af42)
 # Library mesh
 # Executable easymesh
 "tests/square.byte": use_mesh
+"tests/square.byte": pkg_lacaml
 "tests/square.byte": pkg_bigarray
 <tests/*.ml{,i}>: use_mesh
+<tests/*.ml{,i}>: pkg_lacaml
 <tests/*.ml{,i}>: pkg_bigarray
 # Library mesh_display
 <src/*.ml{,i}>: pkg_graphics

@@ -296,8 +296,8 @@ module MyOCamlbuildFindlib = struct
           (* Like -package but for extensions syntax. Morover -syntax is useless
            * when linking. *)
           List.iter begin fun syntax ->
-          flag ["ocaml"; "compile";  "syntax_"^syntax] & S[A"-syntax"; A syntax];
-          flag ["ocaml"; "ocamldep"; "syntax_"^syntax] & S[A"-syntax"; A syntax];
+          flag ["ocaml"; "compile";  "syntax_"^syntax] & s[a"-syntax"; a syntax];
+          flag ["ocaml"; "ocamldep"; "syntax_"^syntax] & s[a"-syntax"; a syntax];
           flag ["ocaml"; "doc";      "syntax_"^syntax] & S[A"-syntax"; A syntax];
           flag ["ocaml"; "infer_interface"; "syntax_"^syntax] & S[A"-syntax"; A syntax];
           end (find_syntaxes ());
@@ -487,16 +487,17 @@ dispatch
     dispatch_default;
     begin function
     | After_rules ->
-      let includes = ["src/meshFC.ml"; "src/easymeshFC.ml"; "src/mesh_level_curvesFC.ml"] in
+      let includes = ["meshFC.ml"; "easymeshFC.ml"; "mesh_displayFC.ml";
+                      "mesh_level_curvesFC.ml"; "mesh_triangleFC.ml"] in
+      let includes = List.map (fun f -> "src" / f) includes in
       dep ["ocaml"; "ocamldep"] includes;
       dep ["ocaml"; "compile"] includes;
-      dep ["ocaml"; "doc"] includes;
-      dep ["ocaml"; "infer_interfaces"] includes;
 
       flag ["ocaml"; "compile";  "pkg_camlp4.macro"] & S[A"-ppopt"; A"-Isrc"];
       flag ["ocaml"; "ocamldep"; "pkg_camlp4.macro"] & S[A"-ppopt"; A"-Isrc"];
       flag ["ocaml"; "doc";      "pkg_camlp4.macro"] & S[A"-ppopt"; A"-Isrc"];
-      flag ["ocaml"; "infer_interface"; "pkg_camlp4.macro"] & S[A"-ppopt"; A"-Isrc"];
+      flag ["ocaml"; "infer_interface"; "pkg_camlp4.macro"]
+      & S[A"-ppopt"; A"-Isrc"];
     | _ -> ()
     end;
   ]);;
