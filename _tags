@@ -1,0 +1,23 @@
+# OASIS_START
+# DO NOT EDIT (digest: cb98ec505097904f5c72be928f632ef1)
+# Library mesh
+# Executable easymesh
+"tests/square.byte": use_mesh
+"tests/square.byte": pkg_bigarray
+<tests/*.ml{,i}>: use_mesh
+<tests/*.ml{,i}>: pkg_bigarray
+# Library mesh_display
+<src/*.ml{,i}>: pkg_graphics
+# Library mesh_triangle
+"src": include
+<src/*.ml{,i}>: oasis_library_mesh_triangle_ccopt
+"src/triangle/triangle.c": oasis_library_mesh_triangle_ccopt
+<src/mesh_triangle.{cma,cmxa}>: use_libmesh_triangle
+<src/*.ml{,i}>: use_mesh
+<src/*.ml{,i}>: pkg_bigarray
+"src/triangle/triangle.c": use_mesh
+"src/triangle/triangle.c": pkg_bigarray
+# OASIS_STOP
+
+<src/*.ml>: annot
+<src/*.ml>: syntax_camlp4o, pkg_camlp4.macro

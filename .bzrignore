@@ -7,11 +7,13 @@
 doc
 .depend.ocaml
 ._d/
-src/META
 src/triangle
 src/triangle.zip
 src/levels.tex
 src/testmesh*.tex
+_build
+*.bak
+RE:.*\.ba[0-9]
 # LaTeX and AUCTeX
 *.aux
 *.log

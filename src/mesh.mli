@@ -1,6 +1,6 @@
-(* Mesh.mli                       Time-stamp: <2010-12-19 22:55:32 trch>
+(* Mesh.mli                       Time-stamp: <2011-03-26 10:24:58 trch>
 
-  Copyright (C) 2001-2004
+  Copyright (C) 2001-2011
 
      Christophe Troestler
      email: Christophe.Troestler@umh.ac.be
@@ -29,7 +29,6 @@
     [mesh#point] is of size [n * 2] and the coordinates of point [i]
     are given by [(point.{i,0}, point.{i,1})].
 
-    @version 0.7
     @author Christophe Troestler (Christophe.Troestler\@umons.ac.be)
 *)
 
