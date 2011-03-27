@@ -4,6 +4,8 @@
 *.cmxa
 *.exe
 *.com
+*.byte
+*.native
 doc
 .depend.ocaml
 ._d/
@@ -33,3 +35,5 @@ src/META
 configure
 API.docdir
 API.odocl
+# Tarball
+*.tar.gz
