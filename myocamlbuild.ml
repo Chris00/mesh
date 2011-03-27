@@ -494,11 +494,11 @@ dispatch
       dep ["ocaml"; "ocamldep"] includes;
       dep ["ocaml"; "compile"] includes;
 
-      flag ["ocaml"; "compile";  "pkg_camlp4.macro"] & S[A"-ppopt"; A"-Isrc"];
-      flag ["ocaml"; "ocamldep"; "pkg_camlp4.macro"] & S[A"-ppopt"; A"-Isrc"];
-      flag ["ocaml"; "doc";      "pkg_camlp4.macro"] & S[A"-ppopt"; A"-Isrc"];
-      flag ["ocaml"; "infer_interface"; "pkg_camlp4.macro"]
-      & S[A"-ppopt"; A"-Isrc"];
+      let pp_src = S[A"-ppopt"; A"-Isrc"] in
+      flag ["ocaml"; "compile";  "pkg_camlp4.macro"] & pp_src;
+      flag ["ocaml"; "ocamldep"; "pkg_camlp4.macro"] & pp_src;
+      flag ["ocaml"; "doc";      "pkg_camlp4.macro"] & pp_src;
+      flag ["ocaml"; "infer_interface"; "pkg_camlp4.macro"] pp_src;
     | _ -> ()
     end;
   ]);;
