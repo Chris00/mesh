@@ -9,11 +9,11 @@ DISTFILES = AUTHORS.txt INSTALL.txt README.txt \
   $(wildcard tests/*.ml)
 
 .PHONY: configure all byte native doc upload-doc install uninstall reinstall
-configure: setup.ml
-	ocaml setup.ml -configure
-
 all byte native: configure
 	ocaml setup.ml -build
+
+configure: setup.ml
+	ocaml setup.ml -configure
 
 setup.ml:
 	oasis setup
