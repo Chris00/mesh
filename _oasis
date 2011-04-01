@@ -47,6 +47,7 @@ Executable square_easymesh
   MainIs:       square_easymesh.ml
   BuildTools:   ocamlbuild
   BuildDepends: mesh.display,lacaml,graphics
+  CompiledObject: best
   Install:      false  
 
 Executable square_triangle
@@ -54,6 +55,7 @@ Executable square_triangle
   MainIs:       square_triangle.ml
   BuildTools:   ocamlbuild
   BuildDepends: mesh.triangle,lacaml,graphics
+  CompiledObject: best
   Install:      false  
 
 SourceRepository trunk

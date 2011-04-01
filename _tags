@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 39441feaedc3805db059b7c5f02e60aa)
+# DO NOT EDIT (digest: 8e057a118464dee2fb4db6cf82465a0a)
 # Library mesh
 # Library mesh_triangle
 <src/*.ml{,i}>: oasis_library_mesh_triangle_ccopt
@@ -16,18 +16,18 @@
 <src/*.ml{,i}>: pkg_graphics
 <src/*.ml{,i}>: pkg_bigarray
 # Executable square_triangle
-"tests/square_triangle.byte": use_mesh_triangle
-"tests/square_triangle.byte": use_mesh
-"tests/square_triangle.byte": pkg_lacaml
-"tests/square_triangle.byte": pkg_graphics
-"tests/square_triangle.byte": pkg_bigarray
+<tests/square_triangle.{native,byte}>: use_mesh_triangle
+<tests/square_triangle.{native,byte}>: use_mesh
+<tests/square_triangle.{native,byte}>: pkg_lacaml
+<tests/square_triangle.{native,byte}>: pkg_graphics
+<tests/square_triangle.{native,byte}>: pkg_bigarray
 <tests/*.ml{,i}>: use_mesh_triangle
 # Executable square_easymesh
-"tests/square_easymesh.byte": use_mesh_display
-"tests/square_easymesh.byte": use_mesh
-"tests/square_easymesh.byte": pkg_lacaml
-"tests/square_easymesh.byte": pkg_graphics
-"tests/square_easymesh.byte": pkg_bigarray
+<tests/square_easymesh.{native,byte}>: use_mesh_display
+<tests/square_easymesh.{native,byte}>: use_mesh
+<tests/square_easymesh.{native,byte}>: pkg_lacaml
+<tests/square_easymesh.{native,byte}>: pkg_graphics
+<tests/square_easymesh.{native,byte}>: pkg_bigarray
 <tests/*.ml{,i}>: use_mesh_display
 <tests/*.ml{,i}>: use_mesh
 <tests/*.ml{,i}>: pkg_lacaml
