@@ -1,0 +1,53 @@
+(* OASIS_START *)
+(* DO NOT EDIT (digest: 7c38231667a72d70e5f993d24bf0a001) *)
+This is the INSTALL file for the mesh distribution.
+
+This package uses OASIS to generate its build system. See section OASIS for
+full information. 
+
+Dependencies
+============
+
+In order to compile this package, you will need:
+* ocaml for all, doc API
+* findlib
+* lacaml for executable square_easymesh, executable square_triangle
+
+Installing
+==========
+
+1. Uncompress source directory and got to the root of the package
+2. Run 'ocaml setup.ml -configure'
+3. Run 'ocaml setup.ml -build'
+4. Run 'ocaml setup.ml -install'
+
+Uninstalling
+============
+
+1. Go to the root of the package 
+2. Run 'ocaml setup.ml -uninstall'
+
+OASIS
+=====
+
+OASIS is a software that helps to write setup.ml using a simple '_oasis'
+configuration file. The generated setup only depends on standard OCaml
+installation, no additional library is required.
+
+(* OASIS_STOP *)
+
+DEVELOPMENT VERSION
+===================
+
+If you downloaded the sources from our repository, you will need to
+download OASIS http://oasis.forge.ocamlcore.org/index.php to create
+'setup.ml'.  If you have wget installed, you can then simply do
+
+make configure
+
+to create 'setup.ml' and download the triangle sources from the web.
+You can then continue with 'ocaml setup.ml -build' and 'ocaml setup.ml
+-install'.  Otherwise, download triangle by hand
+http://www.cs.cmu.edu/~quake/triangle.html and unzip it in src/ (so
+the files appear in src/triangle).  Then run 'oasis setup' and
+follow the instructions of the "Installing" section.
