@@ -14,6 +14,7 @@ all byte native: configure
 
 configure: setup.ml
 	ocaml setup.ml -configure
+	$(MAKE) -C src triangle/triangle.c
 
 setup.ml:
 	oasis setup

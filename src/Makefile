@@ -44,7 +44,7 @@ mesh_triangle.cma mesh_triangle.cmxa: mesh_triangle.cmo mesh_triangle.cmx \
 triangle.o: triangle/triangle.c
 	$(OCAMLC) -c -o $@ -ccopt -DTRILIBRARY -ccopt -DEXTERNAL_TEST $<
 
-triangle/triangle.c:
+triangle/triangle.c triangle/triangle.h:
 	mkdir -p triangle
 	wget "http://cm.bell-labs.com/netlib/voronoi/triangle.zip"
 	cd triangle && unzip ../triangle.zip
