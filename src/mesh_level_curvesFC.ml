@@ -114,9 +114,12 @@ let draw_levels ~boundary (mesh: mesh) (z: vec)
              else (* l = z1 = z2 <> z3 *)
                if not(Edge.on bd i1 i2) then line surf color p1 p2
            )
-           else (* l = z1 <> z2, z3 *)
-             if (z2 < l && l < z3) || (z3 < l && l < z2) then
-               line surf color p1 (intercept p2 z2 p3 z3 l)
+           else (* l = z1 <> z2 *)
+             if level_eq l z3 then (* l = z1 = z3 <> z2 *)
+               (if not(Edge.on bd i1 i3) then line surf color p1 p3)
+             else
+               if (z2 < l && l < z3) || (z3 < l && l < z2) then
+                 line surf color p1 (intercept p2 z2 p3 z3 l)
          )
          else if l < z1 then (
            if level_eq l z2 then
@@ -124,7 +127,9 @@ let draw_levels ~boundary (mesh: mesh) (z: vec)
                (if not(Edge.on bd i2 i3) then line surf color p2 p3)
              else if l > z3 then (* z3 < l = z2 < z1 *)
                line surf color p2 (intercept p1 z1 p3 z3 l)
-             else (* isolated point, inside the domain *)
+             else (* corner point, inside the domain.  Ususally this
+                     happens because the level line passes through a
+                     triangle corner. *)
                (if marker.{i2} = 0 then point surf i2 p2)
            else if l < z2 then (
              if level_eq l z3 then
@@ -146,7 +151,7 @@ let draw_levels ~boundary (mesh: mesh) (z: vec)
                (if not(Edge.on bd i2 i3) then line surf color p2 p3)
              else if l < z3 then (* z1 < l = z2 < z3 *)
                line surf color p2 (intercept p1 z1 p3 z3 l)
-             else (* isolated point, inside the domain *)
+             else (* corner point, inside the domain *)
                (if marker.{i2} = 0 then point surf i2 p2)
            else if l > z2 then (
              if level_eq l z3 then

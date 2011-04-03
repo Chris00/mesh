@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 8e057a118464dee2fb4db6cf82465a0a)
+# DO NOT EDIT (digest: 9c889a3bd19db23f91b7a162bf5cf076)
 # Library mesh
 # Library mesh_triangle
 <src/*.ml{,i}>: oasis_library_mesh_triangle_ccopt
@@ -21,6 +21,11 @@
 <tests/square_triangle.{native,byte}>: pkg_lacaml
 <tests/square_triangle.{native,byte}>: pkg_graphics
 <tests/square_triangle.{native,byte}>: pkg_bigarray
+# Executable level_display
+<tests/level_display.{native,byte}>: use_mesh_triangle
+<tests/level_display.{native,byte}>: use_mesh
+<tests/level_display.{native,byte}>: pkg_graphics
+<tests/level_display.{native,byte}>: pkg_bigarray
 <tests/*.ml{,i}>: use_mesh_triangle
 # Executable square_easymesh
 <tests/square_easymesh.{native,byte}>: use_mesh_display

@@ -42,6 +42,7 @@ Document API
   XOCamlbuildPath: .
   XOCamlbuildLibraries: mesh, mesh.triangle, mesh.display
 
+# Tests:
 Executable square_easymesh
   Path:         tests/
   MainIs:       square_easymesh.ml
@@ -55,6 +56,14 @@ Executable square_triangle
   MainIs:       square_triangle.ml
   BuildTools:   ocamlbuild
   BuildDepends: mesh.triangle,lacaml,graphics
+  CompiledObject: best
+  Install:      false  
+
+Executable level_display
+  Path:         tests/
+  MainIs:       level_display.ml
+  BuildTools:   ocamlbuild
+  BuildDepends: mesh.triangle,graphics
   CompiledObject: best
   Install:      false  
 
