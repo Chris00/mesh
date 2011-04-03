@@ -135,7 +135,7 @@ class ['l] alias : 'l #t -> ['l] t
     [mesh].  This is especially useful if you want to extend a mesh
     object trough inheritance. *)
 
-val is_c_layout : 'l pslg -> bool
+val is_c_layout : 'l #pslg -> bool
 (** [is_c_layout] returns true if the mesh layout is C. *)
 
 

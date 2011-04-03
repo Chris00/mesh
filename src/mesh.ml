@@ -208,18 +208,17 @@ struct
   INCLUDE "meshFC.ml";;
 end
 
-let is_c_layout (mesh: _ pslg) =
+let is_c_layout (mesh: _ #pslg) =
   Array2.layout mesh#point = (Obj.magic c_layout : 'a Bigarray.layout)
 
 let band_height_P1 mesh =
-  if Array2.layout mesh#triangle = (Obj.magic c_layout : 'a Bigarray.layout)
-  then
+  if is_c_layout mesh then
     C.band_height_P1 (Obj.magic(mesh: _ #t) : c_layout t)
   else
     F.band_height_P1 (Obj.magic(mesh: _ #t) : fortran_layout t)
 
 let cuthill_mckee ?(rev=true) ?(perm: 'l int_vec option) (mesh: 'l #t) =
-  if is_c_layout(mesh :> _ pslg) then
+  if is_c_layout mesh then
     let m = C.cuthill_mckee ~rev (Obj.magic perm : c_layout int_vec option)
       (Obj.magic mesh : c_layout t) in
     (Obj.magic (m: c_layout t) : 'l t)
@@ -250,17 +249,17 @@ struct
 end
 
 let scilab (mesh: 'a #t) (z: 'a vec) filename =
-  if is_c_layout(mesh :> _ pslg)
+  if is_c_layout mesh
   then C.scilab (Obj.magic mesh) (Obj.magic z) filename
   else F.scilab (Obj.magic mesh) (Obj.magic z) filename
 
 let matlab (mesh: 'a #t) (z: 'a vec) filename =
-  if is_c_layout(mesh :> _ pslg)
+  if is_c_layout mesh
   then C.matlab (Obj.magic mesh) (Obj.magic z) filename
   else F.matlab (Obj.magic mesh) (Obj.magic z) filename
 
 let mathematica (mesh: 'a #t) (z: 'a vec) filename =
-  if is_c_layout(mesh :> _ pslg)
+  if is_c_layout mesh
   then C.mathematica (Obj.magic mesh: _ t) (Obj.magic z: _ vec) filename
   else F.mathematica (Obj.magic mesh: _ t) (Obj.magic z: _ vec) filename
 
