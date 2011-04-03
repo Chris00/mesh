@@ -16,7 +16,7 @@ configure: setup.ml
 	ocaml setup.ml -configure
 	$(MAKE) -C src triangle/triangle.c triangle/triangle.h
 
-setup.ml:
+setup.ml: _oasis
 	oasis setup
 
 doc install uninstall reinstall:
