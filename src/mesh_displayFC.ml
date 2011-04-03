@@ -92,7 +92,10 @@ let draw ?(width=600) ?(height=600) ?(color=foreground) ?(points=true)
 
 type point = { x : float; y : float }
 
-let point s i {x=x; y=y} = draw_pt s x y
+(* For level curves, we just draw a dot. *)
+let point s i {x=x; y=y} =
+  draw_rect (truncate((x -. s.xmin) *. s.hx) + s.xbd)
+    (truncate((y -. s.ymin) *. s.hy) + s.ybd) 1 1
 
 let line s color {x=x0; y=y0} {x=x1; y=y1} =
   set_color color;
