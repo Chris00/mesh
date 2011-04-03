@@ -1,4 +1,4 @@
-(* Mesh.mli                       Time-stamp: <2011-04-03 12:56:43 trch>
+(* Mesh.mli
 
   Copyright (C) 2001-2011
 
@@ -113,7 +113,7 @@ object
 end
 
 (** Voronoi diagram. *)
-class type ['layout] voronoi =
+and ['layout] voronoi =
 object
   method point : 'layout mat
   (** Array of points coordinates (x,y).  It is of size [2 * n]
@@ -130,9 +130,14 @@ object
       Voronoi diagram is finite, the normal vector is zero. *)
 end
 
+class ['l] alias : 'l #t -> ['l] t
+(** [alias mesh] creates a new object that shares its matrices with
+    [mesh].  This is especially useful if you want to extend a mesh
+    object trough inheritance. *)
 
 val is_c_layout : 'l pslg -> bool
 (** [is_c_layout] returns true if the mesh layout is C. *)
+
 
 (** {2:band  Band computation and reduction} *)
 

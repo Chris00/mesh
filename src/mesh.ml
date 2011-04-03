@@ -57,6 +57,19 @@ object
   method normal: 'layout mat
 end
 
+class ['l] alias (mesh: 'l #t) =
+object
+  method point = mesh#point
+  method point_marker = mesh#point_marker
+  method segment = mesh#segment
+  method segment_marker = mesh#segment_marker
+  method hole = mesh#hole
+  method region = mesh#region
+  method triangle = mesh#triangle
+  method neighbor = mesh#neighbor
+  method edge = mesh#edge
+  method edge_marker = mesh#edge_marker
+end
 
 
 (** LaTeX commands *)
