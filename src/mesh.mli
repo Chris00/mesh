@@ -1,4 +1,4 @@
-(* Mesh.mli                       Time-stamp: <2011-03-26 10:24:58 trch>
+(* Mesh.mli                       Time-stamp: <2011-04-03 12:56:43 trch>
 
   Copyright (C) 2001-2011
 
@@ -103,12 +103,13 @@ object
       [3 * n] ([fortran_layout]) where [n] is 0 (i.e., neighbouring
       information is not given) or the number of triangles. *)
   method edge : 'layout int_mat
-    (** Array of edge endpoints; 2 int per edge.  It is of size [2 * n]
-        ([fortran_layout]) where [n > 0] is the number of edges. *)
+  (** Array of edge endpoints; 2 int per edge.  It is of size [2 * n]
+      ([fortran_layout]) where [n > 0] is the number of edges. *)
   method edge_marker : 'layout int_vec
-    (** Array of edge markers.  It must either be empty (in which case
-        it is equivalent to all the markers being 1), or it must be of
-        size [n], where [n] is the number of edges.  *)
+  (** Array of edge markers.  Edges inside the domain receive the
+      marker [0].  It must either be empty (meaning that the
+      information is not provided) or it must be of size [n], where
+      [n] is the number of edges.  *)
 end
 
 (** Voronoi diagram. *)
