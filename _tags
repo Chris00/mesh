@@ -1,15 +1,12 @@
 # OASIS_START
-# DO NOT EDIT (digest: 9c889a3bd19db23f91b7a162bf5cf076)
+# DO NOT EDIT (digest: 4be2b0df467f343fbe88fb420fac5be5)
 # Library mesh
 # Library mesh_triangle
 <src/*.ml{,i}>: oasis_library_mesh_triangle_ccopt
 "src/triangle_stubs.c": oasis_library_mesh_triangle_ccopt
-"src/triangle/triangle.c": oasis_library_mesh_triangle_ccopt
 <src/mesh_triangle.{cma,cmxa}>: use_libmesh_triangle
 "src/triangle_stubs.c": use_mesh
 "src/triangle_stubs.c": pkg_bigarray
-"src/triangle/triangle.c": use_mesh
-"src/triangle/triangle.c": pkg_bigarray
 # Library mesh_display
 "src": include
 <src/*.ml{,i}>: use_mesh

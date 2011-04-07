@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: da61934c573c1235fd9c334b2415de42) *)
+(* DO NOT EDIT (digest: 6760638d23da6b22435f6e4d1ce7355c) *)
 module OASISGettext = struct
 # 21 "/home/gildor/programmation/oasis/src/oasis/OASISGettext.ml"
   
@@ -457,12 +457,25 @@ let package_default =
           ("src/mesh_triangle", ["src"]);
           ("src/mesh_display", ["src"])
        ];
-     lib_c = [("mesh_triangle", "src/", ["src/triangle/triangle.h"])];
+     lib_c = [("mesh_triangle", "src/", [])];
      flags =
        [
           (["oasis_library_mesh_triangle_ccopt"; "compile"],
             [
-               (OASISExpr.EBool true,
+               (OASISExpr.EBool true, S []);
+               (OASISExpr.EFlag "debian",
+                 S
+                   [
+                      A "-ccopt";
+                      A "-DTRILIBRARY";
+                      A "-ccopt";
+                      A "-DEXTERNAL_TEST";
+                      A "-ccopt";
+                      A "-DDEBIAN";
+                      A "-ccopt";
+                      A "-ltriangle"
+                   ]);
+               (OASISExpr.ENot (OASISExpr.EFlag "debian"),
                  S
                    [
                       A "-ccopt";
@@ -489,7 +502,8 @@ dispatch
     | After_rules ->
       let includes = ["meshFC.ml"; "easymeshFC.ml"; "mesh_displayFC.ml";
                       "mesh_level_curvesFC.ml"; "mesh_triangleFC.ml";
-                      "triangulate_stub.c" ] in
+                      "triangulate_stub.c";
+                      "triangle/triangle.c"; "triangle/triangle.h" ] in
       let includes = List.map (fun f -> "src" / f) includes in
       dep ["ocaml"; "ocamldep"] includes;
       dep ["ocaml"; "compile"] includes;

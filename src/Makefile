@@ -38,10 +38,10 @@ mesh_triangle.cmo mesh_triangle.cmx: mesh_triangleFC.ml
 mesh_display.cmo mesh_display.cmx: mesh_displayFC.ml
 
 mesh_triangle.cma mesh_triangle.cmxa: mesh_triangle.cmo mesh_triangle.cmx \
-  triangle.o triangle_stubs.o
+  triangle_stubs.o
 	$(OCAMLMKLIB) -o $(basename $@) $^
 
-triangle.o: triangle/triangle.c
+triangle_stubs.o: triangle_stubs.c triangle/triangle.c triangle/triangle.h
 	$(OCAMLC) -c -o $@ -ccopt -DTRILIBRARY -ccopt -DEXTERNAL_TEST $<
 
 triangle/triangle.c triangle/triangle.h:

@@ -18,7 +18,15 @@
 #define REAL double
 #define PREC BIGARRAY_FLOAT64
 #endif /* SINGLE */
-#include "triangle/triangle.h"
+
+#ifdef DEBIAN
+#include "triangle.h"
+typedef REAL *vertex; /* taken from triangle.c */
+#else
+/* Include triangle code; cleaner to switch to an external library if
+   it exists. */
+#include "triangle/triangle.c"
+#endif
 
 #define REAL_BIGARRAY_VAL(v) ((REAL *) Data_bigarray_val(v))
 #define INT_BIGARRAY_VAL(v) ((long int *) Data_bigarray_val(v))
@@ -113,9 +121,7 @@ value ocaml_triangle_init(value vunit)
 #include "triangulate_stub.c"
 
 
-
 #define NARGS_TRIUNSUITABLE 7 /* Number of Caml args */
-typedef REAL *vertex; /* taken from triangle.c */
 
 CAMLexport
 int triunsuitable(vertex triorg, vertex tridest, vertex triapex, REAL area)
