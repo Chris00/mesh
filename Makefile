@@ -19,7 +19,7 @@ configure: setup.ml
 setup.ml: _oasis
 	oasis setup
 
-doc install uninstall reinstall:
+doc install uninstall reinstall: all
 	ocaml setup.ml -$@
 
 upload-doc: doc

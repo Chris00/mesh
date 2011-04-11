@@ -126,11 +126,11 @@ let latex_begin fh width height xmin ymin =
       \\pgfpathlineto{\\pgfpointxy{#6}{#7}}
       \\pgfusepath{fill}
     \\end{pgfscope}}\n";
-  fprintf fh "  %% \\meshpolygon{R,G,B}{(x1, y1) -- (x2,y2) -- ...}";
+  fprintf fh "  %% \\meshpolygon{R,G,B}{(x1, y1) -- (x2,y2) -- ...}\n";
   fprintf fh "  \\providecommand{\\meshpolygon}[2]{%%
     \\definecolor{ocamlmeshfill}{RGB}{#1}
     \\draw[color=ocamlmeshfill,fill] #2 -- cycle;
-    }"
+    }\n"
 
 let latex_end fh =
   fprintf fh "\\end{pgfscope}\n"
