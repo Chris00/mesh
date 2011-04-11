@@ -210,6 +210,18 @@ sig
         l2] implies [level_eq l1 l2].  This function is mainly used
         not to draw the boundary edges at levels given in
         [levels].  *)
+
+  val super_level : ?boundary:(int -> color option) ->
+    'l #t -> 'l vec -> float -> color -> string -> unit
+  (** [super_level mesh z level color file] outputs into [file] the
+      LaTeX PGF command to display the super-level \{ (x,y) | z(x,y) >
+      l \}.  You can customize the output by defining
+      [\meshpolygon{R,G,B}{(x1,y1) -- (x2, y2) -- ... (xN, yN)}]. *)
+
+  val sub_level : ?boundary:(int -> color option) ->
+    'l #t -> 'l vec -> float -> color -> string -> unit
+  (** [sub_level mesh z level color file] same as {!super_level}
+      except that the sub-level \{ (x,y) | z(x,y) < l \} is drawn. *)
 end
 
 (** {2 Scilab} *)

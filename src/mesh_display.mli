@@ -71,3 +71,15 @@ val display_level_curves : ?width:int -> ?height:int ->
 (** [display_level_curves mesh z levels] is like [level_curves mesh z
     levels] but opens the graph and "hold" it until 'q', 'Q' or a
     mouse button is pressed. *)
+
+val super_level : ?width:int -> ?height:int ->
+  ?boundary:(int -> Graphics.color option) ->
+  'l #Mesh.t -> 'l Mesh.vec -> float -> Graphics.color -> unit
+(** [super_level mesh z level color] fill the super-level \{ (x,y) |
+    z(x,y) > l \} with [color].  *)
+
+val sub_level : ?width:int -> ?height:int ->
+  ?boundary:(int -> Graphics.color option) ->
+  'l #Mesh.t -> 'l Mesh.vec -> float -> Graphics.color -> unit
+(** [sub_level mesh z level color] same as {!super_level} except that
+    the sub-level \{ (x,y) | z(x,y) < l \} is drawn. *)

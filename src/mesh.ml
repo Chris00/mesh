@@ -125,7 +125,12 @@ let latex_begin fh width height xmin ymin =
       \\pgfpathlineto{\\pgfpointxy{#4}{#5}}
       \\pgfpathlineto{\\pgfpointxy{#6}{#7}}
       \\pgfusepath{fill}
-    \\end{pgfscope}}\n"
+    \\end{pgfscope}}\n";
+  fprintf fh "  %% \\meshpolygon{R,G,B}{(x1, y1) -- (x2,y2) -- ...}";
+  fprintf fh "  \\providecommand{\\meshpolygon}[2]{%%
+    \\definecolor{ocamlmeshfill}{RGB}{#1}
+    \\draw[color=ocamlmeshfill,fill] #2 -- cycle;
+    }"
 
 let latex_end fh =
   fprintf fh "\\end{pgfscope}\n"
@@ -161,6 +166,12 @@ let point fh i {x=x; y=y} = point_xy fh i x y
 let triangle fh color {x=x1; y=y1} {x=x2; y=y2} {x=x3; y=y3} =
   fprintf fh "  \\meshtriangle{%s}{%.12f}{%.12f}{%.12f}{%.12f}{%.12f}{%.12f}\n"
     (color_to_string color) x1 y1 x2 y2 x3 y3
+
+let fill_polygon fh color pts =
+  let pts = List.map (fun p -> sprintf "(%.12f,%.12f)" p.x p.y) pts in
+  fprintf fh "  \\meshpolygon{%s}{%s}\n"
+    (color_to_string color) (String.concat " -- " pts)
+
 
 
 (* Functions for fortran layout.
@@ -246,6 +257,22 @@ struct
     else
       F.level_curves ?boundary (Obj.magic mesh) (Obj.magic z)
         ?level_eq levels filename
+
+  let super_level ?boundary (mesh: 'a #t) (z: 'a vec) level color filename =
+    if is_c_layout mesh then
+      C.super_level ?boundary (Obj.magic mesh) (Obj.magic z)
+        level color filename
+    else
+      F.super_level ?boundary (Obj.magic mesh) (Obj.magic z)
+        level color filename
+
+  let sub_level ?boundary (mesh: 'a #t) (z: 'a vec) level color filename =
+    if is_c_layout mesh then
+      C.sub_level ?boundary (Obj.magic mesh) (Obj.magic z)
+        level color filename
+    else
+      F.sub_level ?boundary (Obj.magic mesh) (Obj.magic z)
+        level color filename
 end
 
 let scilab (mesh: 'a #t) (z: 'a vec) filename =

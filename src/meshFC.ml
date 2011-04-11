@@ -250,7 +250,8 @@ let mathematica (mesh: mesh) (z: vec) fname =
   close_out fh
 ;;
 
-DEFINE FUN = "Mesh.level_curves";;
+
+DEFINE MOD = "Mesh";;
 INCLUDE "mesh_level_curvesFC.ml";;
 
 let level_curves ?(boundary=(fun _ -> Some black)) (mesh: mesh) (z: vec)
@@ -259,6 +260,22 @@ let level_curves ?(boundary=(fun _ -> Some black)) (mesh: mesh) (z: vec)
   let xmin, xmax, ymin, ymax = bounding_box mesh in
   latex_begin fh (xmax -. xmin) (ymax -. ymin) xmin ymin;
   draw_levels ~boundary mesh z ?level_eq levels fh;
+  latex_end fh;
+  close_out fh
+
+let super_level ?boundary (mesh: mesh) (z: vec) level color fname =
+  let fh = open_out fname in
+  let xmin, xmax, ymin, ymax = bounding_box mesh in
+  latex_begin fh (xmax -. xmin) (ymax -. ymin) xmin ymin;
+  draw_super_level ?boundary mesh z level color fh;
+  latex_end fh;
+  close_out fh
+
+let sub_level ?boundary (mesh: mesh) (z: vec) level color fname =
+  let fh = open_out fname in
+  let xmin, xmax, ymin, ymax = bounding_box mesh in
+  latex_begin fh (xmax -. xmin) (ymax -. ymin) xmin ymin;
+  draw_sub_level ?boundary mesh z level color fh;
   latex_end fh;
   close_out fh
 

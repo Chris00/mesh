@@ -111,10 +111,36 @@ let triangle s color {x=x0; y=y0} {x=x1; y=y1} {x=x2; y=y2} =
   set_color color;
   fill_poly [| (x0, y0); (x1, y1); (x2, y2) |]
 
-DEFINE FUN = "Mesh_display.level_curves"
+let rec array_of_points s pts =
+  let l = List.length pts in
+  let apts = Array.create l (0,0) in
+  fill_array_of_points s apts 0 pts;
+  apts
+and fill_array_of_points s apts i = function
+  | [] -> ()
+  | pt :: tl ->
+    apts.(i) <- (truncate((pt.x -. s.xmin) *. s.hx) + s.xbd,
+               truncate((pt.y -. s.ymin) *. s.hy) + s.ybd);
+    fill_array_of_points s apts (i + 1) tl
+
+let fill_polygon s color pts =
+  set_color color;
+  fill_poly (array_of_points s pts)
+
+DEFINE MOD = "Mesh_display"
 INCLUDE "mesh_level_curvesFC.ml";;
 
 let level_curves ~width ~height ?(boundary=(fun _ -> Some 0))
     (mesh: mesh) (z: vec) ?level_eq levels =
   let surf = make_surf mesh width height in
   draw_levels ~boundary mesh z ?level_eq levels surf
+
+let super_level ~width ~height ?(boundary=(fun _ -> Some 0))
+    (mesh: mesh) (z: vec) level color =
+  let surf = make_surf mesh width height in
+  draw_super_level ~boundary mesh z level color surf
+
+let sub_level ~width ~height ?(boundary=(fun _ -> Some 0))
+    (mesh: mesh) (z: vec) level color =
+  let surf = make_surf mesh width height in
+  draw_sub_level ~boundary mesh z level color surf

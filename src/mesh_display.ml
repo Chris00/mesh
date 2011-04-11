@@ -113,3 +113,21 @@ let display_level_curves ?(width=600) ?(height=600) ?boundary mesh z
   set_window_title("Level curves (" ^ Filename.basename Sys.argv.(0) ^ ")");
   level_curves ~width ~height ?boundary mesh z ?level_eq levels;
   hold_graph()
+
+let super_level ?(width=600) ?(height=600) ?boundary (mesh: 'a #t) (z: 'a vec)
+    level color =
+  if Mesh.is_c_layout mesh then
+    C.super_level ~width ~height ?boundary (Obj.magic mesh) (Obj.magic z)
+      level color
+  else
+    F.super_level ~width ~height ?boundary (Obj.magic mesh) (Obj.magic z)
+      level color
+
+let sub_level ?(width=600) ?(height=600) ?boundary (mesh: 'a #t) (z: 'a vec)
+    level color =
+  if Mesh.is_c_layout mesh then
+    C.sub_level ~width ~height ?boundary (Obj.magic mesh) (Obj.magic z)
+      level color
+  else
+    F.sub_level ~width ~height ?boundary (Obj.magic mesh) (Obj.magic z)
+      level color
