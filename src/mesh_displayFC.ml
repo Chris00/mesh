@@ -123,9 +123,21 @@ and fill_array_of_points s apts i = function
                truncate((pt.y -. s.ymin) *. s.hy) + s.ybd);
     fill_array_of_points s apts (i + 1) tl
 
-let fill_polygon s color pts =
+let fill_triangle = triangle
+
+let fill_quadrilateral s color {x=x0; y=y0} {x=x1; y=y1} {x=x2; y=y2}
+    {x=x3; y=y3} =
+  let x0 = truncate((x0 -. s.xmin) *. s.hx) + s.xbd
+  and y0 = truncate((y0 -. s.ymin) *. s.hy) + s.ybd
+  and x1 = truncate((x1 -. s.xmin) *. s.hx) + s.xbd
+  and y1 = truncate((y1 -. s.ymin) *. s.hy) + s.ybd
+  and x2 = truncate((x2 -. s.xmin) *. s.hx) + s.xbd
+  and y2 = truncate((y2 -. s.ymin) *. s.hy) + s.ybd
+  and x3 = truncate((x3 -. s.xmin) *. s.hx) + s.xbd
+  and y3 = truncate((y3 -. s.ymin) *. s.hy) + s.ybd in
   set_color color;
-  fill_poly (array_of_points s pts)
+  fill_poly [| (x0, y0); (x1, y1); (x2, y2); (x3, y3) |]
+
 
 DEFINE MOD = "Mesh_display"
 INCLUDE "mesh_level_curvesFC.ml";;

@@ -278,19 +278,19 @@ let draw_xxx_level decision name ?(boundary=(fun _ -> Some black))
     let p3 = { x = GET(pt, FST,i3);  y = GET(pt, SND,i3) }
     and z3 = z.{i3} in
     match decision.(INDEX(compare z1 l, compare z2 l, compare z3 l)) with
-    | Tri123 -> fill_polygon surf color [p1; intercept p1 z1 p2 z2 l;
-                                        intercept p1 z1 p3 z3 l]
-    | Tri231 -> fill_polygon surf color [p2; intercept p2 z2 p3 z3 l;
-                                        intercept p2 z2 p1 z1 l]
-    | Tri312 -> fill_polygon surf color [p3; intercept p3 z3 p1 z1 l;
-                                        intercept p3 z3 p2 z2 l]
-    | Quad123 -> fill_polygon surf color [intercept p1 z1 p2 z2 l;
-                                         intercept p1 z1 p3 z3 l; p3; p2]
-    | Quad231 -> fill_polygon surf color [intercept p2 z2 p3 z3 l;
-                                         intercept p2 z2 p1 z1 l; p1; p3]
-    | Quad312 -> fill_polygon surf color [intercept p3 z3 p1 z1 l;
-                                         intercept p3 z3 p2 z2 l; p2; p1]
-    | Whole -> fill_polygon surf color [p1; p2; p3]
+    | Tri123 -> fill_triangle surf color p1 (intercept p1 z1 p2 z2 l)
+                                           (intercept p1 z1 p3 z3 l)
+    | Tri231 -> fill_triangle surf color p2 (intercept p2 z2 p3 z3 l)
+                                           (intercept p2 z2 p1 z1 l)
+    | Tri312 -> fill_triangle surf color p3 (intercept p3 z3 p1 z1 l)
+                                           (intercept p3 z3 p2 z2 l)
+    | Quad123 -> fill_quadrilateral surf color (intercept p1 z1 p2 z2 l)
+                                              (intercept p1 z1 p3 z3 l) p3 p2
+    | Quad231 -> fill_quadrilateral surf color (intercept p2 z2 p3 z3 l)
+                                              (intercept p2 z2 p1 z1 l) p1  p3
+    | Quad312 -> fill_quadrilateral surf color (intercept p3 z3 p1 z1 l)
+                                              (intercept p3 z3 p2 z2 l) p2 p1
+    | Whole -> fill_triangle surf color p1 p2 p3
     | Empty -> ()
   done;
   (* Draw the boundary edges (over the filled area) *)

@@ -216,7 +216,8 @@ sig
   (** [super_level mesh z level color file] outputs into [file] the
       LaTeX PGF command to display the super-level \{ (x,y) | z(x,y) >
       l \}.  You can customize the output by defining
-      [\meshpolygon{R,G,B}{(x1,y1) -- (x2, y2) -- ... (xN, yN)}]. *)
+      [\meshfilltriangle{R,G,B}{x1}{y1}{x2}{y2}{x3}{y3}] and
+      [\meshfillquadrilateral{R,G,B}{x1}{y1}{x2}{y2}{x3}{y3}{x4}{y4}].  *)
 
   val sub_level : ?boundary:(int -> color option) ->
     'l #t -> 'l vec -> float -> color -> string -> unit
