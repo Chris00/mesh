@@ -4,15 +4,16 @@ DIR = $(shell oasis query name)-$(shell oasis query version)
 TARBALL = $(DIR).tar.gz
 
 DISTFILES = AUTHORS.txt INSTALL.txt README.txt \
-  Makefile myocamlbuild.ml _oasis setup.ml setup.data _tags API.odocl \
+  Makefile myocamlbuild.ml _oasis setup.ml _tags API.odocl \
   src/META $(wildcard src/*.ml src/*.clib src/*.mllib src/*.c src/triangle/*) \
   $(wildcard tests/*.ml)
 
 .PHONY: configure all byte native doc upload-doc install uninstall reinstall
-all byte native: configure
+all byte native: setup.data
 	ocaml setup.ml -build
 
-configure: setup.ml
+configure: setup.data
+setup.data: setup.ml
 	ocaml setup.ml -configure
 	$(MAKE) -C src triangle/triangle.c triangle/triangle.h
 
