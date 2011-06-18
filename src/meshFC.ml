@@ -303,11 +303,7 @@ let min_deg (deg: int array) =
   !i
 
 (** Apply the permutation [perm] to the [mesh]. *)
-let permute perm (mesh: mesh) : mesh =
-  let n = NCOLS(mesh#point) in
-  (* Inverse perm *)
-  let inv_perm = Array1.create int layout n in
-  for i = FST to LASTEL(perm) do inv_perm.{perm.{i}} <- i done;
+let do_permute (perm: int_vec) (inv_perm: int_vec) (mesh: mesh) n : mesh =
   (* Build the new mesh *)
   let old_pt = mesh#point in
   let pt = ARRAY2(float64, 2, n) in
@@ -350,6 +346,27 @@ let permute perm (mesh: mesh) : mesh =
     method edge = edge
     method edge_marker = mesh#edge_marker
   end
+
+let permute_unsafe perm mesh =
+  let n = NCOLS(mesh#point) in
+  (* Inverse perm *)
+  let inv_perm = Array1.create int layout n in
+  for i = FST to LASTEL(perm) do inv_perm.{perm.{i}} <- i done;
+  do_permute perm inv_perm mesh n
+
+let permute ~inv perm mesh =
+  let n = NCOLS(mesh#point) in
+  (* Inverse perm and check that [perm] is indeed a permuation. *)
+  let inv_perm = Array1.create int layout n in
+  Array1.fill inv_perm (-1); (* never an index *)
+  for i = FST to LASTEL(perm) do
+    let pi = perm.{i} in
+    if inv_perm.{pi} < 0 then inv_perm.{pi} <- i
+    else invalid_arg(sprintf "Mesh.permute: not a permutation \
+      (perm.{%i} = %i = perm.{%i})" inv_perm.{pi} pi i)
+  done;
+  if inv then do_permute inv_perm perm mesh n
+  else do_permute perm inv_perm mesh n
 
 
 (* http://ciprian-zavoianu.blogspot.com/2009/01/project-bandwidth-reduction.html
@@ -399,7 +416,7 @@ let cuthill_mckee ~rev perm (mesh: mesh) : mesh =
       perm.{s-i} <- t;
     done
   );
-  permute perm mesh
+  permute_unsafe perm mesh
 
 (* A Generalized GPS Algorithm For Reducing The Bandwidth And Profile
    Of A Sparse Matrix, Q. Wang, Y. C. Guo, and X. W. Shi
@@ -422,7 +439,7 @@ let ggps perm (mesh: mesh) : mesh =
   done;
   let v = min_deg deg in
 
-  permute perm mesh
+  permute_unsafe perm mesh
 
 (* Local Variables: *)
 (* compile-command: "make -k" *)

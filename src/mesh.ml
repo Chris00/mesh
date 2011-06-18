@@ -204,8 +204,10 @@ module F =
 struct
   type mesh = fortran_layout t;;
   type 'a vector = 'a vec               (* global vec *)
-  type vec = fortran_layout vector;;    (* local vec *)
+  type vec = fortran_layout vector;;  (* local vec *)
   type matrix = fortran_layout mat;;
+  type 'a int_vector = 'a int_vec
+  type int_vec = fortran_layout int_vector
   let layout = fortran_layout;;
   DEFINE NCOLS(a) = Array2.dim2 a;;
   DEFINE NROWS(a) = Array2.dim1 a;;
@@ -227,6 +229,8 @@ struct
   type 'a vector = 'a vec               (* global vec *)
   type vec = c_layout vector;;
   type matrix = c_layout mat;;
+  type 'a int_vector = 'a int_vec
+  type int_vec = c_layout int_vector
   let layout = c_layout;;
   DEFINE NCOLS(a) = Array2.dim1 a;;
   DEFINE NROWS(a) = Array2.dim2 a;;
@@ -254,12 +258,22 @@ let band_height_P1 mesh =
 let cuthill_mckee ?(rev=true) ?(perm: 'l int_vec option) (mesh: 'l #t) =
   if is_c_layout mesh then
     let m = C.cuthill_mckee ~rev (Obj.magic perm : c_layout int_vec option)
-      (Obj.magic mesh : c_layout t) in
+      (Obj.magic mesh : c_layout #t) in
     (Obj.magic (m: c_layout t) : 'l t)
   else
     let m = F.cuthill_mckee ~rev
       (Obj.magic perm : fortran_layout int_vec option)
-      (Obj.magic mesh : fortran_layout t) in
+      (Obj.magic mesh : fortran_layout #t) in
+    (Obj.magic (m: fortran_layout t) : 'l t)
+
+let permute ?(inv=false) (perm: 'l int_vec) (mesh: 'l #t) =
+  if is_c_layout mesh then
+    let m = C.permute inv (Obj.magic perm : c_layout int_vec)
+      (Obj.magic mesh :  c_layout #t) in
+    (Obj.magic (m: c_layout t) : 'l t)
+  else
+    let m = F.permute inv (Obj.magic perm : fortran_layout int_vec)
+      (Obj.magic mesh : fortran_layout #t) in
     (Obj.magic (m: fortran_layout t) : 'l t)
 
 
