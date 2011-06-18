@@ -166,7 +166,8 @@ val permute : ?inv:bool -> (int, int_elt, 'l) Array1.t -> 'l #t -> 'l t
 (** [permute p mesh] returns a new mesh identical to the given [mesh]
     except that the points indices are transformed through the
     permutation [p]: the point of index [i] in the new mesh will be
-    the one of index [p.{i}] in [mesh].
+    the one of index [p.{i}] in [mesh].  In other words, [p] lists the
+    order of [mesh] indices as they will be in the new mesh.
 
     @raise invalid_argument if [p] is not a permutation.
     @param inv consider that the inverse permutation is given.  If
