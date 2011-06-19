@@ -172,7 +172,7 @@ val permute : ?inv:bool -> (int, int_elt, 'l) Array1.t -> 'l #t -> 'l t
     the one of index [p.{i}] in [mesh].  In other words, [p] lists the
     order of [mesh] indices as they will be in the new mesh.
 
-    @raise invalid_argument if [p] is not a permutation.
+    @raise Invalid_argument if [p] is not a permutation.
     @param inv consider that the inverse permutation is given.  If
     [true], the point of index [i] in [mesh] will be mapped to the
     point of index [p.{i}] in the returned mesh.  Default: [false]. *)
