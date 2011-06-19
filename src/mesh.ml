@@ -249,11 +249,11 @@ end
 let is_c_layout (mesh: _ #pslg) =
   Array2.layout mesh#point = (Obj.magic c_layout : 'a Bigarray.layout)
 
-let band_height_P1 mesh =
+let band_height_P1 ?filter mesh =
   if is_c_layout mesh then
-    C.band_height_P1 (Obj.magic(mesh: _ #t) : c_layout t)
+    C.band_height_P1 filter (Obj.magic(mesh: _ #t) : c_layout t)
   else
-    F.band_height_P1 (Obj.magic(mesh: _ #t) : fortran_layout t)
+    F.band_height_P1 filter (Obj.magic(mesh: _ #t) : fortran_layout t)
 
 let cuthill_mckee ?(rev=true) ?(perm: 'l int_vec option) (mesh: 'l #t) =
   if is_c_layout mesh then

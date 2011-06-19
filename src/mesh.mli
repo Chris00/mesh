@@ -141,12 +141,15 @@ val is_c_layout : 'l #pslg -> bool
 
 (** {2:band  Band computation and reduction} *)
 
-val band_height_P1 : 'l #t -> int
+val band_height_P1 : ?filter:(int -> bool) -> 'l #t -> int
 (** [band_height mesh] returns the number of nonzero super-diagonals +
     1 (for the diagonal) of symmetric band matrices for P1 finite
     elements inner products.  It is the maximum on all triangles T of
     max(|i1 - i2|, |i2 - i3|, |i3 - i1|) where i1, i2, and i3 are
-    the indices of the nodes of the three corners of the triangle T.  *)
+    the indices of the nodes of the three corners of the triangle T.
+
+    @param filter If provided, only perform the compuation on nodes
+    [i] such that [filter i] is true.  Default: no filter. *)
 
 val cuthill_mckee : ?rev:bool -> ?perm:'l int_vec -> 'l #t -> 'l t
 (** [cuthill_mckee mesh] return a new mesh that is identical to [mesh]

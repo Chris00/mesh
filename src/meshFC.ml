@@ -281,16 +281,36 @@ let sub_level ?boundary (mesh: mesh) (z: vec) level color fname =
 
 
 (* Determine the number of superdiagonals + 1 main diagonal *)
-let band_height_P1 (mesh: mesh) =
+let band_height_P1 filter (mesh: mesh) =
   let tr = mesh#triangle in
   let kd = ref 0 in
-  for t = FST to LASTCOL(tr) do
-    let i1 = GET(tr, FST, t)
-    and i2 = GET(tr, SND, t)
-    and i3 = GET(tr, THIRD, t) in
-    kd := max4 !kd (abs(i1 - i2)) (abs(i2 -i3)) (abs(i3 - i1))
-  done;
-  !kd + 1
+  match filter with
+  | None ->
+    for t = FST to LASTCOL(tr) do
+      let i1 = GET(tr, FST, t)
+      and i2 = GET(tr, SND, t)
+      and i3 = GET(tr, THIRD, t) in
+      kd := max4 !kd (abs(i1 - i2)) (abs(i2 -i3)) (abs(i3 - i1))
+    done;
+    !kd + 1
+  | Some cond ->
+    for t = FST to LASTCOL(tr) do
+      let i1 = GET(tr, FST, t)
+      and i2 = GET(tr, SND, t)
+      and i3 = GET(tr, THIRD, t) in
+      if cond i1 then (
+        if cond i2 then
+          if cond i3 then
+            kd := max4 !kd (abs(i1 - i2)) (abs(i2 -i3)) (abs(i3 - i1))
+          else (* exlude i3 *)
+            kd := max2 !kd (abs(i2 - i1))
+        else (* exclude i2 *) if cond i3 then
+          kd := max2 !kd (abs(i3 - i1))
+      )
+      else (* exclude i1 *) if cond i2 && cond i3 then
+        kd := max2 !kd (abs(i3 - i2))
+    done;
+    !kd + 1
 
 (* Return the index with the lowest nonnegative [deg] (negative
    degrees are ignored).  Return [-1] if all degrees are < 0. *)
