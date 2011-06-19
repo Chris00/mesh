@@ -359,9 +359,13 @@ let permute ~inv perm mesh =
   (* Inverse perm and check that [perm] is indeed a permuation. *)
   let inv_perm = Array1.create int layout n in
   Array1.fill inv_perm (-1); (* never an index *)
-  for i = FST to LASTEL(perm) do
+  let last_el = LASTEL(perm) in
+  for i = FST to last_el do
     let pi = perm.{i} in
-    if inv_perm.{pi} < 0 then inv_perm.{pi} <- i
+    if pi < FST || pi > last_el then
+      invalid_arg(sprintf "Mesh.permute: perm.{%i} = %i not in [%i..%i]"
+                    i pi FST last_el)
+    else if inv_perm.{pi} < 0 then inv_perm.{pi} <- i
     else invalid_arg(sprintf "Mesh.permute: not a permutation \
       (perm.{%i} = %i = perm.{%i})" inv_perm.{pi} pi i)
   done;
