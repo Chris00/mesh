@@ -165,12 +165,12 @@ val cuthill_mckee : ?rev:bool -> ?perm:'l int_vec -> 'l #t -> 'l t
     needed to transfer vectors defined on the initial labeling.  The
     length of the permutation vector must be the number of nodes. *)
 
-val permute : ?inv:bool -> (int, int_elt, 'l) Array1.t -> 'l #t -> 'l t
+val permute : ?inv:bool -> 'l int_vec -> 'l #t -> 'l t
 (** [permute p mesh] returns a new mesh identical to the given [mesh]
     except that the points indices are transformed through the
     permutation [p]: the point of index [i] in the new mesh will be
-    the one of index [p.{i}] in [mesh].  In other words, [p] lists the
-    order of [mesh] indices as they will be in the new mesh.
+    the one of index [p.{i}] in [mesh].  In other words, [p] lists
+    [mesh] indices in the order they will have after permutation.
 
     @raise Invalid_argument if [p] is not a permutation.
     @param inv consider that the inverse permutation is given.  If
