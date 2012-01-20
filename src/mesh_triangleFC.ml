@@ -6,17 +6,18 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area
     ?(subparam=false) ?triangle_area ?triunsuitable ?(debug=true)
     ~pslg ~refine (mesh: layout t) =
   (* Check points *)
-  if NROWS(mesh#point) <> 2 then invalid_arg(ROWS ^ " mesh#point <> 2");
+  let point = mesh#point in
+  if NROWS(point) <> 2 then invalid_arg(ROWS ^ " mesh#point <> 2");
   if NCOLS(mesh#point_attribute) > 0
-    && NCOLS(mesh#point_attribute) < NCOLS(mesh#point) then
+    && NCOLS(mesh#point_attribute) < NCOLS(point) then
     invalid_arg(COLS ^ " mesh#point_attribute < " ^ COLS ^ " mesh#point");
   if Array1.dim mesh#point_marker > 0
-    && Array1.dim mesh#point_marker < NCOLS(mesh#point) then
+    && Array1.dim mesh#point_marker < NCOLS(point) then
     invalid_arg("dim mesh#point_marker < " ^ COLS ^ " mesh#point");
   let switches = Buffer.create 20 in
   Buffer.add_string switches default_switches;
   (* Check for PSLG *)
-  if pslg then begin
+  if pslg then (
     if NCOLS(mesh#segment) > 0 then begin
       if NROWS(mesh#segment) <> 2 then invalid_arg(ROWS ^ " segment <> 2");
       if Array1.dim mesh#segment_marker > 0
@@ -32,7 +33,16 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area
     Buffer.add_char switches 'p';
     if NROWS(mesh#segment) = 0 || NCOLS(mesh#segment) = 0 then
       Buffer.add_char switches 'c';
-  end;
+    (* Check that no point contains NaN.  Triangle seems to go into an
+       infinite loop with these which can easily be confused with
+       other difficulties.  FIXME: want to do this for any mesh? *)
+    for i = FST to NCOLS(point) do
+      if is_nan point.{FST, i} then
+        invalid_arg(sprintf "mesh#point.{%i, %i} is NaN" FST i);
+      if is_nan point.{SND, i} then
+        invalid_arg(sprintf "mesh#point.{%i, %i} is NaN" SND i);
+    done;
+  );
   (* Check for refinement -- triangles *)
   if refine then begin
     if NCOLS(mesh#triangle) > 0 then begin

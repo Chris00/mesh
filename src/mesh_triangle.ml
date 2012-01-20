@@ -17,6 +17,7 @@
    LICENSE for more details. *)
 
 open Bigarray
+open Printf
 
 external init : unit -> unit = "ocaml_triangle_init"
 let () = init()
@@ -70,6 +71,8 @@ exception Invalid_argument of string
 
 let invalid_arg m = raise(Invalid_argument m)
 
+let is_nan x = (x: float) <> x
+
 module F =
 struct
   type layout = fortran_layout
@@ -89,7 +92,9 @@ struct
       * (* edge *) int_mat * int_vec
       * (* voronoi *) mat * mat * int_mat * mat
       = "triangulate_fortran_layout"
-
+  ;;
+  DEFINE FST = 1;;
+  DEFINE SND = 2;;
   DEFINE NCOLS(a) = Array2.dim2 a;;
   DEFINE NROWS(a) = Array2.dim1 a;;
   DEFINE COLS = "dim2";;
@@ -116,7 +121,9 @@ struct
       * (* edge *) int_mat * int_vec
       * (* voronoi *) mat * mat * int_mat * mat
       = "triangulate_c_layout"
-
+  ;;
+  DEFINE FST = 0;;
+  DEFINE SND = 1;;
   DEFINE NCOLS(a) = Array2.dim1 a;;
   DEFINE NROWS(a) = Array2.dim2 a;;
   DEFINE COLS = "dim1";;
