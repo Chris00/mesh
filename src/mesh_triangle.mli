@@ -67,7 +67,7 @@ exception Invalid_argument of string
     an argument not respecting the specifications was given. *)
 
 type triunsuitable =
-  float -> float -> float -> float -> float -> float -> float -> bool
+    float -> float -> float -> float -> float -> float -> float -> bool
 (** Type of functions used to determine whether or not a selected
     triangle is too big (and needs to be refined).  [triunsuitable x1
     y1 x2 y2 x3 y3 area] must return [true] if the triangle is too
@@ -77,7 +77,7 @@ type triunsuitable =
     destination vertex.
     - [x3] and [y3] are the X an Y coordinates of the triangle's apex vertex.
     - [area] is the area of the triangle.
-*)
+ *)
 
 val triangulate :
   ?delaunay:bool ->
@@ -89,6 +89,7 @@ val triangulate :
   ?neighbor:bool ->
   ?subparam:bool ->
   ?triunsuitable:triunsuitable ->
+  ?check_finite:bool ->
   ?debug:bool ->
   'a pslg -> 'a t * 'a voronoi
 (** [triangulate pslg] returns a triangulation and a possibly a
@@ -109,6 +110,11 @@ val triangulate :
 
     @param max_area Imposes a maximum triangle area.
 
+    @param check_finite checks that all points coordinate are finite.
+    As non-finite coordinates (e.g. NaN) puzzle Triangle without
+    making it fail, the default is [true].  Set it to [false] only if
+    you are sure your coordinates are finite.
+
     @param debug if true, outputs some explanation of what Triangle is
     doing and some statistics.  Default: [true] as it can contain
     interesting information during program development. *)
@@ -124,6 +130,7 @@ val refine :
   ?subparam:bool ->
   ?triangle_area:'a Mesh.vec ->
   ?triunsuitable:triunsuitable ->
+  ?check_finite:bool ->
   ?debug:bool ->
   'a t -> 'a t * 'a voronoi
 (** [refine mesh] returns a refined version of the [mesh].

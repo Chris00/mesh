@@ -3,7 +3,8 @@
 
 let triangulate ?(delaunay=true) ?min_angle ?max_area
     ?max_steiner ?(voronoi=false) ?(edge=true) ?(neighbor=false)
-    ?(subparam=false) ?triangle_area ?triunsuitable ?(debug=true)
+    ?(subparam=false) ?triangle_area ?triunsuitable
+    ?(check_finite=true) ?(debug=true)
     ~pslg ~refine (mesh: layout t) =
   (* Check points *)
   let point = mesh#point in
@@ -14,6 +15,19 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area
   if Array1.dim mesh#point_marker > 0
     && Array1.dim mesh#point_marker < NCOLS(point) then
     invalid_arg("dim mesh#point_marker < " ^ COLS ^ " mesh#point");
+  if check_finite then (
+    (* Check that no point contains NaN (or infinities).  Triangle
+       seems to go into an infinite loop with these which can easily
+       be confused with other difficulties. *)
+    for i = FST to NCOLS(point) do
+      if not(is_finite(GET(point, FST, i))) then
+        invalid_arg(LINE_COL(sprintf "mesh#point.{%i, %i} is not finite",
+                             FST, i));
+      if not(is_finite(GET(point, SND, i))) then
+        invalid_arg(LINE_COL(sprintf "mesh#point.{%i, %i} is not finite",
+                             SND, i));
+    done;
+  );
   let switches = Buffer.create 20 in
   Buffer.add_string switches default_switches;
   (* Check for PSLG *)
@@ -24,24 +38,34 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area
         && Array1.dim mesh#segment_marker < NCOLS(mesh#segment) then
         invalid_arg("dim mesh#segment_marker < " ^ COLS ^ " mesh#segment");
     end;
-    if not refine then begin
-      if NCOLS(mesh#hole) > 0 && NROWS(mesh#hole) <> 2 then
+    if not refine then (
+      let hole = mesh#hole in
+      if NCOLS(hole) > 0 && NROWS(hole) <> 2 then
         invalid_arg(ROWS ^ " hole <> 2");
-      if NCOLS(mesh#region) > 0 && NROWS(mesh#region) <> 4 then
+      let region = mesh#region in
+      if NCOLS(region) > 0 && NROWS(region) <> 4 then
         invalid_arg(ROWS ^ " region <> 4");
-    end;
+      if check_finite then (
+        for i = FST to NCOLS(hole) do
+          if not(is_finite(GET(hole, FST, i))) then
+            invalid_arg(LINE_COL(sprintf "mesh#hole.{%i, %i} is not finite",
+                                 FST, i));
+          if not(is_finite(GET(hole, SND, i))) then
+            invalid_arg(LINE_COL(sprintf "mesh#hole.{%i, %i} is not finite",
+                                 SND, i));
+        done;
+        for i = FST to NCOLS(region) do
+          for j = FST to NROWS(region) do
+            if not(is_finite(GET(region, j, i))) then
+              invalid_arg(LINE_COL(sprintf "mesh#region.{%i, %i} is not finite",
+                                   j, i));
+          done
+        done
+      )
+    );
     Buffer.add_char switches 'p';
     if NROWS(mesh#segment) = 0 || NCOLS(mesh#segment) = 0 then
       Buffer.add_char switches 'c';
-    (* Check that no point contains NaN.  Triangle seems to go into an
-       infinite loop with these which can easily be confused with
-       other difficulties.  FIXME: want to do this for any mesh? *)
-    for i = FST to NCOLS(point) do
-      if is_nan point.{FST, i} then
-        invalid_arg(sprintf "mesh#point.{%i, %i} is NaN" FST i);
-      if is_nan point.{SND, i} then
-        invalid_arg(sprintf "mesh#point.{%i, %i} is NaN" SND i);
-    done;
   );
   (* Check for refinement -- triangles *)
   if refine then begin
