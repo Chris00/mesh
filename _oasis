@@ -75,6 +75,14 @@ Executable level_display
   CompiledObject: best
   Install:      false  
 
+Executable refine
+  Path:         tests
+  MainIs:       refine.ml
+  BuildTools:   ocamlbuild
+  BuildDepends: mesh.triangle,graphics
+  CompiledObject: best
+  Install:      false  
+
 SourceRepository trunk
   Type:       bzr
   Location:   https://forge.ocamlcore.org/anonscm/bzr/mesh/trunk
