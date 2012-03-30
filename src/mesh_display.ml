@@ -62,14 +62,17 @@ struct
 end
 
 
-let draw ?width ?height ?color ?points ?voronoi ?point_marker_color ?segments
-    (mesh: 'a #t) =
+let draw ?width ?height ?color ?points ?point_idx ?voronoi
+         ?point_marker_color ?segments
+         (mesh: 'a #t) =
   if Mesh.is_c_layout(mesh :> _ Mesh.pslg) then
-    C.draw ?width ?height ?color ?points ?voronoi ?point_marker_color ?segments
-      (Obj.magic mesh)
+    C.draw ?width ?height ?color ?points ?point_idx ?voronoi
+           ?point_marker_color ?segments
+           (Obj.magic mesh)
   else
-    F.draw ?width ?height ?color ?points ?voronoi ?point_marker_color ?segments
-      (Obj.magic mesh)
+    F.draw ?width ?height ?color ?points ?point_idx ?voronoi
+           ?point_marker_color ?segments
+           (Obj.magic mesh)
 
 let init_graph width height =
   let xbd = 10 and ybd = 10 in

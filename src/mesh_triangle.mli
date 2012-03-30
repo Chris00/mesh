@@ -133,9 +133,11 @@ val refine :
   ?check_finite:bool ->
   ?debug:bool ->
   'a t -> 'a t * 'a voronoi
-(** [refine mesh] returns a refined version of the [mesh].
+(** [refine mesh] returns a refined version of the [mesh].  The
+    initial indices for the points are preserved.
 
     @param triangle_area allows to specify, for each triangle [i], a
     maximum area [triangle_area.{i}].  If both [max_area] and
     [triangle_area] are specified, [triangle_area] is used.
-*)
+ *)
+;;

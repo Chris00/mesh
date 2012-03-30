@@ -20,10 +20,6 @@ let bounding_box (mesh: mesh) =
 type surf = { hx: float; hy: float;  xbd: int;  ybd: int;
               xmin: float;  ymin: float }
 
-let draw_pt s x y =
-  fill_circle (truncate((x -. s.xmin) *. s.hx) + s.xbd)
-    (truncate((y -. s.ymin) *. s.hy) + s.ybd) 3
-
 let draw_segment s x0 y0 x1 y1 =
   let x0 = truncate((x0 -. s.xmin) *. s.hx) + s.xbd
   and y0 = truncate((y0 -. s.ymin) *. s.hy) + s.ybd
@@ -39,8 +35,8 @@ let make_surf mesh width height =
   { hx = hx; hy = hy;  xbd = xbd; ybd = ybd;  xmin = xmin; ymin = ymin }
 
 let draw ?(width=600) ?(height=600) ?(color=foreground) ?(points=true)
-    ?voronoi
-    ?(segments=true) ?point_marker_color (mesh: mesh) =
+         ?point_idx ?voronoi
+         ?(segments=true) ?point_marker_color (mesh: mesh) =
   let surf = make_surf mesh width height in
   (* Triangles and Points *)
   let pt = mesh#point
@@ -67,20 +63,27 @@ let draw ?(width=600) ?(height=600) ?(color=foreground) ?(points=true)
   done;
   let marker = match point_marker_color with
     | None -> (fun _ _ _ -> ())
-    | Some c -> (fun m x y ->
+    | Some c -> (fun m px py ->
                   set_color c;
-                  let px = truncate((x -. surf.xmin) *. surf.hx) + surf.xbd
-                  and py = truncate((y -. surf.ymin) *. surf.hy) + surf.ybd in
                   moveto px py;
                   draw_string(string_of_int m);
                   set_color color
                ) in
+  let point_idx = match point_idx with
+    | None -> (fun _ _ _ _ -> ())
+    | Some f -> (fun s px py i ->
+                moveto px py;
+                f i;
+                set_color color) in
   if points then begin
     let pt_marker = mesh#point_marker in
     for i = FST to LASTCOL(pt) do
       let x = GET(pt, FST,i)  and y = GET(pt, SND,i) in
-      draw_pt surf x y;
-      marker pt_marker.{i} x y
+      let px = truncate((x -. surf.xmin) *. surf.hx) + surf.xbd
+      and py = truncate((y -. surf.ymin) *. surf.hy) + surf.ybd in
+      fill_circle px py 3; (* draw point *)
+      point_idx surf px py i;
+      marker pt_marker.{i} px py
     done;
   end;
   (* Voronoi diagram *)
