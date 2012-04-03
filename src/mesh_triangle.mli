@@ -1,10 +1,10 @@
 (* File: triangle.mli
 
-   Copyright (C) 2006
+   Copyright (C) 2006-
 
      Christophe Troestler
      email: Christophe.Troestler@umh.ac.be
-     WWW: http://math.umh.ac.be/an/software/
+     WWW: http://math.umons.ac.be/an/software/
 
    This library is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License version 2.1 or
@@ -22,7 +22,15 @@
     two-dimensional quality mesh generator and delaunay triangulator
     which was awarded the 2003 Wilkinson Prize.
 
-    @version 0.5
+    Jonathan Richard Shewchuk, the author of triangle, would like
+    that, if you use Triangle in a scientific publication, you
+    acknowledgment it with the following citation: Jonathan Richard
+    Shewchuk, ``Triangle: Engineering a 2D Quality Mesh Generator and
+    Delaunay Triangulator,'' in Applied Computational Geometry:
+    Towards Geometric Engineering (Ming C. Lin and Dinesh Manocha,
+    editors), volume 1148 of Lecture Notes in Computer Science, pages
+    203-222, Springer-Verlag, Berlin, May 1996.
+
     @author Christophe Troestler (Christophe.Troestler\@umons.ac.be)
 *)
 
@@ -102,6 +110,13 @@ val triangulate :
     Delaunay) triangulation.  It usually increases the number of
     vertices and triangles.  Default: [true].
 
+    @param min_angle requires that all angles of triangles have at
+    least that value.  If [min_angle < 0] or [min_angle > 60], the
+    default value of Triangle is used.  If the minimum angle is 28.6
+    degrees or smaller, Triangle is mathematically guaranteed to
+    terminate (assuming infinite precision arithmetic--Triangle may
+    fail to terminate if you run out of precision).
+
     @param edge return the edges of the triangulation in [#edge].
     Default: [true].
 
@@ -134,10 +149,17 @@ val refine :
   ?debug:bool ->
   'a t -> 'a t * 'a voronoi
 (** [refine mesh] returns a refined version of the [mesh].  The
-    initial indices for the points are preserved.
+    initial indices for the points are preserved, additional nodes are
+    added at the end.  However, the refinement is not hierarchical:
+    there is no guarantee that each output element is contained in a
+    single input element.
 
     @param triangle_area allows to specify, for each triangle [i], a
     maximum area [triangle_area.{i}].  If both [max_area] and
     [triangle_area] are specified, [triangle_area] is used.
- *)
+
+    @param triunsuitable a routine used to determine whether is
+    triangle needs to be further splitted.
+
+    For other parameters, see {!triangulate}. *)
 ;;

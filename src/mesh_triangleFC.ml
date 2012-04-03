@@ -102,13 +102,16 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area
   (match min_angle with
   | None -> ()
   | Some a ->
-    Buffer.add_char switches 'q';
-    Buffer.add_string switches (string_of_float a));
+    if a < 0. || a > 60. then (* required: 3 min_algle <= 180 *)
+      Buffer.add_char switches 'q'
+    else
+      (* Angle may include a decimal point, but not exponential notation. *)
+      bprintf switches "d%f" a);
   (match max_steiner with
-  | None -> ()
-  | Some a ->
-    Buffer.add_char switches 'S';
-    Buffer.add_string switches (string_of_int a));
+   | None -> ()
+   | Some a ->
+     Buffer.add_char switches 'S';
+     Buffer.add_string switches (string_of_int a));
   if voronoi then Buffer.add_char switches 'v';
   if edge then Buffer.add_char switches 'e';
   if neighbor then Buffer.add_char switches 'n';
