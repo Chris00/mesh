@@ -31,10 +31,17 @@ let make_surf mesh width height =
   { hx = hx; hy = hy;  xbd = xbd; ybd = ybd;  xmin = xmin; ymin = ymin }
 
 let draw ?(width=600) ?(height=600) ?(color=foreground) ?(points=true)
-         ?point_idx ?voronoi
+         ?point_idx ?triangle_idx ?voronoi
          ?(segments=true) ?point_marker_color (mesh: mesh) =
   let surf = make_surf mesh width height in
   (* Triangles and Points *)
+  let triangle_idx = match triangle_idx with
+    | None -> (fun _ _ _ _ _ _ _ -> ())
+    | Some f -> (fun t px0 py0 px1 py1 px2 py2 ->
+                (* Move to the barycenter of the riangle. *)
+                moveto ((px0 + px1 + px2) / 3) ((py0 + py1 + py2) / 3);
+                f t;
+                set_color color) in
   let pt = mesh#point
   and triangle = mesh#triangle in
   set_color color;
@@ -52,6 +59,7 @@ let draw ?(width=600) ?(height=600) ?(color=foreground) ?(points=true)
       and py2 = PIXEL_Y(surf, GET(pt, SND,i2)) in
       draw_segments [| (px0, py0, px1, py1); (px1, py1, px2, py2);
                        (px2, py2, px0, py0) |];
+      triangle_idx t px0 py0 px1 py1 px2 py2;
     with e ->
       eprintf "mesh_display: triangle %i (%i,%i,%i): %s\n%!"
         t i0 i1 i2 (Printexc.to_string e)

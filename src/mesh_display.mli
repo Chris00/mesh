@@ -24,7 +24,7 @@
 
 val draw :
   ?width:int -> ?height:int -> ?color: int -> ?points: bool ->
-  ?point_idx:(int -> unit) ->
+  ?point_idx:(int -> unit) -> ?triangle_idx:(int -> unit) ->
   ?voronoi:'a Mesh.voronoi -> ?point_marker_color: int -> ?segments:bool ->
   'a #Mesh.t -> unit
   (** [draw mesh] display the mesh on the current OCaml Graphics
@@ -34,8 +34,11 @@ val draw :
       @param height the height (in pixels) of the mesh image (default: 600).
       @param color the color to draw the mesh (default: the foreground color).
       @param points whether to draw the points (default: [true]).
-      @param point_idx_color a function to be executed after each point
-             is drawn, the current position being the center of the point.
+      @param point_idx a function to be executed after each point is
+             drawn, the current position being the center of the
+             point.  Default: do nothing.
+      @param triangle_idx a function to be executed for each triangle,
+             the current point being the barycenter of the triangle.
              Default: do nothing.
       @param voronoi draw also the given voronoi diagram.
       @param point_marker_color trigger the display of the point
@@ -43,6 +46,7 @@ val draw :
 
 val display :
   ?width:int -> ?height:int -> ?color: int -> ?points: bool ->
+  ?point_idx:(int -> unit) -> ?triangle_idx:(int -> unit) ->
   ?voronoi:'a Mesh.voronoi -> ?point_marker_color: int -> ?segments:bool ->
   'a #Mesh.t -> unit
 (** [display mesh] open an OCaml graphic window and draw the mesh on
