@@ -14,17 +14,24 @@ let pslg =
   end
 
 
-let square, _ = M.triangulate pslg ~max_area:0.3 ~debug:false
+let square, _ = M.triangulate pslg ~max_area:0.2 ~debug:false
 
-let square', _ = M.refine square ~max_area:0.1 ~debug:false
+let square', _ =
+  let n_triangle = Array2.dim2 square#triangle in
+  let triangle_area = Array1.create float64 fortran_layout n_triangle in
+  Array1.fill triangle_area 10.;
+  triangle_area.{1} <- 0.01;
+  M.refine square ~triangle_area ~debug:false
 
 let () =
   open_graph " 880x440-30+10";
   moveto 10 10;
-  (try set_font "-*-helvetica-bold-r-*--25-*-*-*-p-*-*-*" with _ -> ());
+  (try set_font "-*-helvetica-bold-r-*--20-*-*-*-p-*-*-*" with _ -> ());
   let point_idx i = set_color 0xFF0000;
                     draw_string(string_of_int i) in
-  Mesh_display.draw square ~width:400 ~height:400 ~point_idx;
+  let triangle_idx i = set_color 0x00FF00;
+                       draw_string(string_of_int i) in
+  Mesh_display.draw square ~width:400 ~height:400 ~point_idx ~triangle_idx;
   moveto 460 10;
   Mesh_display.draw square' ~width:400 ~height:400 ~point_idx;
 
