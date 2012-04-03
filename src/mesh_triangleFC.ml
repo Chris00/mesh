@@ -109,9 +109,7 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area
       bprintf switches "d%f" a);
   (match max_steiner with
    | None -> ()
-   | Some a ->
-     Buffer.add_char switches 'S';
-     Buffer.add_string switches (string_of_int a));
+   | Some a -> bprintf switches "S%i" a);
   if voronoi then Buffer.add_char switches 'v';
   if edge then Buffer.add_char switches 'e';
   if neighbor then Buffer.add_char switches 'n';

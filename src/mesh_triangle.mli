@@ -125,6 +125,11 @@ val triangulate :
 
     @param max_area Imposes a maximum triangle area.
 
+    @param max_steiner Specifies the maximum number of Steiner points
+    (vertices that are not in the input, but are added to meet the
+    constraints on minimum angle and maximum area).  The default is to
+    allow an unlimited number.
+
     @param check_finite checks that all points coordinate are finite.
     As non-finite coordinates (e.g. NaN) puzzle Triangle without
     making it fail, the default is [true].  Set it to [false] only if
