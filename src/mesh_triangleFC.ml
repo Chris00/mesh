@@ -84,9 +84,7 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area
     | None ->
       (match max_area with
       | None -> ()
-      | Some a ->
-        Buffer.add_char switches 'a';
-        Buffer.add_string switches (string_of_float a));
+      | Some a -> bprintf switches "a%f" a);
       Array1.create float64 layout 0
     | Some a ->
       if Array1.dim a < NCOLS(mesh#triangle) then
