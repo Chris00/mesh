@@ -101,7 +101,9 @@ object
   method neighbor : 'layout int_mat
   (** Array of triangle neighbors; 3 int per triangle.  It is of size
       [3 * n] ([fortran_layout]) where [n] is 0 (i.e., neighbouring
-      information is not given) or the number of triangles. *)
+      information is not given) or the number of triangles.  Negative
+      entries must be skipped (boundary triangles have less than 3
+      neighbors).  *)
   method edge : 'layout int_mat
   (** Array of edge endpoints; 2 int per edge.  It is of size [2 * n]
       ([fortran_layout]) where [n > 0] is the number of edges. *)

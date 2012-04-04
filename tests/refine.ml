@@ -1,3 +1,4 @@
+open Printf
 open Bigarray
 open Graphics
 module M = Mesh_triangle
@@ -15,6 +16,7 @@ let pslg =
 
 
 let square, _ = M.triangulate pslg ~max_area:0.2 ~debug:false
+                              ~neighbor:true
 
 let square', _ =
   let n_triangle = Array2.dim2 square#triangle in
@@ -22,6 +24,19 @@ let square', _ =
   Array1.fill triangle_area 10.;
   triangle_area.{1} <- 0.01;
   M.refine square ~triangle_area ~debug:false
+
+
+let () =
+  printf "Original mesh: neighbors\ntriangle: ";
+  let n = Array2.dim2 square#neighbor in
+  for t = 1 to n do printf "%3i" t done;
+  printf "\n";
+  for i = 1 to 3 do
+    printf "    %4i: " i;
+    for t = 1 to n do printf "%3i" square#neighbor.{i,t} done;
+    printf "\n";
+  done;
+  flush stdout
 
 let () =
   open_graph " 880x440-30+10";
