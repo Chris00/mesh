@@ -43,8 +43,9 @@ object
   inherit ['l] Mesh.pslg
 
   method point_attribute : 'l Mesh.mat
-(** A matrix of size [a * n] ([fortran_layout]) where [a >= 0] is the
-    number of attributes per point and [n] is the number of points. *)
+  (** A matrix of size [a * n] ([fortran_layout]) where [a >= 0] is the
+      number of attributes per point and [n] is the number of points
+      (may be [0] if [a = 0]). *)
 end
 
 (** Object describing various characteristics of a mesh ({!Mesh.t}
@@ -56,9 +57,13 @@ object
 
   method point_attribute : 'l Mesh.mat
   (** A matrix of size [a * n] ([fortran_layout]) where [a >= 0] is the
-      number of attributes per point and [n] is the number of points. *)
+      number of attributes per point and [n] is the number of points
+      (may be [0] if [a = 0]). *)
 
   method triangle_attribute : 'l Mesh.mat
+  (** A matrix of size [a * n] ([fortran_layout]) where [a >= 0] is the
+      number of attributes per triangle and [n] is the number of
+      triangles (may be [0] if [a = 0]). *)
 end
 
 (** Voronoi diagram ({!Mesh.voronoi} enriched with methods specific to
