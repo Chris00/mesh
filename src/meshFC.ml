@@ -327,7 +327,8 @@ let do_permute (perm: int_vec) (inv_perm: int_vec) (mesh: mesh) n : mesh =
   (* Build the new mesh *)
   let old_pt = mesh#point in
   let pt = ARRAY2(float64, 2, n) in
-  for i = FST to LASTCOL(pt) do
+  let last_pt_idx = LASTCOL(pt) in
+  for i = FST to last_pt_idx do
     let old_i = perm.{i} in
     GET(pt, FST, i) <- GET(old_pt, FST, old_i);
     GET(pt, SND, i) <- GET(old_pt, SND, old_i);
@@ -338,8 +339,16 @@ let do_permute (perm: int_vec) (inv_perm: int_vec) (mesh: mesh) n : mesh =
   let old_seg = mesh#segment in
   let seg = ARRAY2(int, 2, NCOLS(old_seg)) in
   for s = FST to LASTCOL(seg) do
-    GET(seg, FST, s) <- inv_perm.{GET(old_seg, FST, s)};
-    GET(seg, SND, s) <- inv_perm.{GET(old_seg, SND, s)};
+    let i1 = GET(old_seg, FST, s) in
+    if i1 < FST || i1 > last_pt_idx then
+      failwith(sprintf "Mesh.permute_points: mesh#segment.{%i} = %i not in \
+                        [%i..%i]" s i1 FST last_pt_idx);
+    GET(seg, FST, s) <- inv_perm.{i1};
+    let i2 = GET(old_seg, SND, s) in
+    if i2 < FST || i2 > last_pt_idx then
+      failwith(sprintf "Mesh.permute_points: mesh#segment.{%i} = %i not in \
+                        [%i..%i]" s i2 FST last_pt_idx);
+    GET(seg, SND, s) <- inv_perm.{i2};
   done;
   let old_tr = mesh#triangle in
   let tr = ARRAY2(int, NROWS(old_tr), NCOLS(old_tr)) in
@@ -374,7 +383,7 @@ let permute_unsafe perm mesh =
   for i = FST to LASTEL(perm) do inv_perm.{perm.{i}} <- i done;
   do_permute perm inv_perm mesh n
 
-let permute ~inv perm mesh =
+let permute_points ~inv perm mesh =
   let n = NCOLS(mesh#point) in
   (* Inverse perm and check that [perm] is indeed a permuation. *)
   let inv_perm = Array1.create int layout n in
@@ -383,10 +392,10 @@ let permute ~inv perm mesh =
   for i = FST to last_el do
     let pi = perm.{i} in
     if pi < FST || pi > last_el then
-      invalid_arg(sprintf "Mesh.permute: perm.{%i} = %i not in [%i..%i]"
+      invalid_arg(sprintf "Mesh.permute_points: perm.{%i} = %i not in [%i..%i]"
                     i pi FST last_el)
     else if inv_perm.{pi} < 0 then inv_perm.{pi} <- i
-    else invalid_arg(sprintf "Mesh.permute: not a permutation \
+    else invalid_arg(sprintf "Mesh.permute_points: not a permutation \
       (perm.{%i} = %i = perm.{%i})" inv_perm.{pi} pi i)
   done;
   if inv then do_permute inv_perm perm mesh n

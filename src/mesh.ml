@@ -268,13 +268,13 @@ let cuthill_mckee ?(rev=true) ?(perm: 'l int_vec option) (mesh: 'l #t) =
       (Obj.magic mesh : fortran_layout #t) in
     (Obj.magic (m: fortran_layout t) : 'l t)
 
-let permute ?(inv=false) (perm: 'l int_vec) (mesh: 'l #t) =
+let permute_points ?(inv=false) (perm: 'l int_vec) (mesh: 'l #t) =
   if is_c_layout mesh then
-    let m = C.permute inv (Obj.magic perm : c_layout int_vec)
+    let m = C.permute_points inv (Obj.magic perm : c_layout int_vec)
       (Obj.magic mesh :  c_layout #t) in
     (Obj.magic (m: c_layout t) : 'l t)
   else
-    let m = F.permute inv (Obj.magic perm : fortran_layout int_vec)
+    let m = F.permute_points inv (Obj.magic perm : fortran_layout int_vec)
       (Obj.magic mesh : fortran_layout #t) in
     (Obj.magic (m: fortran_layout t) : 'l t)
 
