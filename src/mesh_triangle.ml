@@ -28,12 +28,23 @@ object
   method point_attribute = Array2.create float64 layout 0 0
 end
 
-class type ['l] t =
-object
-  inherit ['l] Mesh.t
-  method point_attribute : 'l Mesh.mat
-  method triangle_attribute : 'l Mesh.mat
-end
+class ['l] t (mesh: 'l #Mesh.t) =
+  let layout = Mesh.layout mesh in
+  object
+    method point = mesh#point
+    method point_marker = mesh#point_marker
+    method segment = mesh#segment
+    method segment_marker = mesh#segment_marker
+    method hole = mesh#hole
+    method region = mesh#region
+    method triangle = mesh#triangle
+    method neighbor = mesh#neighbor
+    method edge = mesh#edge
+    method edge_marker = mesh#edge_marker
+
+    method point_attribute = Array2.create float64 layout 0 0
+    method triangle_attribute = Array2.create float64 layout 0 0
+  end
 
 class ['a] mesh_of_pslg (pslg: 'a pslg) =
   let layout = Array2.layout pslg#point in

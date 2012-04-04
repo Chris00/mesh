@@ -47,9 +47,10 @@ object
     number of attributes per point and [n] is the number of points. *)
 end
 
-(** Object describing various caracteristics of a mesh ({!Mesh.t}
-    enriched with methods specific to Triangle). *)
-class type ['l] t =
+(** Object describing various characteristics of a mesh ({!Mesh.t}
+    enriched with methods specific to Triangle).  It can also be used
+    to construct [t] values from Mesh.t with empty attributes matrices. *)
+class ['l] t : 'l #Mesh.t ->
 object
   inherit ['l] Mesh.t
 

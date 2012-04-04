@@ -71,6 +71,8 @@ object
   method edge_marker = mesh#edge_marker
 end
 
+let layout (mesh: _ #pslg) = Array2.layout mesh#point
+
 
 (** LaTeX commands *)
 
