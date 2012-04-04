@@ -115,8 +115,8 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area
   if not debug then Buffer.add_char switches 'Q';
   (* Call triangle and build the resulting objects *)
   let point, point_attribute, point_marker, triangle, triangle_attribute,
-    neighbor, segment, segment_marker, edge, edge_marker,
-    vor_point, vor_point_attribute, vor_edge, vor_normal =
+      neighbor, segment, segment_marker, edge, edge_marker,
+      vor_point, vor_point_attribute, vor_edge, vor_normal =
     triangle (Buffer.contents switches) mesh triangle_area in
   let mesh_out : layout t =
     (object

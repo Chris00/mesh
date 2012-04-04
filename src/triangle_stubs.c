@@ -80,7 +80,7 @@ value ocaml_triangle_init(value vunit)
   }
 
 /* Copy int a[] into the bigarray vba and free a.
-   WARNING:  This can modify dims[DIM_1ST]. */
+   WARNING:  This may modify dims[DIM_2ND]. */
 #define COPY_BA_INT(vba, numdims, a, dims) do{                          \
   int length = dims[0];                                                 \
   if (numdims == 2) length *= dims[1];                                  \
@@ -88,7 +88,7 @@ value ocaml_triangle_init(value vunit)
     if (numdims == 1)                                                   \
       vba = alloc_bigarray_dims(BIGARRAY_CAML_INT | LAYOUT, 1, NULL, 0); \
     else {                                                              \
-      dims[DIM_1ST] = 0;                                                 \
+      dims[DIM_2ND] = 0;                                                 \
       vba = alloc_bigarray(BIGARRAY_CAML_INT | LAYOUT, numdims, NULL, dims); \
     }                                                                   \
   }                                                                     \

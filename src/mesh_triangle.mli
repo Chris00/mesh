@@ -43,7 +43,7 @@ object
   inherit ['l] Mesh.pslg
 
   method point_attribute : 'l Mesh.mat
-(** A matrix of size [a * n] ([fortran_layout]) where [a] is the
+(** A matrix of size [a * n] ([fortran_layout]) where [a >= 0] is the
     number of attributes per point and [n] is the number of points. *)
 end
 
@@ -55,7 +55,7 @@ object
   inherit ['l] Mesh.t
 
   method point_attribute : 'l Mesh.mat
-  (** A matrix of size [a * n] ([fortran_layout]) where [a] is the
+  (** A matrix of size [a * n] ([fortran_layout]) where [a >= 0] is the
       number of attributes per point and [n] is the number of points. *)
 
   method triangle_attribute : 'l Mesh.mat
