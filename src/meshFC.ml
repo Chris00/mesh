@@ -58,7 +58,7 @@ let scilab (mesh: mesh) (z: vec) fname =
     invalid_arg "Mesh.scilab: mesh#triangle must be nonempty";
   if NROWS(triangle) < 3 then
     invalid_arg "Mesh.scilab: mesh#triangle must have at least \
-	3 rows (fortran)";
+	         3 rows (fortran)";
   if NCOLS(pt) = 0 then invalid_arg "Mesh.scilab: mesh#point must be nonempty";
   if NROWS(pt) <> 2 then
     invalid_arg "Mesh.scilab: mesh#point must have 2 rows (fortran)";
@@ -70,12 +70,15 @@ let scilab (mesh: mesh) (z: vec) fname =
   and yf = fname ^ "_y.dat"
   and zf = fname ^ "_z.dat" in
   let fh = open_out sci in
-  fprintf fh "// Run with exec('%s')
-xf = fscanfMat('%s');
-yf = fscanfMat('%s');
-zf = fscanfMat('%s');
-clf();
-plot3d(xf, yf, zf)\n" sci xf yf zf;
+  fprintf fh "// Run in Scilab with: exec('%s')\n\
+              // Written by the OCaml Mesh module.
+              // mesh: %i triangles, %i points.\n\
+              xf = fscanfMat('%s');\n\
+              yf = fscanfMat('%s');\n\
+              zf = fscanfMat('%s');\n\
+              clf();\n\
+              plot3d(xf, yf, zf)\n"
+           sci (NCOLS(triangle)) (NCOLS(pt)) xf yf zf;
   close_out fh;
   let save_mat fname coord =
     let fh = open_out fname in
@@ -102,7 +105,7 @@ let matlab (mesh: mesh) (z: vec) fname =
     invalid_arg "Mesh.matlab: mesh#triangle must be nonempty";
   if NROWS(tr) < 3 then
     invalid_arg "Mesh.matlab: mesh#triangle must have at least \
-	3 rows (fortran)";
+	         3 rows (fortran)";
   if NCOLS(pt) = 0 then invalid_arg "Mesh.matlab: mesh#point must be nonempty";
   if NROWS(pt) <> 2 then
     invalid_arg "Mesh.matlab: mesh#point must have 2 rows (fortran)";
