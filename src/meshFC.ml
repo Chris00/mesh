@@ -71,7 +71,7 @@ let scilab (mesh: mesh) (z: vec) fname =
   and zf = fname ^ "_z.dat" in
   let fh = open_out sci in
   fprintf fh "// Run in Scilab with: exec('%s')\n\
-              // Written by the OCaml Mesh module.
+              // Written by the OCaml Mesh module.\n\
               // mesh: %i triangles, %i points.\n\
               xf = fscanfMat('%s');\n\
               yf = fscanfMat('%s');\n\
