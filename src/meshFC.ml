@@ -77,7 +77,7 @@ let scilab (mesh: mesh) (z: vec) fname =
               yf = fscanfMat('%s');\n\
               zf = fscanfMat('%s');\n\
               clf();\n\
-              plot3d(xf, yf, zf)\n"
+              plot3d(xf, yf, zf, theta=70, alpha=10)\n"
            sci (NCOLS(triangle)) (NCOLS(pt)) xf yf zf;
   close_out fh;
   let save_mat fname coord =
