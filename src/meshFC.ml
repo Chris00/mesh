@@ -126,7 +126,7 @@ let matlab (mesh: mesh) (z: vec) fname =
   let fh = open_out mat in
   fprintf fh "%% Created by the OCaml Mesh module (run %s).\n\
               %% print -painters -dpdf -r600 %s.pdf\n" mat base;
-  fprint fh "mesh_x = [" ;
+  fprintf fh "mesh_x = [" ;
   save_xy fh FST;
   fprintf fh "];\nmesh_y = [";
   save_xy fh SND;
