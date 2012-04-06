@@ -135,6 +135,7 @@ let matlab (mesh: mesh) (z: vec) fname =
     fprintf fh "%i %i %i; " (GET(tr, FST,t)) (GET(tr, SND,t)) (GET(tr, THIRD,t))
   done;
   fprintf fh "];\ntrisurf(mesh_triangles, mesh_x, mesh_y, mesh_z);\n";
+  fprintf fh "%% print -painters -dpdf -r600 %s.pdf" base;
   close_out fh
 ;;
 
