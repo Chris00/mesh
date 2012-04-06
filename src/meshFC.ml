@@ -124,7 +124,9 @@ let matlab (mesh: mesh) (z: vec) fname =
     for p = FST to LASTCOL(pt) do fprintf fh "%.13g " (GET(pt, coord,p)) done;
     fprintf fh "\n" in
   let fh = open_out mat in
-  fprintf fh "%% Created by the OCaml Mesh module (run %s)\nmesh_x = [" mat;
+  fprintf fh "%% Created by the OCaml Mesh module (run %s).\n\
+              %% print -painters -dpdf -r600 %s.pdf\n" mat base;
+  fprint fh "mesh_x = [" ;
   save_xy fh FST;
   fprintf fh "];\nmesh_y = [";
   save_xy fh SND;
@@ -135,7 +137,6 @@ let matlab (mesh: mesh) (z: vec) fname =
     fprintf fh "%i %i %i; " (GET(tr, FST,t)) (GET(tr, SND,t)) (GET(tr, THIRD,t))
   done;
   fprintf fh "];\ntrisurf(mesh_triangles, mesh_x, mesh_y, mesh_z);\n";
-  fprintf fh "%% print -painters -dpdf -r600 %s.pdf" base;
   close_out fh
 ;;
 
