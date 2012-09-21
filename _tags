@@ -1,45 +1,4 @@
 # OASIS_START
-# DO NOT EDIT (digest: e90158639f5ff1ae1dd2bc483de7b9e7)
-# Library mesh
-# Library mesh_triangle
-<src/*.ml{,i}>: oasis_library_mesh_triangle_ccopt
-"src/triangle_stubs.c": oasis_library_mesh_triangle_ccopt
-<src/mesh_triangle.{cma,cmxa}>: use_libmesh_triangle
-"src/triangle_stubs.c": use_mesh
-"src/triangle_stubs.c": pkg_bigarray
-# Library mesh_display
-"src": include
-<src/*.ml{,i}>: use_mesh
-<src/*.ml{,i}>: pkg_graphics
-<src/*.ml{,i}>: pkg_bigarray
-# Executable square_triangle
-<tests/square_triangle.{native,byte}>: use_mesh_triangle
-<tests/square_triangle.{native,byte}>: use_mesh
-<tests/square_triangle.{native,byte}>: pkg_lacaml
-<tests/square_triangle.{native,byte}>: pkg_graphics
-<tests/square_triangle.{native,byte}>: pkg_bigarray
-# Executable level_display
-<tests/level_display.{native,byte}>: use_mesh_triangle
-<tests/level_display.{native,byte}>: use_mesh
-<tests/level_display.{native,byte}>: pkg_graphics
-<tests/level_display.{native,byte}>: pkg_bigarray
-# Executable refine
-<tests/refine.{native,byte}>: use_mesh_triangle
-<tests/refine.{native,byte}>: use_mesh
-<tests/refine.{native,byte}>: pkg_graphics
-<tests/refine.{native,byte}>: pkg_bigarray
-<tests/*.ml{,i}>: use_mesh_triangle
-# Executable square_easymesh
-<tests/square_easymesh.{native,byte}>: use_mesh_display
-<tests/square_easymesh.{native,byte}>: use_mesh
-<tests/square_easymesh.{native,byte}>: pkg_lacaml
-<tests/square_easymesh.{native,byte}>: pkg_graphics
-<tests/square_easymesh.{native,byte}>: pkg_bigarray
-<tests/*.ml{,i}>: use_mesh_display
-<tests/*.ml{,i}>: use_mesh
-<tests/*.ml{,i}>: pkg_lacaml
-<tests/*.ml{,i}>: pkg_graphics
-<tests/*.ml{,i}>: pkg_bigarray
 # OASIS_STOP
 
 <**/*.ml>: annot

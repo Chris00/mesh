@@ -18,7 +18,7 @@ setup.data: setup.ml
 	$(MAKE) -C src triangle/triangle.c triangle/triangle.h
 
 setup.ml: _oasis
-	oasis setup
+	oasis setup -setup-update dynamic
 
 doc install uninstall reinstall: all
 	ocaml setup.ml -$@
@@ -32,6 +32,8 @@ dist tar: setup.ml
 	for f in $(DISTFILES); do \
 	  cp --parents $$f $(DIR); \
 	done
+# Generate a setup.ml independent of oasis:
+	cd $(DIR); oasis setup
 	tar -zcvf $(TARBALL) $(DIR)
 	$(RM) -r $(DIR)
 
