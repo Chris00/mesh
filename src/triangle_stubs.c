@@ -19,7 +19,7 @@
 #define PREC BIGARRAY_FLOAT64
 #endif /* SINGLE */
 
-#ifdef DEBIAN
+#ifdef LIBTRIANGLE
 #include "triangle.h"
 typedef REAL *vertex; /* taken from triangle.c */
 #else

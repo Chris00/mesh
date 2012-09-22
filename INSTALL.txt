@@ -36,18 +36,27 @@ installation: no additional library is required.
 
 (* OASIS_STOP *)
 
-DEVELOPMENT VERSION
+Triangle (dependency)
+=====================
+
+The module Mesh_triangle uses the
+[Triangle](http://www.cs.cmu.edu/~quake/triangle.html) library which
+was awarded the James Hardy Wilkinson Prize in Numerical Software in
+2003.  The command
+
+    make configure
+
+will attempt to detect whether the library is installed, either
+globally on the system (this is the case if "libtriangle-dev" is
+installed on Debian) or in src/triangle.  It it is not and you have
+"wget" and "unzip", it will download Triangle and unpack it in
+src/triangle.  Otherwise, you will have to download Triangle from the
+above web site and unzip it in src/triangle.
+
+Development Version
 ===================
 
-If you downloaded the sources from our repository, you will need to
-download OASIS http://oasis.forge.ocamlcore.org/index.php to create
-'setup.ml'.  If you have wget installed, you can then simply do
-
-make configure
-
-to create 'setup.ml' and download the triangle sources from the web.
-You can then continue with 'ocaml setup.ml -build' and 'ocaml setup.ml
--install'.  Otherwise, download triangle by hand
-http://www.cs.cmu.edu/~quake/triangle.html and unzip it in src/ (so
-the files appear in src/triangle).  Then run 'oasis setup' and
-follow the instructions of the "Installing" section.
+If you downloaded the sources from the development repository, you
+need to have [oasis](http://oasis.forge.ocamlcore.org/index.php)
+to create 'setup.ml' using 'oasis setup'.  Then follow the
+instructions of the "Triangle" and "Installing" sections.

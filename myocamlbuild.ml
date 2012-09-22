@@ -2,8 +2,12 @@
 (* OASIS_STOP *)
 (* Ocamlbuild_plugin.dispatch dispatch_default;; *)
 
-open Ocamlbuild_plugin;;
+open Ocamlbuild_plugin
 
+let env = BaseEnvLight.load() (* setup.data *)
+
+let libtriangle = bool_of_string(BaseEnvLight.var_get "libtriangle" env)
+;;
 dispatch
   (MyOCamlbuildBase.dispatch_combine [
     dispatch_default;
@@ -11,8 +15,10 @@ dispatch
     | After_rules ->
       let includes = ["meshFC.ml"; "easymeshFC.ml"; "mesh_displayFC.ml";
                       "mesh_level_curvesFC.ml"; "mesh_triangleFC.ml";
-                      "triangulate_stub.c";
-                      "triangle/triangle.c"; "triangle/triangle.h" ] in
+                      "triangulate_stub.c" ] in
+      let includes =
+        if libtriangle then includes
+        else "triangle/triangle.c" :: "triangle/triangle.h" :: includes in
       let includes = List.map (fun f -> "src" / f) includes in
       dep ["ocaml"; "ocamldep"] includes;
       dep ["ocaml"; "compile"] includes;

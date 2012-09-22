@@ -8,8 +8,8 @@ License:     LGPL-2.0 with OCaml linking exception
 Plugins:     StdFiles (0.2), META (0.2)
 Homepage:    http://forge.ocamlcore.org/projects/mesh/
 
-Flag debian 
-  Description: enable if you build on Debian system with libtriangle >= 0.0.0
+Flag libtriangle
+  Description: Enable if you build on a system with libtriangle
   Default: false
 
 Library mesh
@@ -32,8 +32,9 @@ Library mesh_triangle
   BuildTools: ocamlbuild
   Modules:    Mesh_triangle
   CSources:   triangle_stubs.c
-  if flag(debian)
-    CCOpt:      -DTRILIBRARY -DEXTERNAL_TEST -DDEBIAN -ltriangle
+  if flag(libtriangle)
+    CCOpt:      -DTRILIBRARY -DEXTERNAL_TEST -DLIBTRIANGLE
+    CCLib:	-ltriangle
   else
     CCOpt:      -DTRILIBRARY -DEXTERNAL_TEST
   BuildDepends: mesh
@@ -56,7 +57,7 @@ Executable square_easymesh
   BuildTools:   ocamlbuild
   BuildDepends: mesh.display,lacaml,graphics
   CompiledObject: best
-  Install:      false  
+  Install:      false
 
 Executable square_triangle
   Path:         tests/
@@ -64,7 +65,7 @@ Executable square_triangle
   BuildTools:   ocamlbuild
   BuildDepends: mesh.triangle,lacaml,graphics
   CompiledObject: best
-  Install:      false  
+  Install:      false
 
 Executable level_display
   Path:         tests/
@@ -72,7 +73,7 @@ Executable level_display
   BuildTools:   ocamlbuild
   BuildDepends: mesh.triangle,graphics
   CompiledObject: best
-  Install:      false  
+  Install:      false
 
 Executable refine
   Path:         tests
@@ -80,7 +81,7 @@ Executable refine
   BuildTools:   ocamlbuild
   BuildDepends: mesh.triangle,graphics
   CompiledObject: best
-  Install:      false  
+  Install:      false
 
 SourceRepository trunk
   Type:       git
