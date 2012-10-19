@@ -255,12 +255,20 @@ val scilab : 'l #t -> 'l vec -> string -> unit
 
 (** {2 Matlab} *)
 
-val matlab : 'l #t -> 'l vec -> string -> unit
+val matlab : 'l #t -> ?edgecolor:string -> ?facealpha:float ->
+             'l vec -> string -> unit
   (** [matlab mesh z file] saves the mesh data and the function values
       [z] (i.e. [z.{i}] is the function value at the point
       [mesh.point.{_,i}] ([fortran layout])) on that mesh so that when
       Matlab runs the created [file].m script, the graph of the
-      function is drawn. *)
+      function is drawn.
+
+      @param edgecolor the name of the color for the edges of the
+      triangles.  Default: ["black"].  The special value ["none"]
+      removes them.
+
+      @param facealpha the transparency of faces, [0.] meaning fully
+      transparent and [1.] opaque.  Default: [1.]. *)
 
 (** {2 Mathematica} *)
 
