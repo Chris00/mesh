@@ -1,11 +1,11 @@
 #                                                               -*-conf-*-
-OASISFormat: 0.2
+OASISFormat: 0.3
 Name:        mesh
 Version:     0.7.3
 Synopsis:    OCaml interface to various mesh generators, in particular triangle.
 Authors:     Christophe Troestler
 License:     LGPL-2.0 with OCaml linking exception
-Plugins:     StdFiles (0.2), META (0.2)
+Plugins:     StdFiles (0.3), META (0.3)
 Homepage:    http://forge.ocamlcore.org/projects/mesh/
 
 Flag libtriangle
@@ -44,7 +44,7 @@ Library mesh_triangle
 
 Document API
   Title:           API reference for Mesh
-  Type:            OCamlbuild (0.2)
+  Type:            OCamlbuild (0.3)
   InstallDir:      $docdir/api
   BuildTools:      ocamldoc, ocamlbuild
   XOCamlbuildPath: .
