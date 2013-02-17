@@ -5,7 +5,7 @@ DIR = $(shell oasis query name)-$(shell oasis query version)
 TARBALL = $(DIR).tar.gz
 
 DISTFILES = AUTHORS.txt INSTALL.txt README.txt \
-  Makefile myocamlbuild.ml _oasis setup.ml _tags API.odocl \
+  Makefile myocamlbuild.ml _oasis setup.ml _tags \
   src/META $(wildcard src/*.ml src/*.clib src/*.mllib src/*.c src/triangle/*) \
   $(wildcard tests/*.ml)
 
