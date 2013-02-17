@@ -53,6 +53,10 @@ dist tar: setup.ml
 	done
 # Generate a setup.ml independent of oasis:
 	cd $(DIR); oasis setup
+# Download the C lib triangle, so OPAM complilation is smooth:
+	mkdir -p $(DIR)/src/triangle;
+	cd $(DIR)/src/triangle && wget $(TRIANGLE_URL) \
+	&& unzip triangle.zip && rm triangle.zip
 	tar -zcvf $(TARBALL) $(DIR)
 	$(RM) -r $(DIR)
 
