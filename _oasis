@@ -52,6 +52,7 @@ Document API
 
 # Tests:
 Executable square_easymesh
+  Build$:	flag(tests)
   Path:         tests/
   MainIs:       square_easymesh.ml
   BuildTools:   ocamlbuild
@@ -60,6 +61,7 @@ Executable square_easymesh
   Install:      false
 
 Executable square_triangle
+  Build$:	flag(tests)
   Path:         tests/
   MainIs:       square_triangle.ml
   BuildTools:   ocamlbuild
@@ -68,6 +70,7 @@ Executable square_triangle
   Install:      false
 
 Executable level_display
+  Build$:	flag(tests)
   Path:         tests/
   MainIs:       level_display.ml
   BuildTools:   ocamlbuild
@@ -76,6 +79,7 @@ Executable level_display
   Install:      false
 
 Executable refine
+  Build$:	flag(tests)
   Path:         tests
   MainIs:       refine.ml
   BuildTools:   ocamlbuild

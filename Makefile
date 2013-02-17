@@ -13,6 +13,9 @@ DISTFILES = AUTHORS.txt INSTALL.txt README.txt \
 all byte native: setup.data
 	ocaml setup.ml -build
 
+# For developming of the package.
+# FIXME: some tests should go to setup.ml
+CONFIGURE = ocaml setup.ml -configure --enable-tests
 setup.data: configure
 configure: setup.ml
 	@WGET=`which wget`;						     \
@@ -20,17 +23,17 @@ configure: setup.ml
 	if [ -f "src/triangle/triangle.c" -a -f "src/triangle/triangle.h" ]; \
 	then								     \
 	  echo "*** Using the Triangle library installed in src/triangle/";  \
-	  ocaml setup.ml -configure;					     \
+	  $(CONFIGURE);					     		     \
 	elif [ -f "/usr/include/triangle.h" ]; then			     \
 	  echo "*** Assuming Triangle is installed on the system.";	     \
-	  ocaml setup.ml -configure --enable-libtriangle;		     \
+	  $(CONFIGURE) --enable-libtriangle;		     		     \
 	elif [ "x$$WGET" != "x" -a "x$$UNZIP" != "x" ]; then		     \
 	  mkdir -p src/triangle;					     \
 	  cd src/triangle;						     \
 	  $$WGET $(TRIANGLE_URL);					     \
 	  $$UNZIP triangle.zip;						     \
 	  cd ../..;							     \
-	  ocaml setup.ml -configure;					     \
+	  $(CONFIGURE);					     		     \
 	else								     \
 	  echo "*** Please download and install Triangle by hand).";	     \
 	  exit 2;							     \
