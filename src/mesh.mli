@@ -255,7 +255,7 @@ val scilab : 'l #t -> 'l vec -> string -> unit
 
 (** {2 Matlab} *)
 
-val matlab : 'l #t -> ?edgecolor:string -> ?facealpha:float ->
+val matlab : 'l #t -> ?edgecolor:string -> ?linestyle:string -> ?facealpha:float ->
              'l vec -> string -> unit
   (** [matlab mesh z file] saves the mesh data and the function values
       [z] (i.e. [z.{i}] is the function value at the point
@@ -266,6 +266,11 @@ val matlab : 'l #t -> ?edgecolor:string -> ?facealpha:float ->
       @param edgecolor the name of the color for the edges of the
       triangles.  Default: ["black"].  The special value ["none"]
       removes them.
+
+      @param linestyle is a symbol representing a style of line:
+      ["-"] is a solid line, ["--"] a dashed line, [":"] a dotted line,
+      ["-."] a dash-dot line and ["none"] means that no line is drawn.
+      Default: ["-"].
 
       @param facealpha the transparency of faces, [0.] meaning fully
       transparent and [1.] opaque.  Default: [1.]. *)

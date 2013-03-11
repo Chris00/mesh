@@ -319,10 +319,12 @@ let scilab (mesh: 'a #t) (z: 'a vec) filename =
   then C.scilab (Obj.magic mesh) (Obj.magic z) filename
   else F.scilab (Obj.magic mesh) (Obj.magic z) filename
 
-let matlab (mesh: 'a #t) ?edgecolor ?facealpha (z: 'a vec) filename =
+let matlab (mesh: 'a #t) ?edgecolor ?linestyle ?facealpha (z: 'a vec) filename =
   if is_c_layout mesh
-  then C.matlab (Obj.magic mesh) ?edgecolor ?facealpha (Obj.magic z) filename
-  else F.matlab (Obj.magic mesh) ?edgecolor ?facealpha (Obj.magic z) filename
+  then C.matlab (Obj.magic mesh) ?edgecolor ?linestyle ?facealpha
+                (Obj.magic z) filename
+  else F.matlab (Obj.magic mesh) ?edgecolor ?linestyle ?facealpha
+                (Obj.magic z) filename
 
 let mathematica (mesh: 'a #t) (z: 'a vec) filename =
   if is_c_layout mesh

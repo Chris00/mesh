@@ -98,7 +98,8 @@ let scilab (mesh: mesh) (z: vec) fname =
 let is_allowed c =
   ('0' <= c && c <= '9') || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || c = '_'
 
-let matlab (mesh: mesh) ?(edgecolor="black") ?(facealpha=1.) (z: vec) fname =
+let matlab (mesh: mesh) ?(edgecolor="black") ?(linestyle="-") ?(facealpha=1.)
+           (z: vec) fname =
   let tr = mesh#triangle in
   let pt = mesh#point in
   if NCOLS(tr) = 0 then
@@ -139,8 +140,10 @@ let matlab (mesh: mesh) ?(edgecolor="black") ?(facealpha=1.) (z: vec) fname =
   let facealpha = if facealpha < 0. then 0.
                   else if facealpha > 1. then 1.
                   else facealpha in
+  (* FIXME: protect against strings containing "'". *)
   fprintf fh "];\ntrisurf(mesh_triangles, mesh_x, mesh_y, mesh_z, \
-              'FaceAlpha', %f, 'EdgeColor', '%s');\n" facealpha edgecolor;
+              'FaceAlpha', %f, 'EdgeColor', '%s', 'LineStyle', '%s');\n"
+          facealpha edgecolor linestyle;
   close_out fh
 ;;
 
