@@ -1,7 +1,7 @@
 #                                                               -*-conf-*-
 OASISFormat: 0.3
 Name:        mesh
-Version:     0.7.5
+Version:     0.7.6
 Synopsis:    Triangular mesh generation and manipulation.
 Description: This is an interface to various mesh generators,
   in particular triangle.  It also provides functions to optimize the
