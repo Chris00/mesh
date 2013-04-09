@@ -2,8 +2,14 @@
 OASISFormat: 0.3
 Name:        mesh
 Version:     0.7.5
-Synopsis:    OCaml interface to various mesh generators, in particular triangle.
+Synopsis:    Triangular mesh generation and manipulation.
+Description: This is an interface to various mesh generators,
+  in particular triangle.  It also provides functions to optimize the
+  numbering of mesh points and to export meshes and piecewise linear
+  functions defined on them to TikZ, Scilab, Matlab, and Mathematica
+  formats.
 Authors:     Christophe Troestler
+Maintainers: Christophe.Troestler@umons.ac.be
 License:     LGPL-2.0 with OCaml linking exception
 Plugins:     StdFiles (0.3), META (0.3)
 Homepage:    http://forge.ocamlcore.org/projects/mesh/
