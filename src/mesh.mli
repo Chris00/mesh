@@ -74,7 +74,7 @@ object
       of size [n], where [n] is the number of segments.  *)
 
   method hole : 'l mat
-  (** Array of holes.  For each hole, the array specify a point (x,y)
+  (** Array of holes.  For each hole, the array specifies a point (x,y)
       inside the hole.  It is of size [2 * n] ([fortran_layout]) where
       [n >= 0] is the number of wholes. *)
 
