@@ -45,7 +45,9 @@ object
   method point_attribute : 'l Mesh.mat
   (** A matrix of size [a * n] ([fortran_layout]) where [a >= 0] is the
       number of attributes per point and [n] is the number of points
-      (may be [0] if [a = 0]). *)
+      (may be [0] if [a = 0]).  The attributes are typically
+      floating-point values of physical quantities (such as mass or
+      conductivity) associated with the nodes. *)
 end
 
 (** Object describing various characteristics of a mesh ({!Mesh.t}
@@ -97,6 +99,7 @@ val triangulate :
   ?delaunay:bool ->
   ?min_angle:float ->
   ?max_area:float ->
+  ?region_area: bool ->
   ?max_steiner:int ->
   ?voronoi:bool ->
   ?edge:bool ->
@@ -111,6 +114,10 @@ val triangulate :
     [pslg#segment] is empty, the convex hull of the set of points is
     used.  Note that the numbering of nodes returned by this function
     may be far from optimal for the FEM.  See {!Mesh.band}.
+
+    If [#region] is non-empty, it will be used to assign an additional
+    floating-point attribute to each triangle.  It will be written as
+    the single attribute of [#triangle_attribute] matrix.
 
     @param delaunay generates a truly Delaunay (not just constrained
     Delaunay) triangulation.  It usually increases the number of
@@ -130,6 +137,10 @@ val triangulate :
     triangle in [#neighbor].  Default: [false].
 
     @param max_area Imposes a maximum triangle area.
+
+    @region_area uses the maximum area specified for each region in
+    [#region].  Default: [false] even if [#region] is a non-empty
+    matrix (i.e. you have to enable it explicitly).
 
     @param max_steiner Specifies the maximum number of Steiner points
     (vertices that are not in the input, but are added to meet the

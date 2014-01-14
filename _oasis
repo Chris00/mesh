@@ -93,6 +93,15 @@ Executable refine
   CompiledObject: best
   Install:      false
 
+Executable attributes
+  Build$:	flag(tests)
+  Path:         tests
+  MainIs:       attributes.ml
+  BuildTools:   ocamlbuild
+  BuildDepends: mesh.triangle,graphics
+  CompiledObject: best
+  Install:      false
+
 SourceRepository trunk
   Type:       git
   Location:   ssh://forge.ocamlcore.org//git/mesh/mesh.git

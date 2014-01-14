@@ -1,7 +1,9 @@
 
+let empty_vec = Array1.create float64 layout 0 (* not used => global *)
+
 (* check that all C "triexit" have been avoided. *)
 
-let triangulate ?(delaunay=true) ?min_angle ?max_area
+let triangulate ?(delaunay=true) ?min_angle ?max_area ?(region_area=false)
     ?max_steiner ?(voronoi=false) ?(edge=true) ?(neighbor=false)
     ?(subparam=false) ?triangle_area ?triunsuitable
     ?(check_finite=true) ?(debug=true)
@@ -43,8 +45,11 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area
       if NCOLS(hole) > 0 && NROWS(hole) <> 2 then
         invalid_arg(ROWS ^ " hole <> 2");
       let region = mesh#region in
-      if NCOLS(region) > 0 && NROWS(region) <> 4 then
-        invalid_arg(ROWS ^ " region <> 4");
+      if NCOLS(region) > 0 then (
+        if NROWS(region) <> 4 then invalid_arg(ROWS ^ " region <> 4");
+        Buffer.add_char switches 'A'; (* regional attributes *)
+        if region_area then Buffer.add_char switches 'a'; (* area constraint *)
+      );
       if check_finite then (
         for i = FST to NCOLS(hole) do
           if not(is_finite(GET(hole, FST, i))) then
@@ -68,7 +73,7 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area
       Buffer.add_char switches 'c';
   );
   (* Check for refinement -- triangles *)
-  if refine then begin
+  if refine then (
     if NCOLS(mesh#triangle) > 0 then begin
       if NROWS(mesh#triangle) < 3 then
         invalid_arg(ROWS ^ " mesh#triangle < 3");
@@ -77,20 +82,22 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area
         invalid_arg(COLS ^ " mesh#triangle_attribute < "
                     ^ COLS ^ " mesh#triangle");
     end;
-    Buffer.add_char switches 'r'
-  end;
-  (* Check triangle_area *)
+    Buffer.add_char switches 'r';
+    (* Check triangle_area *)
+    (match triangle_area with
+     | Some a ->
+        if Array1.dim a < NCOLS(mesh#triangle) then
+          invalid_arg("dim triangle_area < " ^ COLS ^ " mesh#triangle");
+        Buffer.add_char switches 'a';
+     | None -> ());
+  );
+  (* Area constraints *)
+  (match max_area with
+   | None -> ()
+   | Some a -> bprintf switches "a%f" a);
   let triangle_area = match triangle_area with
-    | None ->
-      (match max_area with
-      | None -> ()
-      | Some a -> bprintf switches "a%f" a);
-      Array1.create float64 layout 0
-    | Some a ->
-      if Array1.dim a < NCOLS(mesh#triangle) then
-        invalid_arg("dim triangle_area < " ^ COLS ^ " mesh#triangle");
-      Buffer.add_char switches 'a';
-      a in
+    | None -> empty_vec
+    | Some a -> a (* for refinement only *) in
   (* Check for a triunsuitable function *)
   (match triunsuitable with
   | None -> ()

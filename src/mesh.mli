@@ -84,7 +84,9 @@ object
       regions.  For a region [i], [region{1,i}] and [region{2,i}] are
       the x and y coordinates of a point inside the region (the region
       is bounded by segments), [region{3,i}] is the regional
-      attribute, and [region{4,i}] is the maximum area. *)
+      attribute, and [region{4,i}] is the maximum area.  If you wish to
+      specify a regional attribute but not a maximum area for a given
+      region, set [region{4,i}] to a negative value. *)
 end
 
 (** Object describing various characteristics of a mesh. *)
