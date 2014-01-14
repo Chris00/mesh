@@ -139,6 +139,9 @@ val triangulate :
     @param triunsuitable a routine used to determine whether is
     triangle needs to be further splitted.
 
+    @param subparam Generates second-order subparametric elements with
+    six nodes each.  Default: [false].
+
     @param check_finite checks that all points coordinate are finite.
     As non-finite coordinates (e.g. NaN) puzzle Triangle without
     making it fail, the default is [true].  Set it to [false] only if

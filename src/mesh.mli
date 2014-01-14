@@ -82,12 +82,12 @@ object
   (** Array of regional attributes and area constraints.  It is of
       size [4 * n] ([fortran_layout]) where [n >= 0] is the number of
       regions.  For a region [i], [region{1,i}] and [region{2,i}] are
-      the x and y coordinates of a point inside the region, [region{3,i}]
-      is the regional attribute, and [region{4,i}] is the maximum
-      area. *)
+      the x and y coordinates of a point inside the region (the region
+      is bounded by segments), [region{3,i}] is the regional
+      attribute, and [region{4,i}] is the maximum area. *)
 end
 
-(** Object describing various caracteristics of a mesh. *)
+(** Object describing various characteristics of a mesh. *)
 class type ['layout] t =
 object
   inherit ['layout] pslg

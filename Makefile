@@ -13,7 +13,7 @@ DISTFILES = AUTHORS.txt INSTALL.txt README.txt \
 all byte native: setup.data
 	ocaml setup.ml -build
 
-# For developming of the package.
+# For development of the package.
 # FIXME: some tests should go to setup.ml
 CONFIGURE = ocaml setup.ml -configure --enable-tests
 setup.data: configure

@@ -20,11 +20,11 @@
 #endif /* SINGLE */
 
 #ifdef LIBTRIANGLE
+/* Use the external library if it exists. */
 #include "triangle.h"
 typedef REAL *vertex; /* taken from triangle.c */
 #else
-/* Include triangle code; cleaner to switch to an external library if
-   it exists. */
+/* Include triangle code. */
 #include "triangle/triangle.c"
 #endif
 
