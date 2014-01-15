@@ -17,7 +17,7 @@ GENERATE_ML_FILES = ocaml src/make_FC_code.ml
 
 # For development of the package.
 # FIXME: some tests should go to setup.ml
-CONFIGURE = ocaml setup.ml -configure --enable-tests
+CONFIGURE = ocaml setup.ml -configure --enable-tests --enable-lacaml
 setup.data: configure
 configure: setup.ml
 	@WGET=`which wget`;						     \

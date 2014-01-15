@@ -18,6 +18,10 @@ Flag libtriangle
   Description: Enable if you build on a system with libtriangle
   Default: false
 
+Flag lacaml
+  Description: Enable if the package lacaml is installed.
+  Default: false
+
 Library mesh
   Path:         src/
   BuildTools:   ocamlbuild
@@ -61,7 +65,7 @@ Document API
 
 # Tests:
 Executable square_easymesh
-  Build$:	flag(tests)
+  Build$:	flag(tests) && flag(lacaml)
   Path:         tests/
   MainIs:       square_easymesh.ml
   BuildTools:   ocamlbuild
@@ -70,7 +74,7 @@ Executable square_easymesh
   Install:      false
 
 Executable square_triangle
-  Build$:	flag(tests)
+  Build$:	flag(tests) && flag(lacaml)
   Path:         tests/
   MainIs:       square_triangle.ml
   BuildTools:   ocamlbuild
