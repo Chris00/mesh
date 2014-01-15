@@ -1,5 +1,12 @@
 (* FORTRAN/C functions *)
 
+open Printf
+open Scanf
+open Bigarray
+
+type pslg = LAYOUT Mesh_common.pslg
+type mesh = LAYOUT Mesh_common.t
+
 (* Write the [pslg] to the channel [fh]. *)
 let output_pslg fh (pslg: pslg) area =
   let pt = pslg#point

@@ -23,7 +23,7 @@ RE:.*\.ba[0-9]
 auto/
 # Test executables
 tests/square
-# OASIS generated files (unmodified)
+# Generated files (unmodified)
 AUTHORS.txt
 INSTALL.txt
 README.txt
@@ -35,5 +35,13 @@ src/META
 configure
 API.docdir
 API.odocl
+src/easymeshC.ml
+src/easymeshF.ml
+src/mesh_displayC.ml
+src/mesh_displayF.ml
+src/mesh_triangleC.ml
+src/mesh_triangleF.ml
+src/mesh_C.ml
+src/mesh_F.ml
 # Tarball
 *.tar.gz

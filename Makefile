@@ -13,6 +13,8 @@ DISTFILES = AUTHORS.txt INSTALL.txt README.txt \
 all byte native: setup.data
 	ocaml setup.ml -build
 
+GENERATE_ML_FILES = ocaml src/make_FC_code.ml
+
 # For development of the package.
 # FIXME: some tests should go to setup.ml
 CONFIGURE = ocaml setup.ml -configure --enable-tests
@@ -40,6 +42,7 @@ configure: setup.ml
 	fi
 
 setup.ml: _oasis
+	$(GENERATE_ML_FILES)
 	oasis setup -setup-update dynamic
 
 doc install uninstall reinstall: all
@@ -55,7 +58,7 @@ dist tar: setup.ml
 	  cp --parents $$f $(DIR); \
 	done
 # Generate a setup.ml independent of oasis:
-	cd $(DIR); oasis setup
+	cd $(DIR); $(GENERATE_ML_FILES) && oasis setup
 # Download the C lib triangle, so OPAM complilation is smooth:
 	mkdir -p $(DIR)/src/triangle;
 	cd $(DIR)/src/triangle && wget $(TRIANGLE_URL) \
@@ -66,8 +69,10 @@ dist tar: setup.ml
 .PHONY: clean distclean
 clean:
 	ocaml setup.ml -clean
+	$(GENERATE_ML_FILES) --clean 
 	$(RM) $(TARBALL)
 
 distclean:
 	ocaml setup.ml -distclean
+	$(RM) $(wildcard src/*.clib src/*.mllib)
 	$(RM) $(wildcard *.ba[0-9] *.bak *~ *.odocl)

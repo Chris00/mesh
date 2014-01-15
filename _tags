@@ -2,4 +2,4 @@
 # OASIS_STOP
 
 <**/*.ml>: annot
-<src/*.ml>: syntax_camlp4o, pkg_camlp4.macro
+

@@ -1,3 +1,6 @@
+(* Generic code to draw level cuves.  To be included in a file that
+   defines the drawing primitives. *)
+
 module M = Map.Make(struct
                       type t = int
                       let compare x y = compare (x:int) y
@@ -52,15 +55,15 @@ let draw_levels ~boundary (mesh: mesh) (z: vec)
   let marker = mesh#edge_marker in
   let pt = mesh#point in
   if NCOLS(edge) = 0 then
-    invalid_arg(MOD ^ ".level_curves: mesh#edge must be nonempty");
+    invalid_arg("MOD.level_curves: mesh#edge must be nonempty");
   if NROWS(edge) <> 2 then
-    invalid_arg(MOD ^ ".level_curves: mesh#edge must have 2 rows (fortran)");
+    invalid_arg("MOD.level_curves: mesh#edge must have 2 rows (fortran)");
   if Array1.dim marker < NCOLS(edge) then
-    invalid_arg(MOD ^ ".level_curves: dim mesh#edge_marker < number edges");
+    invalid_arg("MOD.level_curves: dim mesh#edge_marker < number edges");
   if NCOLS(pt) = 0 then
-    invalid_arg(MOD ^ ".level_curves: mesh#point must be nonempty");
+    invalid_arg("MOD.level_curves: mesh#point must be nonempty");
   if NROWS(pt) <> 2 then
-    invalid_arg(MOD ^ ".level_curves: mesh#point must have 2 rows (fortran)");
+    invalid_arg("MOD.level_curves: mesh#point must have 2 rows (fortran)");
   let bd = Edge.make() in
   (* Draw the boundary edges *)
   for e = FST to LASTCOL(edge) do
@@ -79,9 +82,9 @@ let draw_levels ~boundary (mesh: mesh) (z: vec)
   done;
   let tr = mesh#triangle in
   if NCOLS(tr) = 0 then
-    invalid_arg(MOD ^ ".level_curves: mesh#triangle must be nonempty");
+    invalid_arg("MOD.level_curves: mesh#triangle must be nonempty");
   if NROWS(tr) < 3 then
-    invalid_arg(MOD ^ ".level_curves: mesh#triangle must have at least 3 \
+    invalid_arg("MOD.level_curves: mesh#triangle must have at least 3 \
       rows (fortran) or 3 columns (C)");
   let marker = mesh#point_marker in
   for t = FST to LASTCOL(tr) do
@@ -182,68 +185,68 @@ type polygon_fill =
 
 (* base 3: c1 + 1 + 3(c2 + 1) + 9(c3 + 1).  The [c1], [c2] and [c3]
    are the comparisons of the 3 corners with the desired level. *)
-DEFINE INDEX(c1, c2, c3) = c1 + 3 * c2 + 9 * c3 + 13;;
+let index c1 c2 c3 = c1 + 3 * c2 + 9 * c3 + 13
 
 let super =
   let d = Array.make 27 Empty in
-  d.(INDEX( 1,  1,  1)) <- Whole;
-  d.(INDEX( 1,  1,  0)) <- Whole;
-  d.(INDEX( 1,  1, -1)) <- Quad312;
-  d.(INDEX( 1,  0,  1)) <- Whole;
-  d.(INDEX( 1,  0,  0)) <- Whole;
-  d.(INDEX( 1,  0, -1)) <- Tri123;
-  d.(INDEX( 1, -1,  1)) <- Quad231;
-  d.(INDEX( 1, -1,  0)) <- Tri123;
-  d.(INDEX( 1, -1, -1)) <- Tri123;
-  d.(INDEX( 0,  1,  1)) <- Whole;
-  d.(INDEX( 0,  1,  0)) <- Whole;
-  d.(INDEX( 0,  1, -1)) <- Tri231;
-  d.(INDEX( 0,  0,  1)) <- Whole;
-  d.(INDEX( 0,  0,  0)) <- Empty; (* > 0 required *)
-  d.(INDEX( 0,  0, -1)) <- Empty;
-  d.(INDEX( 0, -1,  1)) <- Tri312;
-  d.(INDEX( 0, -1,  0)) <- Empty;
-  d.(INDEX( 0, -1, -1)) <- Empty;
-  d.(INDEX(-1,  1,  1)) <- Quad123;
-  d.(INDEX(-1,  1,  0)) <- Tri231;
-  d.(INDEX(-1,  1, -1)) <- Tri231;
-  d.(INDEX(-1,  0,  1)) <- Tri312;
-  d.(INDEX(-1,  0,  0)) <- Empty;
-  d.(INDEX(-1,  0, -1)) <- Empty;
-  d.(INDEX(-1, -1,  1)) <- Tri312;
-  d.(INDEX(-1, -1,  0)) <- Empty;
-  d.(INDEX(-1, -1, -1)) <- Empty;
+  d.(index( 1) ( 1) ( 1)) <- Whole;
+  d.(index( 1) ( 1) ( 0)) <- Whole;
+  d.(index( 1) ( 1) (-1)) <- Quad312;
+  d.(index( 1) ( 0) ( 1)) <- Whole;
+  d.(index( 1) ( 0) ( 0)) <- Whole;
+  d.(index( 1) ( 0) (-1)) <- Tri123;
+  d.(index( 1) (-1) ( 1)) <- Quad231;
+  d.(index( 1) (-1) ( 0)) <- Tri123;
+  d.(index( 1) (-1) (-1)) <- Tri123;
+  d.(index( 0) ( 1) ( 1)) <- Whole;
+  d.(index( 0) ( 1) ( 0)) <- Whole;
+  d.(index( 0) ( 1) (-1)) <- Tri231;
+  d.(index( 0) ( 0) ( 1)) <- Whole;
+  d.(index( 0) ( 0) ( 0)) <- Empty; (* > 0 required *)
+  d.(index( 0) ( 0) (-1)) <- Empty;
+  d.(index( 0) (-1) ( 1)) <- Tri312;
+  d.(index( 0) (-1) ( 0)) <- Empty;
+  d.(index( 0) (-1) (-1)) <- Empty;
+  d.(index(-1) ( 1) ( 1)) <- Quad123;
+  d.(index(-1) ( 1) ( 0)) <- Tri231;
+  d.(index(-1) ( 1) (-1)) <- Tri231;
+  d.(index(-1) ( 0) ( 1)) <- Tri312;
+  d.(index(-1) ( 0) ( 0)) <- Empty;
+  d.(index(-1) ( 0) (-1)) <- Empty;
+  d.(index(-1) (-1) ( 1)) <- Tri312;
+  d.(index(-1) (-1) ( 0)) <- Empty;
+  d.(index(-1) (-1) (-1)) <- Empty;
   d
 
 let sub =
   let d = Array.make 27 Empty in
-  d.(INDEX( 1,  1,  1)) <- Empty;
-  d.(INDEX( 1,  1,  0)) <- Empty;
-  d.(INDEX( 1,  1, -1)) <- Tri312;
-  d.(INDEX( 1,  0,  1)) <- Empty;
-  d.(INDEX( 1,  0,  0)) <- Empty;
-  d.(INDEX( 1,  0, -1)) <- Tri312;
-  d.(INDEX( 1, -1,  1)) <- Tri231;
-  d.(INDEX( 1, -1,  0)) <- Tri231;
-  d.(INDEX( 1, -1, -1)) <- Quad123;
-  d.(INDEX( 0,  1,  1)) <- Empty;
-  d.(INDEX( 0,  1,  0)) <- Empty;
-  d.(INDEX( 0,  1, -1)) <- Tri312;
-  d.(INDEX( 0,  0,  1)) <- Empty;
-  d.(INDEX( 0,  0,  0)) <- Empty; (* < 0 required *)
-  d.(INDEX( 0,  0, -1)) <- Whole;
-  d.(INDEX( 0, -1,  1)) <- Tri231;
-  d.(INDEX( 0, -1,  0)) <- Whole;
-  d.(INDEX( 0, -1, -1)) <- Whole;
-  d.(INDEX(-1,  1,  1)) <- Tri123;
-  d.(INDEX(-1,  1,  0)) <- Tri123;
-  d.(INDEX(-1,  1, -1)) <- Quad231;
-  d.(INDEX(-1,  0,  1)) <- Tri123;
-  d.(INDEX(-1,  0,  0)) <- Whole;
-  d.(INDEX(-1,  0, -1)) <- Whole;
-  d.(INDEX(-1, -1,  1)) <- Quad312;
-  d.(INDEX(-1, -1,  0)) <- Whole;
-  d.(INDEX(-1, -1, -1)) <- Whole;
+  d.(index( 1) ( 1) ( 1)) <- Empty;
+  d.(index( 1) ( 1) ( 0)) <- Empty;
+  d.(index( 1) ( 1) (-1)) <- Tri312;
+  d.(index( 1) ( 0) ( 1)) <- Empty;
+  d.(index( 1) ( 0) ( 0)) <- Empty;
+  d.(index( 1) ( 0) (-1)) <- Tri312;
+  d.(index( 1) (-1) ( 1)) <- Tri231;
+  d.(index( 1) (-1) ( 0)) <- Tri231;
+  d.(index( 1) (-1) (-1)) <- Quad123;
+  d.(index( 0) ( 1) ( 1)) <- Empty;
+  d.(index( 0) ( 1) ( 0)) <- Empty;
+  d.(index( 0) ( 1) (-1)) <- Tri312;
+  d.(index( 0) ( 0) ( 1)) <- Empty;
+  d.(index( 0) ( 0) ( 0)) <- Empty; (* < 0 required *)
+  d.(index( 0) ( 0) (-1)) <- Whole;
+  d.(index( 0) (-1) ( 1)) <- Tri231;
+  d.(index( 0) (-1) ( 0)) <- Whole;
+  d.(index( 0) (-1) (-1)) <- Whole;
+  d.(index(-1) ( 1) ( 1)) <- Tri123;
+  d.(index(-1) ( 1) ( 0)) <- Tri123;
+  d.(index(-1) ( 1) (-1)) <- Quad231;
+  d.(index(-1) ( 0) ( 1)) <- Tri123;
+  d.(index(-1) ( 0) ( 0)) <- Whole;
+  d.(index(-1) ( 0) (-1)) <- Whole;
+  d.(index(-1) (-1) ( 1)) <- Quad312;
+  d.(index(-1) (-1) ( 0)) <- Whole;
+  d.(index(-1) (-1) (-1)) <- Whole;
   d
 
 let draw_xxx_level decision name ?(boundary=(fun _ -> Some black))
@@ -252,20 +255,20 @@ let draw_xxx_level decision name ?(boundary=(fun _ -> Some black))
   let edge_marker = mesh#edge_marker in
   let pt = mesh#point in
   if NCOLS(edge) = 0 then
-    invalid_arg(MOD ^ name ^ ": mesh#edge must be nonempty");
+    invalid_arg("MOD" ^ name ^ ": mesh#edge must be nonempty");
   if NROWS(edge) <> 2 then
-    invalid_arg(MOD ^ name ^ ": mesh#edge must have 2 rows (fortran)");
+    invalid_arg("MOD" ^ name ^ ": mesh#edge must have 2 rows (fortran)");
   if Array1.dim edge_marker < NCOLS(edge) then
-    invalid_arg(MOD ^ name ^ ": dim mesh#edge_marker < number edges");
+    invalid_arg("MOD" ^ name ^ ": dim mesh#edge_marker < number edges");
   if NCOLS(pt) = 0 then
-    invalid_arg(MOD ^ name ^ ": mesh#point must be nonempty");
+    invalid_arg("MOD" ^ name ^ ": mesh#point must be nonempty");
   if NROWS(pt) <> 2 then
-    invalid_arg(MOD ^ name ^ ": mesh#point must have 2 rows (fortran)");
+    invalid_arg("MOD" ^ name ^ ": mesh#point must have 2 rows (fortran)");
   let tr = mesh#triangle in
   if NCOLS(tr) = 0 then
-    invalid_arg(MOD ^ name ^ ": mesh#triangle must be nonempty");
+    invalid_arg("MOD" ^ name ^ ": mesh#triangle must be nonempty");
   if NROWS(tr) < 3 then
-    invalid_arg(MOD ^ name ^ ": mesh#triangle must have at least 3 \
+    invalid_arg("MOD" ^ name ^ ": mesh#triangle must have at least 3 \
       rows (fortran) or 3 columns (C)");
   for t = FST to LASTCOL(tr) do
     let i1 = GET(tr, FST,t)
@@ -277,7 +280,7 @@ let draw_xxx_level decision name ?(boundary=(fun _ -> Some black))
     and z2 = z.{i2} in
     let p3 = { x = GET(pt, FST,i3);  y = GET(pt, SND,i3) }
     and z3 = z.{i3} in
-    match decision.(INDEX(compare z1 l, compare z2 l, compare z3 l)) with
+    match decision.(index (compare z1 l) (compare z2 l) (compare z3 l)) with
     | Tri123 -> fill_triangle surf color p1 (intercept p1 z1 p2 z2 l)
                                            (intercept p1 z1 p3 z3 l)
     | Tri231 -> fill_triangle surf color p2 (intercept p2 z2 p3 z3 l)
@@ -313,5 +316,3 @@ let draw_super_level ?boundary mesh z level color surf =
 
 let draw_sub_level ?boundary mesh z level color surf =
   draw_xxx_level sub ".sub_level" ?boundary mesh z level color surf
-
-(* UNDEF INDEX *)

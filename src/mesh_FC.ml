@@ -1,5 +1,19 @@
-(* Functions for LAYOUT layout.
+(* Functions for layout LAYOUT.
  ***********************************************************************)
+
+open Printf
+open Bigarray
+open Mesh_common
+
+type mesh = LAYOUT t
+type 'a vector = 'a vec       (* global vec *)
+type vec = LAYOUT vector    (* local vec *)
+type matrix = LAYOUT mat
+type 'a int_vector = 'a int_vec
+type int_vec = LAYOUT int_vector
+
+let layout = LAYOUT;;
+
 
 (** Return the smaller box (xmin, xmax, ymin, ymax) containing the [mesh]. *)
 let bounding_box (mesh: mesh) =
@@ -262,9 +276,10 @@ let mathematica (mesh: mesh) (z: vec) fname =
   close_out fh
 ;;
 
-
-DEFINE MOD = "Mesh";;
-INCLUDE "mesh_level_curvesFC.ml";;
+(************************************************************************)
+(* mesh_level_curvesFC.ml included by "make_FC_code.ml" with MOD = "Mesh". *)
+INCLUDE(mesh_level_curvesFC.ml);;
+(************************************************************************)
 
 let level_curves ?(boundary=(fun _ -> Some black)) (mesh: mesh) (z: vec)
     ?level_eq levels fname =
@@ -338,7 +353,7 @@ let min_deg (deg: int array) =
 let do_permute (perm: int_vec) (inv_perm: int_vec) (mesh: mesh) n : mesh =
   (* Build the new mesh *)
   let old_pt = mesh#point in
-  let pt = ARRAY2(float64, 2, n) in
+  let pt = CREATE_MAT(float64, 2, n) in
   let last_pt_idx = LASTCOL(pt) in
   for i = FST to last_pt_idx do
     let old_i = perm.{i} in
@@ -349,7 +364,7 @@ let do_permute (perm: int_vec) (inv_perm: int_vec) (mesh: mesh) n : mesh =
   let ptm = Array1.create int layout (Array1.dim old_ptm) in
   for i = FST to LASTEL(ptm) do ptm.{i} <- old_ptm.{perm.{i}} done;
   let old_seg = mesh#segment in
-  let seg = ARRAY2(int, 2, NCOLS(old_seg)) in
+  let seg = CREATE_MAT(int, 2, NCOLS(old_seg)) in
   for s = FST to LASTCOL(seg) do
     let i1 = GET(old_seg, FST, s) in
     if i1 < FST || i1 > last_pt_idx then
@@ -363,14 +378,14 @@ let do_permute (perm: int_vec) (inv_perm: int_vec) (mesh: mesh) n : mesh =
     GET(seg, SND, s) <- inv_perm.{i2};
   done;
   let old_tr = mesh#triangle in
-  let tr = ARRAY2(int, NROWS(old_tr), NCOLS(old_tr)) in
+  let tr = CREATE_MAT(int, NROWS(old_tr), NCOLS(old_tr)) in
   for t = FST to LASTCOL(tr) do
     for c = FST to LASTROW(tr) do
       GET(tr, c, t) <- inv_perm.{GET(old_tr, c, t)}
     done;
   done;
   let old_edge = mesh#edge in
-  let edge = ARRAY2(int, 2, NCOLS(old_edge)) in
+  let edge = CREATE_MAT(int, 2, NCOLS(old_edge)) in
   for e = FST to LASTCOL(edge) do
     GET(edge, FST, e) <- inv_perm.{GET(old_edge, FST, e)};
     GET(edge, SND, e) <- inv_perm.{GET(old_edge, SND, e)};
