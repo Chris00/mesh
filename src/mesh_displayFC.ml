@@ -7,6 +7,9 @@ type mesh = LAYOUT t
 type 'a vector = 'a vec     (* global vec *)
 type vec = LAYOUT vector  (* local vec *)
 
+(* FIXME: naive, remove it when 4.00.0 will be spread enough *)
+let hypot x y = sqrt(x *. x +. y *. y)
+
 
 (** Return the smaller box (xmin, xmax, ymin, ymax) containing the [mesh]. *)
 let bounding_box (mesh: mesh) =
@@ -45,15 +48,27 @@ let draw ?(width=600) ?(height=600) ?(color=foreground) ?(points=true)
          ?(segments=true) ?point_marker_color (mesh: mesh) =
   let surf = make_surf mesh width height in
   (* Triangles and Points *)
+  let pt = mesh#point
+  and triangle = mesh#triangle in
   let triangle_idx = match triangle_idx with
     | None -> (fun _ _ _ _ _ _ _ -> ())
     | Some f -> (fun t px0 py0 px1 py1 px2 py2 ->
-                (* Move to the barycenter of the riangle. *)
-                moveto ((px0 + px1 + px2) / 3) ((py0 + py1 + py2) / 3);
+                (* Move to the incenter of the triangle. *)
+                let i0 = GET(triangle, FST,t)
+                and i1 = GET(triangle, SND,t)
+                and i2 = GET(triangle, THIRD,t) in
+                let x0 = GET(pt, FST,i0) and y0 = GET(pt, SND,i0) in
+                let x1 = GET(pt, FST,i1) and y1 = GET(pt, SND,i1) in
+                let x2 = GET(pt, FST,i2) and y2 = GET(pt, SND,i2) in
+                let d01 = hypot (x0 -. x1) (y0 -. y1)
+                and d02 = hypot (x0 -. x2) (y0 -. y2)
+                and d12 = hypot (x1 -. x2) (y1 -. y2) in
+                let d = d12 +. d02 +. d01 in
+                let x = (d12 *. x0 +. d02 *. x1 +. d01 *. x2) /. d
+                and y = (d12 *. y0 +. d02 *. y1 +. d01 *. y2) /. d in
+                moveto (pixel_x surf x) (pixel_y surf y);
                 f t;
                 set_color color) in
-  let pt = mesh#point
-  and triangle = mesh#triangle in
   set_color color;
   for t = FST to LASTCOL(triangle) do
     (* Draw triangle [t]. *)

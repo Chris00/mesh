@@ -36,9 +36,10 @@ val draw :
       @param points whether to draw the points (default: [true]).
       @param point_idx a function to be executed after each point is
              drawn, the current position being the center of the
-             point.  Default: do nothing.
+             node.  Default: do nothing.
       @param triangle_idx a function to be executed for each triangle,
-             the current point being the barycenter of the triangle.
+             the current point being the incentre of the triangle
+             (the common intersection of the three bisectrices).
              Default: do nothing.
       @param voronoi draw also the given voronoi diagram.
       @param point_marker_color trigger the display of the point
