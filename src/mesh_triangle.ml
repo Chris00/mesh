@@ -17,6 +17,7 @@
 
 open Bigarray
 open Printf
+open Mesh_utils
 
 external init : unit -> unit = "ocaml_triangle_init"
 let () = init()
@@ -28,28 +29,28 @@ let triangle ?delaunay ?min_angle ?max_area ?region_area ?max_steiner
              ?check_finite ?debug ?triunsuitable
              ~pslg ~refine mesh =
   let layout = Array2.layout mesh#point in
-  if (Obj.magic layout) = fortran_layout then
+  if is_c_layout layout then
     let triangle_area = match triangle_area with
       | None -> None
-      | Some v -> Some((Obj.magic(v: 'a Mesh.vec)) : fortran_layout Mesh.vec) in
-    let res =
-      Mesh_triangleF.triangulate
-        ?delaunay
-        ?min_angle ?max_area ?region_area ?max_steiner ?voronoi ?neighbor ?edge
-        ?subparam ?triangle_area ?triunsuitable ?check_finite ?debug
-        ~pslg ~refine ((Obj.magic(mesh: 'a t)) : fortran_layout t) in
-    (Obj.magic(res:fortran_layout t * fortran_layout voronoi) : 'a t * 'a voronoi)
-  else
-    let triangle_area = match triangle_area with
-      | None -> None
-      | Some v -> Some((Obj.magic(v: 'a Mesh.vec)) : c_layout Mesh.vec) in
+      | Some v -> Some(vec_to_c v) in
     let res =
       Mesh_triangleC.triangulate
         ?delaunay
         ?min_angle ?max_area ?region_area ?max_steiner ?voronoi ?neighbor ?edge
         ?subparam ?triangle_area ?triunsuitable ?check_finite ?debug
-        ~pslg ~refine ((Obj.magic(mesh: 'a t)) : c_layout t) in
+        ~pslg ~refine (mesh_to_c mesh) in
     (Obj.magic(res:c_layout t * c_layout voronoi) : 'a t * 'a voronoi)
+  else
+    let triangle_area = match triangle_area with
+      | None -> None
+      | Some v -> Some(vec_to_fortran v) in
+    let res =
+      Mesh_triangleF.triangulate
+        ?delaunay
+        ?min_angle ?max_area ?region_area ?max_steiner ?voronoi ?neighbor ?edge
+        ?subparam ?triangle_area ?triunsuitable ?check_finite ?debug
+        ~pslg ~refine (mesh_to_fortran mesh) in
+    (Obj.magic(res:fortran_layout t * fortran_layout voronoi) : 'a t * 'a voronoi)
 
 
 let triangulate ?delaunay ?min_angle ?max_area ?region_area ?max_steiner
@@ -74,12 +75,12 @@ let permute_points ?inv perm (old_mesh: 'l #t) : 'l t =
   let attr =
     if Mesh.is_c_layout mesh then
       Obj.magic(Mesh_triangleC.do_permute_point_attribute
-        (Obj.magic perm: c_layout Mesh.int_vec)
-        (Obj.magic old_mesh#point_attribute: c_layout Mesh.mat))
+                  (vec_to_c perm)
+                  (mat_to_c old_mesh#point_attribute))
     else
       Obj.magic(Mesh_triangleF.do_permute_point_attribute
-        (Obj.magic perm: fortran_layout Mesh.int_vec)
-        (Obj.magic old_mesh#point_attribute: fortran_layout Mesh.mat)) in
+                  (vec_to_fortran perm)
+                  (mat_to_fortran old_mesh#point_attribute)) in
   object
     method point = mesh#point
     method point_marker = mesh#point_marker

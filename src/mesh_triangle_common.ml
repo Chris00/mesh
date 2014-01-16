@@ -42,6 +42,10 @@ class ['l] t (mesh: 'l #Mesh.t) =
     method triangle_attribute = Array2.create float64 layout 0 0
   end
 
+let mesh_to_c (m: _ #t) = (Obj.magic m : c_layout t)
+let mesh_to_fortran (m: _ #t) = (Obj.magic m : fortran_layout t)
+
+
 class ['a] mesh_of_pslg (pslg: 'a pslg) =
   let layout = Array2.layout pslg#point in
   let empty_int_mat : 'a Mesh.int_mat = Array2.create int layout 2 0 in

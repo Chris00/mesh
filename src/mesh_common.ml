@@ -71,8 +71,13 @@ end
 let layout (mesh: _ #pslg) = Array2.layout mesh#point
 
 let is_c_layout (mesh: _ #pslg) =
-  Array2.layout mesh#point = (Obj.magic c_layout : 'a Bigarray.layout)
+  Mesh_utils.is_c_layout(Array2.layout mesh#point)
 
+let pslg_to_c (m: _ #pslg) = (Obj.magic m : c_layout pslg)
+let pslg_to_fortran (m: _ #pslg) = (Obj.magic m : fortran_layout pslg)
+
+let mesh_to_c (m: _ #t) = (Obj.magic m : c_layout t)
+let mesh_to_fortran (m: _ #t) = (Obj.magic m : fortran_layout t)
 
 (** LaTeX commands *)
 

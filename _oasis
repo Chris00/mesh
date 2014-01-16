@@ -26,7 +26,7 @@ Library mesh
   Path:         src/
   BuildTools:   ocamlbuild
   Modules:      Mesh, Easymesh
-  InternalModules: Mesh_common, MeshF, MeshC, EasymeshF, EasymeshC
+  InternalModules: Mesh_utils, Mesh_common, MeshF, MeshC, EasymeshF, EasymeshC
   BuildDepends: bigarray
 
 Library mesh_display

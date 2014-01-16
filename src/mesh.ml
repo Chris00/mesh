@@ -19,37 +19,34 @@
 
 open Bigarray
 open Printf
+open Mesh_utils
 
 include Mesh_common
 
 let band_height_P1 ?filter mesh =
   if is_c_layout mesh then
-    MeshC.band_height_P1 filter (Obj.magic(mesh: _ #t) : c_layout t)
+    MeshC.band_height_P1 filter (mesh_to_c mesh)
   else
-    MeshF.band_height_P1 filter (Obj.magic(mesh: _ #t) : fortran_layout t)
+    MeshF.band_height_P1 filter (mesh_to_fortran mesh)
 
 let cuthill_mckee ?(rev=true) ?(perm: 'l int_vec option) (mesh: 'l #t) =
   if is_c_layout mesh then
-    let m = MeshC.cuthill_mckee
-              ~rev
-              (Obj.magic perm : c_layout int_vec option)
-              (Obj.magic mesh : c_layout #t) in
+    let m = MeshC.cuthill_mckee ~rev (vec_opt_to_c perm)
+                                (mesh_to_c mesh) in
     (Obj.magic (m: c_layout t) : 'l t)
   else
-    let m = MeshF.cuthill_mckee
-              ~rev
-              (Obj.magic perm : fortran_layout int_vec option)
-              (Obj.magic mesh : fortran_layout #t) in
+    let m = MeshF.cuthill_mckee ~rev (vec_opt_to_fortran perm)
+                                (mesh_to_fortran mesh) in
     (Obj.magic (m: fortran_layout t) : 'l t)
 
 let permute_points ?(inv=false) (perm: 'l int_vec) (mesh: 'l #t) =
   if is_c_layout mesh then
-    let m = MeshC.permute_points inv (Obj.magic perm : c_layout int_vec)
-                                 (Obj.magic mesh :  c_layout #t) in
+    let m = MeshC.permute_points inv (vec_to_c perm)
+                                 (mesh_to_c mesh) in
     (Obj.magic (m: c_layout t) : 'l t)
   else
-    let m = MeshF.permute_points inv (Obj.magic perm : fortran_layout int_vec)
-                                 (Obj.magic mesh : fortran_layout #t) in
+    let m = MeshF.permute_points inv (vec_to_fortran perm)
+                                 (mesh_to_fortran mesh) in
     (Obj.magic (m: fortran_layout t) : 'l t)
 
 
@@ -59,51 +56,51 @@ struct
 
   let save ?edge (mesh: _ #t) filename =
     if is_c_layout(mesh :> _ pslg)
-    then MeshC.latex ?edge (Obj.magic mesh) filename
-    else MeshF.latex ?edge (Obj.magic mesh) filename
+    then MeshC.latex ?edge (mesh_to_c mesh) filename
+    else MeshF.latex ?edge (mesh_to_fortran mesh) filename
 
   let level_curves ?boundary (mesh: 'a #t) (z: 'a vec)
       ?level_eq levels filename =
     if is_c_layout(mesh :> _ pslg) then
-      MeshC.level_curves ?boundary (Obj.magic mesh) (Obj.magic z)
+      MeshC.level_curves ?boundary (mesh_to_c mesh) (vec_to_c z)
                          ?level_eq levels filename
     else
-      MeshF.level_curves ?boundary (Obj.magic mesh) (Obj.magic z)
+      MeshF.level_curves ?boundary (mesh_to_fortran mesh) (vec_to_fortran z)
                          ?level_eq levels filename
 
   let super_level ?boundary (mesh: 'a #t) (z: 'a vec) level color filename =
     if is_c_layout mesh then
-      MeshC.super_level ?boundary (Obj.magic mesh) (Obj.magic z)
+      MeshC.super_level ?boundary (mesh_to_c mesh) (vec_to_c z)
                         level color filename
     else
-      MeshF.super_level ?boundary (Obj.magic mesh) (Obj.magic z)
+      MeshF.super_level ?boundary (mesh_to_fortran mesh) (vec_to_fortran z)
                         level color filename
 
   let sub_level ?boundary (mesh: 'a #t) (z: 'a vec) level color filename =
     if is_c_layout mesh then
-      MeshC.sub_level ?boundary (Obj.magic mesh) (Obj.magic z)
+      MeshC.sub_level ?boundary (mesh_to_c mesh) (vec_to_c z)
                       level color filename
     else
-      MeshF.sub_level ?boundary (Obj.magic mesh) (Obj.magic z)
+      MeshF.sub_level ?boundary (mesh_to_fortran mesh) (vec_to_fortran z)
                       level color filename
 end
 
 let scilab (mesh: 'a #t) (z: 'a vec) filename =
   if is_c_layout mesh
-  then MeshC.scilab (Obj.magic mesh) (Obj.magic z) filename
-  else MeshF.scilab (Obj.magic mesh) (Obj.magic z) filename
+  then MeshC.scilab (mesh_to_c mesh) (vec_to_c z) filename
+  else MeshF.scilab (mesh_to_fortran mesh) (vec_to_fortran z) filename
 
 let matlab (mesh: 'a #t) ?edgecolor ?linestyle ?facealpha (z: 'a vec) filename =
   if is_c_layout mesh
-  then MeshC.matlab (Obj.magic mesh) ?edgecolor ?linestyle ?facealpha
-                    (Obj.magic z) filename
-  else MeshF.matlab (Obj.magic mesh) ?edgecolor ?linestyle ?facealpha
-                    (Obj.magic z) filename
+  then MeshC.matlab (mesh_to_c mesh) ?edgecolor ?linestyle ?facealpha
+                    (vec_to_c z) filename
+  else MeshF.matlab (mesh_to_fortran mesh) ?edgecolor ?linestyle ?facealpha
+                    (vec_to_fortran z) filename
 
 let mathematica (mesh: 'a #t) (z: 'a vec) filename =
   if is_c_layout mesh
-  then MeshC.mathematica (Obj.magic mesh: _ t) (Obj.magic z: _ vec) filename
-  else MeshF.mathematica (Obj.magic mesh: _ t) (Obj.magic z: _ vec) filename
+  then MeshC.mathematica (mesh_to_c mesh) (vec_to_c z) filename
+  else MeshF.mathematica (mesh_to_fortran mesh) (vec_to_fortran z) filename
 
 
 (* Local Variables: *)
