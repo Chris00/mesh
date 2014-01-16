@@ -40,7 +40,10 @@ let () =
     Graphics.set_color (if att = 1. then Graphics.red
                         else if att = 2. then Graphics.blue
                         else Graphics.green);
-    Graphics.draw_string (sprintf "%g" att);
+    let txt = sprintf "%g" att in
+    let dx, dy = Graphics.text_size txt in
+    Graphics.rmoveto (- dx / 2) (- dy /2);
+    Graphics.draw_string txt;
     Graphics.set_color Graphics.black in
   let point_idx i =
     (* if m#point_attribute.{1,i} <> 0. then ( *)
@@ -51,7 +54,6 @@ let () =
     (*   Graphics.fill_circle (Graphics.current_x()) (Graphics.current_y()) 2 *)
     (* ) in *)
     if m#point_marker.{i} <> 0 then (
-      printf "m#point_marker.{%i} = %i\n" i m#point_marker.{i};
       let c = if m#point_marker.{i} = 2 then Graphics.red
               else if m#point_marker.{i} = 3 then Graphics.cyan
               else Graphics.green in
