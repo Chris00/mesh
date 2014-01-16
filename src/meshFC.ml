@@ -350,7 +350,7 @@ let min_deg (deg: int array) =
   !i
 
 (** Apply the permutation [perm] to the [mesh]. *)
-let do_permute (mesh: mesh) (perm: int_vec) (inv_perm: int_vec) n : mesh =
+let do_permute_points (mesh: mesh) (perm: int_vec) (inv_perm: int_vec) n: mesh =
   (* Build the new mesh *)
   let old_pt = mesh#point in
   let pt = CREATE_MAT(float64, 2, n) in
@@ -403,15 +403,14 @@ let do_permute (mesh: mesh) (perm: int_vec) (inv_perm: int_vec) n : mesh =
     method edge_marker = mesh#edge_marker
   end
 
-let permute_unsafe mesh perm =
+let permute_points_unsafe mesh perm =
   let n = NCOLS(mesh#point) in
   (* Inverse perm *)
   let inv_perm = Array1.create int layout n in
   for i = FST to LASTEL(perm) do inv_perm.{perm.{i}} <- i done;
-  do_permute mesh perm inv_perm n
+  do_permute_points mesh perm inv_perm n
 
-let permute_points mesh ~inv perm =
-  let n = NCOLS(mesh#point) in
+let inverse_perm (perm: int_vec) n =
   (* Inverse perm and check that [perm] is indeed a permuation. *)
   let inv_perm = Array1.create int layout n in
   Array1.fill inv_perm (-1); (* never an index *)
@@ -419,14 +418,58 @@ let permute_points mesh ~inv perm =
   for i = FST to last_el do
     let pi = perm.{i} in
     if pi < FST || pi > last_el then
-      invalid_arg(sprintf "Mesh.permute_points: perm.{%i} = %i not in [%i..%i]"
-                    i pi FST last_el)
+      invalid_arg(sprintf "Mesh.permute_...: perm.{%i} = %i not in [%i..%i]"
+                          i pi FST last_el)
     else if inv_perm.{pi} < 0 then inv_perm.{pi} <- i
-    else invalid_arg(sprintf "Mesh.permute_points: not a permutation \
-      (perm.{%i} = %i = perm.{%i})" inv_perm.{pi} pi i)
+    else invalid_arg(sprintf "Mesh.permute_...: not a permutation \
+                              (perm.{%i} = %i = perm.{%i})" inv_perm.{pi} pi i)
   done;
-  if inv then do_permute mesh inv_perm perm n
-  else do_permute mesh perm inv_perm n
+  inv_perm
+
+let permute_points (mesh: mesh) ~inv perm =
+  let n = NCOLS(mesh#point) in
+  let inv_perm = inverse_perm perm n in
+  if inv then do_permute_points mesh inv_perm perm n
+  else do_permute_points mesh perm inv_perm n
+
+
+let do_permute_triangles (mesh: mesh) (perm: int_vec) n =
+  let old_tr = mesh#triangle in
+  let tr = CREATE_MAT(int, NROWS(old_tr), NCOLS(old_tr)) in
+  let last_tr_idx = LASTCOL(tr) in
+  for i = FST to last_tr_idx do
+    for j = FST to LASTROW(tr) do
+      GET(tr, j, i) <- GET(old_tr, j, perm.{i})
+    done
+  done;
+  let old_nbh = mesh#neighbor in
+  if NROWS(old_nbh) <> 3 then
+    invalid_arg "Mesh.permute_triangles: #neighbor doesn't list 3 neighbors";
+  let nbh = CREATE_MAT(int, NROWS(old_tr), NCOLS(old_tr)) in
+  for i = FST to last_tr_idx do
+    let old_i = perm.{i} in
+    GET(nbh, FST, i) <- GET(old_nbh, FST, old_i);
+    GET(nbh, SND, i) <- GET(old_nbh, SND, old_i);
+    GET(nbh, THIRD, i) <- GET(old_nbh, THIRD, old_i);
+  done;
+  object
+    method point = mesh#point
+    method point_marker = mesh#point_marker
+    method segment = mesh#segment
+    method segment_marker = mesh#segment_marker
+    method hole = mesh#hole
+    method region = mesh#region
+    method triangle = tr
+    method neighbor = nbh
+    method edge = mesh#edge
+    method edge_marker = mesh#edge_marker
+  end
+
+let permute_triangles (mesh: mesh) ~inv perm =
+  let n = NCOLS(mesh#triangle) in
+  let inv_perm = inverse_perm perm n in
+  if inv then do_permute_triangles mesh inv_perm n
+  else do_permute_triangles mesh perm n
 
 
 (* http://ciprian-zavoianu.blogspot.com/2009/01/project-bandwidth-reduction.html
@@ -476,7 +519,7 @@ let cuthill_mckee ~rev perm (mesh: mesh) : mesh =
       perm.{s-i} <- t;
     done
   );
-  permute_unsafe mesh perm
+  permute_points_unsafe mesh perm
 
 (* A Generalized GPS Algorithm For Reducing The Bandwidth And Profile
    Of A Sparse Matrix, Q. Wang, Y. C. Guo, and X. W. Shi
@@ -499,7 +542,7 @@ let ggps perm (mesh: mesh) : mesh =
   done;
   let v = min_deg deg in
 
-  permute_unsafe mesh perm
+  permute_points_unsafe mesh perm
 
 (* Local Variables: *)
 (* compile-command: "make -k" *)

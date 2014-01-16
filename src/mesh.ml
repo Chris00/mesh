@@ -29,24 +29,28 @@ let band_height_P1 ?filter mesh =
   else
     MeshF.band_height_P1 filter (mesh_to_fortran mesh)
 
-let cuthill_mckee ?(rev=true) ?(perm: 'l int_vec option) (mesh: 'l #t) =
+let tranform_mesh (mesh: 'l #t) f_c f_fortran =
   if is_c_layout mesh then
-    let m = MeshC.cuthill_mckee ~rev (vec_opt_to_c perm)
-                                (mesh_to_c mesh) in
-    (Obj.magic (m: c_layout t) : 'l t)
+    let mesh' : c_layout t = f_c (mesh_to_c mesh) in
+    (Obj.magic mesh' : 'l t)
   else
-    let m = MeshF.cuthill_mckee ~rev (vec_opt_to_fortran perm)
-                                (mesh_to_fortran mesh) in
-    (Obj.magic (m: fortran_layout t) : 'l t)
+    let mesh' : fortran_layout t = f_fortran (mesh_to_fortran mesh) in
+    (Obj.magic mesh' : 'l t)
+
+let cuthill_mckee ?(rev=true) ?(perm: 'l int_vec option) (mesh: 'l #t) =
+  tranform_mesh mesh
+                (fun m -> MeshC.cuthill_mckee ~rev (vec_opt_to_c perm) m)
+                (fun m -> MeshF.cuthill_mckee ~rev (vec_opt_to_fortran perm) m)
 
 let permute_points (mesh: 'l #t) ?(inv=false) (perm: 'l int_vec) =
-  if is_c_layout mesh then
-    let m = MeshC.permute_points (mesh_to_c mesh) inv (vec_to_c perm) in
-    (Obj.magic (m: c_layout t) : 'l t)
-  else
-    let m = MeshF.permute_points (mesh_to_fortran mesh)
-                                 inv (vec_to_fortran perm) in
-    (Obj.magic (m: fortran_layout t) : 'l t)
+  tranform_mesh mesh
+                (fun m -> MeshC.permute_points m inv (vec_to_c perm))
+                (fun m -> MeshF.permute_points m inv (vec_to_fortran perm))
+
+let permute_triangles (mesh: 'l #t) ?(inv=false) (perm: 'l int_vec) =
+  tranform_mesh mesh
+                (fun m -> MeshC.permute_triangles m inv (vec_to_c perm))
+                (fun m -> MeshF.permute_triangles m inv (vec_to_fortran perm))
 
 
 module LaTeX =

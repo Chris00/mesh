@@ -184,6 +184,18 @@ val permute_points : 'l #t -> ?inv:bool -> 'l int_vec -> 'l t
     [true], the point of index [i] in [mesh] will be mapped to the
     point of index [p.{i}] in the returned mesh.  Default: [false]. *)
 
+val permute_triangles : 'l #t -> ?inv:bool -> 'l int_vec -> 'l t
+(** [permute_triangles mesh p] returns a new mesh identical to the given
+    [mesh] except that the trangle indices are transformed through the
+    permutation [p]: the triangle of index [i] in the new mesh will be
+    the one of index [p.{i}] in [mesh].  In other words, [p] lists
+    [mesh] indices in the order they will have after permutation.
+
+    @raise Invalid_argument if [p] is not a permutation.
+    @param inv consider that the inverse permutation is given.  If
+    [true], the point of index [i] in [mesh] will be mapped to the
+    point of index [p.{i}] in the returned mesh.  Default: [false]. *)
+
 
 (** {2 LaTeX output} *)
 
