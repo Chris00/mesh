@@ -454,15 +454,23 @@ let do_permute_triangles name (mesh: mesh) (perm: int_vec) =
     done
   done;
   let old_nbh = mesh#neighbor in
-  if NROWS(old_nbh) <> 3 then
-    invalid_arg(sprintf "%s: #neighbor doesn't list 3 neighbors" name);
-  let nbh = CREATE_MAT(int, NROWS(old_tr), NCOLS(old_tr)) in
-  for i = FST to last_tr_idx do
-    let old_i = perm.{i} in
-    GET(nbh, FST, i) <- GET(old_nbh, FST, old_i);
-    GET(nbh, SND, i) <- GET(old_nbh, SND, old_i);
-    GET(nbh, THIRD, i) <- GET(old_nbh, THIRD, old_i);
-  done;
+  let nbh =
+    if NCOLS(old_nbh) = 0 then old_nbh
+    else (
+      if NROWS(old_nbh) <> 3 then
+        invalid_arg(sprintf "%s: invalid mesh: ROW #neighbor <> 3" name);
+      if n <> NCOLS(old_nbh) then
+        invalid_arg(sprintf "%s: invalid mesh: COL #neighbor = %i <> \
+                             COL #triangle = %i" name (NCOLS(old_nbh)) n);
+      let nbh = CREATE_MAT(int, 3, n) in
+      for i = FST to last_tr_idx do
+        let old_i = perm.{i} in
+        GET(nbh, FST, i) <- GET(old_nbh, FST, old_i);
+        GET(nbh, SND, i) <- GET(old_nbh, SND, old_i);
+        GET(nbh, THIRD, i) <- GET(old_nbh, THIRD, old_i);
+      done;
+      nbh
+    ) in
   object
     method point = mesh#point
     method point_marker = mesh#point_marker
