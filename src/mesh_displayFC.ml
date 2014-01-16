@@ -52,14 +52,8 @@ let draw ?(width=600) ?(height=600) ?(color=foreground) ?(points=true)
   and triangle = mesh#triangle in
   let triangle_idx = match triangle_idx with
     | None -> (fun _ _ _ _ _ _ _ -> ())
-    | Some f -> (fun t px0 py0 px1 py1 px2 py2 ->
+    | Some f -> (fun t x0 y0 x1 y1 x2 y2 ->
                 (* Move to the incenter of the triangle. *)
-                let i0 = GET(triangle, FST,t)
-                and i1 = GET(triangle, SND,t)
-                and i2 = GET(triangle, THIRD,t) in
-                let x0 = GET(pt, FST,i0) and y0 = GET(pt, SND,i0) in
-                let x1 = GET(pt, FST,i1) and y1 = GET(pt, SND,i1) in
-                let x2 = GET(pt, FST,i2) and y2 = GET(pt, SND,i2) in
                 let d01 = hypot (x0 -. x1) (y0 -. y1)
                 and d02 = hypot (x0 -. x2) (y0 -. y2)
                 and d12 = hypot (x1 -. x2) (y1 -. y2) in
@@ -76,18 +70,18 @@ let draw ?(width=600) ?(height=600) ?(color=foreground) ?(points=true)
     and i1 = GET(triangle, SND,t)
     and i2 = GET(triangle, THIRD,t) in
     try
-      let px0 = pixel_x surf (GET(pt, FST,i0))
-      and py0 = pixel_y surf (GET(pt, SND,i0)) in
-      let px1 = pixel_x surf (GET(pt, FST,i1))
-      and py1 = pixel_y surf (GET(pt, SND,i1)) in
-      let px2 = pixel_x surf (GET(pt, FST,i2))
-      and py2 = pixel_y surf (GET(pt, SND,i2)) in
+      let x0 = GET(pt, FST,i0) and y0 = GET(pt, SND,i0) in
+      let x1 = GET(pt, FST,i1) and y1 = GET(pt, SND,i1) in
+      let x2 = GET(pt, FST,i2) and y2 = GET(pt, SND,i2) in
+      let px0 = pixel_x surf x0 and py0 = pixel_y surf y0 in
+      let px1 = pixel_x surf x1 and py1 = pixel_y surf y1 in
+      let px2 = pixel_x surf x2 and py2 = pixel_y surf y2 in
       draw_segments [| (px0, py0, px1, py1); (px1, py1, px2, py2);
                        (px2, py2, px0, py0) |];
-      triangle_idx t px0 py0 px1 py1 px2 py2;
+      triangle_idx t x0 y0 x1 y1 x2 y2;
     with e ->
-      eprintf "mesh_display: triangle %i (%i,%i,%i): %s\n%!"
-        t i0 i1 i2 (Printexc.to_string e)
+      eprintf "Mesh_display: triangle %i (%i,%i,%i): %s\n%!"
+              t i0 i1 i2 (Printexc.to_string e)
   done;
   let marker = match point_marker_color with
     | None -> (fun _ _ _ -> ())
