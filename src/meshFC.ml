@@ -350,7 +350,8 @@ let min_deg (deg: int array) =
   !i
 
 (** Apply the permutation [perm] to the [mesh]. *)
-let do_permute_points (mesh: mesh) (perm: int_vec) (inv_perm: int_vec) n: mesh =
+let do_permute_points name (mesh: mesh) (perm: int_vec) (inv_perm: int_vec)
+                      n : mesh =
   (* Build the new mesh *)
   let old_pt = mesh#point in
   let pt = CREATE_MAT(float64, 2, n) in
@@ -368,13 +369,13 @@ let do_permute_points (mesh: mesh) (perm: int_vec) (inv_perm: int_vec) n: mesh =
   for s = FST to LASTCOL(seg) do
     let i1 = GET(old_seg, FST, s) in
     if i1 < FST || i1 > last_pt_idx then
-      failwith(sprintf "Mesh.permute_points: mesh#segment.{%i} = %i not in \
-                        [%i..%i]" s i1 FST last_pt_idx);
+      failwith(sprintf "%s: mesh#segment.{%i} = %i not in [%i..%i]"
+                       name s i1 FST last_pt_idx);
     GET(seg, FST, s) <- inv_perm.{i1};
     let i2 = GET(old_seg, SND, s) in
     if i2 < FST || i2 > last_pt_idx then
-      failwith(sprintf "Mesh.permute_points: mesh#segment.{%i} = %i not in \
-                        [%i..%i]" s i2 FST last_pt_idx);
+      failwith(sprintf "%s: mesh#segment.{%i} = %i not in [%i..%i]"
+                       name s i2 FST last_pt_idx);
     GET(seg, SND, s) <- inv_perm.{i2};
   done;
   let old_tr = mesh#triangle in
@@ -403,14 +404,17 @@ let do_permute_points (mesh: mesh) (perm: int_vec) (inv_perm: int_vec) n: mesh =
     method edge_marker = mesh#edge_marker
   end
 
+
+let permute_points_name = "Mesh.permute_points"
+
 let permute_points_unsafe mesh perm =
   let n = NCOLS(mesh#point) in
   (* Inverse perm *)
   let inv_perm = Array1.create int layout n in
   for i = FST to LASTEL(perm) do inv_perm.{perm.{i}} <- i done;
-  do_permute_points mesh perm inv_perm n
+  do_permute_points permute_points_name mesh perm inv_perm n
 
-let inverse_perm (perm: int_vec) n =
+let inverse_perm name (perm: int_vec) n =
   (* Inverse perm and check that [perm] is indeed a permuation. *)
   let inv_perm = Array1.create int layout n in
   Array1.fill inv_perm (-1); (* never an index *)
@@ -418,19 +422,19 @@ let inverse_perm (perm: int_vec) n =
   for i = FST to last_el do
     let pi = perm.{i} in
     if pi < FST || pi > last_el then
-      invalid_arg(sprintf "Mesh.permute_...: perm.{%i} = %i not in [%i..%i]"
-                          i pi FST last_el)
+      invalid_arg(sprintf "%s: perm.{%i} = %i not in [%i..%i]"
+                          name i pi FST last_el)
     else if inv_perm.{pi} < 0 then inv_perm.{pi} <- i
-    else invalid_arg(sprintf "Mesh.permute_...: not a permutation \
-                              (perm.{%i} = %i = perm.{%i})" inv_perm.{pi} pi i)
+    else invalid_arg(sprintf "%s: not a permutation (perm.{%i} = %i = \
+                              perm.{%i})" name inv_perm.{pi} pi i)
   done;
   inv_perm
 
 let permute_points (mesh: mesh) ~inv perm =
   let n = NCOLS(mesh#point) in
-  let inv_perm = inverse_perm perm n in
-  if inv then do_permute_points mesh inv_perm perm n
-  else do_permute_points mesh perm inv_perm n
+  let inv_perm = inverse_perm permute_points_name perm n in
+  if inv then do_permute_points permute_points_name mesh inv_perm perm n
+  else do_permute_points permute_points_name mesh perm inv_perm n
 
 
 let do_permute_triangles (mesh: mesh) (perm: int_vec) n =
@@ -467,7 +471,7 @@ let do_permute_triangles (mesh: mesh) (perm: int_vec) n =
 
 let permute_triangles (mesh: mesh) ~inv perm =
   let n = NCOLS(mesh#triangle) in
-  let inv_perm = inverse_perm perm n in
+  let inv_perm = inverse_perm "Mesh.permute_triangles" perm n in
   if inv then do_permute_triangles mesh inv_perm n
   else do_permute_triangles mesh perm n
 

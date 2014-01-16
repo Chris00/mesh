@@ -45,6 +45,14 @@ class ['l] t (mesh: 'l #Mesh.t) =
 let mesh_to_c (m: _ #t) = (Obj.magic m : c_layout t)
 let mesh_to_fortran (m: _ #t) = (Obj.magic m : fortran_layout t)
 
+let mesh_transform (mesh: 'l #t) f_c f_fortran =
+  if Mesh_common.is_c_layout mesh then
+    let mesh' : c_layout t = f_c (mesh_to_c mesh) in
+    (Obj.magic mesh' : 'l t)
+  else
+    let mesh' : fortran_layout t = f_fortran (mesh_to_fortran mesh) in
+    (Obj.magic mesh' : 'l t)
+
 
 class ['a] mesh_of_pslg (pslg: 'a pslg) =
   let layout = Array2.layout pslg#point in

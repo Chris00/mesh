@@ -33,6 +33,7 @@ let arg =
 
 let tr_fortran =
   let tr = [
+    "\\([a-z]+\\)FC\\b", "\\1F";
     "LAYOUT", "fortran_layout";
     "DEFAULT_SWITCHES", "";
     "FST", "1";
@@ -60,6 +61,7 @@ let tr_fortran =
 
 let tr_c =
   let tr = [
+    "\\([a-z]+\\)FC\\b", "\\1C";
     "LAYOUT", "c_layout";
     "DEFAULT_SWITCHES", "z";
     "FST", "0";

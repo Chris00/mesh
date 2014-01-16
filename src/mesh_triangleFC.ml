@@ -5,6 +5,7 @@ open Bigarray
 open Mesh_triangle_common
 
 type layout = Bigarray.LAYOUT
+type mesh = layout t
 type mat = layout Mesh.mat
 type vec = layout Mesh.vec
 type int_mat = layout Mesh.int_mat
@@ -173,7 +174,14 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area ?(region_area=false)
   (mesh_out, vor)
 
 
-let do_permute_point_attribute (old_attr: mat) (perm: int_vec) =
+let permute_points_name = "Mesh_triangle.permute_points"
+
+let do_permute_points (old_mesh: mesh) (perm: int_vec) inv_perm n : mesh =
+  let mesh = MeshFC.do_permute_points permute_points_name
+                                      (old_mesh :> MeshFC.mesh)
+                                      perm inv_perm n in
+  (* Permute the attributes *)
+  let old_attr : mat = old_mesh#point_attribute in
   let attr = CREATE_MAT(float64, NROWS(old_attr), NCOLS(old_attr)) in
   for i = FST to LASTCOL(old_attr) do
     let old_i = perm.{i} in
@@ -181,4 +189,25 @@ let do_permute_point_attribute (old_attr: mat) (perm: int_vec) =
       GET(attr, a, i) <- GET(old_attr, a, old_i)
     done
   done;
-  attr
+  object
+    method point = mesh#point
+    method point_marker = mesh#point_marker
+    method segment = mesh#segment
+    method segment_marker = mesh#segment_marker
+    method hole = mesh#hole
+    method region = mesh#region
+    method triangle = mesh#triangle
+    method neighbor = mesh#neighbor
+    method edge = mesh#edge
+    method edge_marker = mesh#edge_marker
+
+    method point_attribute = attr
+    method triangle_attribute = old_mesh#triangle_attribute
+  end
+
+
+let permute_points (mesh: mesh) ~inv perm =
+  let n = NCOLS(mesh#point) in
+  let inv_perm = MeshFC.inverse_perm permute_points_name perm n in
+  if inv then do_permute_points mesh inv_perm perm n
+  else do_permute_points mesh perm inv_perm n
