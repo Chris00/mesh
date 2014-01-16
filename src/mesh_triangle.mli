@@ -187,4 +187,8 @@ val refine :
     [triangle_area] are specified, [triangle_area] is used.
 
     For other parameters, see {!triangulate}. *)
+
+val permute_points : ?inv:bool -> 'l Mesh.int_vec -> 'l #t -> 'l t
+(** [permute_points perm mesh], see {!Mesh.permute_points}.  This
+    version also permutes the [#point_attribute] matrix. *)
 ;;

@@ -171,3 +171,14 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area ?(region_area=false)
       method normal              = vor_normal
      end) in
   (mesh_out, vor)
+
+
+let do_permute_point_attribute (perm: int_vec) (old_attr: mat) =
+  let attr = CREATE_MAT(float64, NROWS(old_attr), NCOLS(old_attr)) in
+  for i = FST to LASTCOL(old_attr) do
+    let old_i = perm.{i} in
+    for a = FST to LASTROW(old_attr) do
+      GET(attr, a, i) <- GET(old_attr, a, old_i)
+    done
+  done;
+  attr

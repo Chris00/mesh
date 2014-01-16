@@ -68,6 +68,35 @@ let refine ?delaunay ?min_angle ?max_area ?max_steiner
     ~pslg:false ~refine:true mesh
 
 
+
+let permute_points ?inv perm (old_mesh: 'l #t) : 'l t =
+  let mesh = Mesh.permute_points ?inv perm old_mesh in
+  let attr =
+    if Mesh.is_c_layout mesh then
+      Obj.magic(Mesh_triangleC.do_permute_point_attribute
+        (Obj.magic perm: c_layout Mesh.int_vec)
+        (Obj.magic old_mesh#point_attribute: c_layout Mesh.mat))
+    else
+      Obj.magic(Mesh_triangleF.do_permute_point_attribute
+        (Obj.magic perm: fortran_layout Mesh.int_vec)
+        (Obj.magic old_mesh#point_attribute: fortran_layout Mesh.mat)) in
+  object
+    method point = mesh#point
+    method point_marker = mesh#point_marker
+    method segment = mesh#segment
+    method segment_marker = mesh#segment_marker
+    method hole = mesh#hole
+    method region = mesh#region
+    method triangle = mesh#triangle
+    method neighbor = mesh#neighbor
+    method edge = mesh#edge
+    method edge_marker = mesh#edge_marker
+
+    method point_attribute = attr
+    method triangle_attribute = old_mesh#triangle_attribute
+  end
+
+
 (* Loading various formats *)
 
 
