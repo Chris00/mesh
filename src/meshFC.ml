@@ -437,7 +437,7 @@ let permute_points (mesh: mesh) ~inv perm =
   else do_permute_points permute_points_name mesh perm inv_perm n
 
 
-let do_permute_triangles (mesh: mesh) (perm: int_vec) n =
+let do_permute_triangles name (mesh: mesh) (perm: int_vec) n =
   let old_tr = mesh#triangle in
   let tr = CREATE_MAT(int, NROWS(old_tr), NCOLS(old_tr)) in
   let last_tr_idx = LASTCOL(tr) in
@@ -448,7 +448,7 @@ let do_permute_triangles (mesh: mesh) (perm: int_vec) n =
   done;
   let old_nbh = mesh#neighbor in
   if NROWS(old_nbh) <> 3 then
-    invalid_arg "Mesh.permute_triangles: #neighbor doesn't list 3 neighbors";
+    invalid_arg(sprintf "%s: #neighbor doesn't list 3 neighbors" name);
   let nbh = CREATE_MAT(int, NROWS(old_tr), NCOLS(old_tr)) in
   for i = FST to last_tr_idx do
     let old_i = perm.{i} in
@@ -469,11 +469,13 @@ let do_permute_triangles (mesh: mesh) (perm: int_vec) n =
     method edge_marker = mesh#edge_marker
   end
 
+let permute_triangles_name = "Mesh.permute_triangles"
+
 let permute_triangles (mesh: mesh) ~inv perm =
   let n = NCOLS(mesh#triangle) in
-  let inv_perm = inverse_perm "Mesh.permute_triangles" perm n in
-  if inv then do_permute_triangles mesh inv_perm n
-  else do_permute_triangles mesh perm n
+  let inv_perm = inverse_perm permute_triangles_name perm n in
+  if inv then do_permute_triangles permute_triangles_name mesh inv_perm n
+  else do_permute_triangles permute_triangles_name mesh perm n
 
 
 (* http://ciprian-zavoianu.blogspot.com/2009/01/project-bandwidth-reduction.html

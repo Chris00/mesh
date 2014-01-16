@@ -75,6 +75,12 @@ let permute_points (mesh: 'l #t) ?(inv=false) perm : 'l t =
     (fun m -> Mesh_triangleC.permute_points m ~inv (vec_to_c perm))
     (fun m -> Mesh_triangleF.permute_points m ~inv (vec_to_fortran perm))
 
+let permute_triangles (mesh: 'l #t) ?(inv=false) perm : 'l t =
+  mesh_transform
+    mesh
+    (fun m -> Mesh_triangleC.permute_triangles m ~inv (vec_to_c perm))
+    (fun m -> Mesh_triangleF.permute_triangles m ~inv (vec_to_fortran perm))
+
 
 (* Loading various formats *)
 

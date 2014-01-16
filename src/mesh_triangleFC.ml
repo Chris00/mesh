@@ -206,8 +206,46 @@ let do_permute_points (old_mesh: mesh) (perm: int_vec) inv_perm n : mesh =
   end
 
 
-let permute_points (mesh: mesh) ~inv perm =
+let permute_points (mesh: mesh) ~inv (perm: int_vec) =
   let n = NCOLS(mesh#point) in
   let inv_perm = MeshFC.inverse_perm permute_points_name perm n in
   if inv then do_permute_points mesh inv_perm perm n
   else do_permute_points mesh perm inv_perm n
+
+
+let permute_triangles_name = "Mesh_triangle.permute_triangles"
+
+let do_permute_triangles (old_mesh: mesh) (perm: int_vec) n : mesh =
+  let mesh = MeshFC.do_permute_triangles permute_triangles_name
+                                         (old_mesh :> MeshFC.mesh)
+                                         perm n in
+  (* Permute attributes *)
+  let old_attr : mat = old_mesh#triangle_attribute in
+  let attr = CREATE_MAT(float64, NROWS(old_attr), NCOLS(old_attr)) in
+  for i = FST to LASTCOL(old_attr) do
+    let old_i = perm.{i} in
+    for a = FST to LASTROW(old_attr) do
+      GET(attr, a, i) <- GET(old_attr, a, old_i)
+    done
+  done;
+  object
+    method point = mesh#point
+    method point_marker = mesh#point_marker
+    method segment = mesh#segment
+    method segment_marker = mesh#segment_marker
+    method hole = mesh#hole
+    method region = mesh#region
+    method triangle = mesh#triangle
+    method neighbor = mesh#neighbor
+    method edge = mesh#edge
+    method edge_marker = mesh#edge_marker
+
+    method point_attribute = old_mesh#point_attribute
+    method triangle_attribute = attr
+  end
+
+let permute_triangles (mesh: mesh) ~inv (perm: int_vec) =
+  let n = NCOLS(mesh#triangle) in
+  let inv_perm = MeshFC.inverse_perm permute_triangles_name perm n in
+  if inv then do_permute_triangles mesh inv_perm n
+  else do_permute_triangles mesh perm n

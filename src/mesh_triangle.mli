@@ -200,4 +200,8 @@ val refine :
 val permute_points : 'l #t -> ?inv:bool -> 'l Mesh.int_vec ->'l t
 (** [permute_points perm mesh], see {!Mesh.permute_points}.  This
     version also permutes the [#point_attribute] matrix. *)
+
+val permute_triangles : 'l #t -> ?inv:bool -> 'l Mesh.int_vec ->'l t
+(** [permute_points perm mesh], see {!Mesh.permute_points}.  This
+    version also permutes the [#point_attribute] matrix. *)
 ;;
