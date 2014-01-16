@@ -115,9 +115,18 @@ val triangulate :
     used.  Note that the numbering of nodes returned by this function
     may be far from optimal for the FEM.  See {!Mesh.band}.
 
+    Note that [#point_marker] are not propagated to points created on
+    the segment.  You must set [#segment_marker] for that.  If you do
+    not set [#segment_marker], only the external boundary points will
+    receive a marker of 1, the points on internal boundaries will have
+    the marker 0.
+
     If [#region] is non-empty, it will be used to assign an additional
     floating-point attribute to each triangle.  It will be written as
     the single attribute of [#triangle_attribute] matrix.
+
+    [#point_attribute] are interpolated to all points.
+
 
     @param delaunay generates a truly Delaunay (not just constrained
     Delaunay) triangulation.  It usually increases the number of
