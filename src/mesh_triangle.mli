@@ -197,7 +197,7 @@ val refine :
 
     For other parameters, see {!triangulate}. *)
 
-val permute_points : ?inv:bool -> 'l Mesh.int_vec -> 'l #t -> 'l t
+val permute_points : 'l #t -> ?inv:bool -> 'l Mesh.int_vec ->'l t
 (** [permute_points perm mesh], see {!Mesh.permute_points}.  This
     version also permutes the [#point_attribute] matrix. *)
 ;;

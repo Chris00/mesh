@@ -173,7 +173,7 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area ?(region_area=false)
   (mesh_out, vor)
 
 
-let do_permute_point_attribute (perm: int_vec) (old_attr: mat) =
+let do_permute_point_attribute (old_attr: mat) (perm: int_vec) =
   let attr = CREATE_MAT(float64, NROWS(old_attr), NCOLS(old_attr)) in
   for i = FST to LASTCOL(old_attr) do
     let old_i = perm.{i} in

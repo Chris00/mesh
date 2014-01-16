@@ -172,8 +172,8 @@ val cuthill_mckee : ?rev:bool -> ?perm:'l int_vec -> 'l #t -> 'l t
     needed to transfer vectors defined on the initial labeling.  The
     length of the permutation vector must be the number of nodes. *)
 
-val permute_points : ?inv:bool -> 'l int_vec -> 'l #t -> 'l t
-(** [permute_points p mesh] returns a new mesh identical to the given
+val permute_points : 'l #t -> ?inv:bool -> 'l int_vec -> 'l t
+(** [permute_points mesh p] returns a new mesh identical to the given
     [mesh] except that the points indices are transformed through the
     permutation [p]: the point of index [i] in the new mesh will be
     the one of index [p.{i}] in [mesh].  In other words, [p] lists

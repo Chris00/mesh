@@ -70,17 +70,17 @@ let refine ?delaunay ?min_angle ?max_area ?max_steiner
 
 
 
-let permute_points ?inv perm (old_mesh: 'l #t) : 'l t =
-  let mesh = Mesh.permute_points ?inv perm old_mesh in
+let permute_points (old_mesh: 'l #t) ?inv perm : 'l t =
+  let mesh = Mesh.permute_points old_mesh ?inv perm in
   let attr =
     if Mesh.is_c_layout mesh then
       Obj.magic(Mesh_triangleC.do_permute_point_attribute
-                  (vec_to_c perm)
-                  (mat_to_c old_mesh#point_attribute))
+                  (mat_to_c old_mesh#point_attribute)
+                  (vec_to_c perm))
     else
       Obj.magic(Mesh_triangleF.do_permute_point_attribute
-                  (vec_to_fortran perm)
-                  (mat_to_fortran old_mesh#point_attribute)) in
+                  (mat_to_fortran old_mesh#point_attribute)
+                  (vec_to_fortran perm)) in
   object
     method point = mesh#point
     method point_marker = mesh#point_marker
