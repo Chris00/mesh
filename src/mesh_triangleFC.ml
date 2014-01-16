@@ -176,10 +176,10 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area ?(region_area=false)
 
 let permute_points_name = "Mesh_triangle.permute_points"
 
-let do_permute_points (old_mesh: mesh) (perm: int_vec) inv_perm n : mesh =
+let do_permute_points (old_mesh: mesh) (perm: int_vec) inv_perm : mesh =
   let mesh = MeshFC.do_permute_points permute_points_name
                                       (old_mesh :> MeshFC.mesh)
-                                      perm inv_perm n in
+                                      perm inv_perm in
   (* Permute the attributes *)
   let old_attr : mat = old_mesh#point_attribute in
   let attr = CREATE_MAT(float64, NROWS(old_attr), NCOLS(old_attr)) in
@@ -207,18 +207,16 @@ let do_permute_points (old_mesh: mesh) (perm: int_vec) inv_perm n : mesh =
 
 
 let permute_points (mesh: mesh) ~inv (perm: int_vec) =
-  let n = NCOLS(mesh#point) in
-  let inv_perm = MeshFC.inverse_perm permute_points_name perm n in
-  if inv then do_permute_points mesh inv_perm perm n
-  else do_permute_points mesh perm inv_perm n
+  let inv_perm = MeshFC.inverse_perm permute_points_name perm in
+  if inv then do_permute_points mesh inv_perm perm
+  else do_permute_points mesh perm inv_perm
 
 
 let permute_triangles_name = "Mesh_triangle.permute_triangles"
 
-let do_permute_triangles (old_mesh: mesh) (perm: int_vec) n : mesh =
+let do_permute_triangles (old_mesh: mesh) (perm: int_vec) : mesh =
   let mesh = MeshFC.do_permute_triangles permute_triangles_name
-                                         (old_mesh :> MeshFC.mesh)
-                                         perm n in
+                                         (old_mesh :> MeshFC.mesh) perm in
   (* Permute attributes *)
   let old_attr : mat = old_mesh#triangle_attribute in
   let attr = CREATE_MAT(float64, NROWS(old_attr), NCOLS(old_attr)) in
@@ -245,7 +243,6 @@ let do_permute_triangles (old_mesh: mesh) (perm: int_vec) n : mesh =
   end
 
 let permute_triangles (mesh: mesh) ~inv (perm: int_vec) =
-  let n = NCOLS(mesh#triangle) in
-  let inv_perm = MeshFC.inverse_perm permute_triangles_name perm n in
-  if inv then do_permute_triangles mesh inv_perm n
-  else do_permute_triangles mesh perm n
+  let inv_perm = MeshFC.inverse_perm permute_triangles_name perm in
+  if inv then do_permute_triangles mesh inv_perm
+  else do_permute_triangles mesh perm

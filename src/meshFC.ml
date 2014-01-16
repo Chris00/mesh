@@ -351,9 +351,13 @@ let min_deg (deg: int array) =
 
 (** Apply the permutation [perm] to the [mesh]. *)
 let do_permute_points name (mesh: mesh) (perm: int_vec) (inv_perm: int_vec)
-                      n : mesh =
+    : mesh =
   (* Build the new mesh *)
   let old_pt = mesh#point in
+  let n = NCOLS(old_pt) in
+  if n <> Array1.dim perm then
+    invalid_arg(sprintf "%s: COLS #point = %i <> dim perm = %i"
+                        name n (Array1.dim perm));
   let pt = CREATE_MAT(float64, 2, n) in
   let last_pt_idx = LASTCOL(pt) in
   for i = FST to last_pt_idx do
@@ -412,11 +416,11 @@ let permute_points_unsafe mesh perm =
   (* Inverse perm *)
   let inv_perm = Array1.create int layout n in
   for i = FST to LASTEL(perm) do inv_perm.{perm.{i}} <- i done;
-  do_permute_points permute_points_name mesh perm inv_perm n
+  do_permute_points permute_points_name mesh perm inv_perm
 
-let inverse_perm name (perm: int_vec) n =
+let inverse_perm name (perm: int_vec) =
   (* Inverse perm and check that [perm] is indeed a permuation. *)
-  let inv_perm = Array1.create int layout n in
+  let inv_perm = Array1.create int layout (Array1.dim perm) in
   Array1.fill inv_perm (-1); (* never an index *)
   let last_el = LASTEL(perm) in
   for i = FST to last_el do
@@ -431,15 +435,18 @@ let inverse_perm name (perm: int_vec) n =
   inv_perm
 
 let permute_points (mesh: mesh) ~inv perm =
-  let n = NCOLS(mesh#point) in
-  let inv_perm = inverse_perm permute_points_name perm n in
-  if inv then do_permute_points permute_points_name mesh inv_perm perm n
-  else do_permute_points permute_points_name mesh perm inv_perm n
+  let inv_perm = inverse_perm permute_points_name perm in
+  if inv then do_permute_points permute_points_name mesh inv_perm perm
+  else do_permute_points permute_points_name mesh perm inv_perm
 
 
-let do_permute_triangles name (mesh: mesh) (perm: int_vec) n =
+let do_permute_triangles name (mesh: mesh) (perm: int_vec) =
   let old_tr = mesh#triangle in
-  let tr = CREATE_MAT(int, NROWS(old_tr), NCOLS(old_tr)) in
+  let n = NCOLS(old_tr) in
+  if n <> Array1.dim perm then
+    invalid_arg(sprintf "%s: COLS #triangle = %i <> dim perm = %i"
+                        name n (Array1.dim perm));
+  let tr = CREATE_MAT(int, NROWS(old_tr), n) in
   let last_tr_idx = LASTCOL(tr) in
   for i = FST to last_tr_idx do
     for j = FST to LASTROW(tr) do
@@ -472,10 +479,9 @@ let do_permute_triangles name (mesh: mesh) (perm: int_vec) n =
 let permute_triangles_name = "Mesh.permute_triangles"
 
 let permute_triangles (mesh: mesh) ~inv perm =
-  let n = NCOLS(mesh#triangle) in
-  let inv_perm = inverse_perm permute_triangles_name perm n in
-  if inv then do_permute_triangles permute_triangles_name mesh inv_perm n
-  else do_permute_triangles permute_triangles_name mesh perm n
+  let inv_perm = inverse_perm permute_triangles_name perm in
+  if inv then do_permute_triangles permute_triangles_name mesh inv_perm
+  else do_permute_triangles permute_triangles_name mesh perm
 
 
 (* http://ciprian-zavoianu.blogspot.com/2009/01/project-bandwidth-reduction.html
@@ -530,7 +536,7 @@ let cuthill_mckee ~rev perm (mesh: mesh) : mesh =
 (* A Generalized GPS Algorithm For Reducing The Bandwidth And Profile
    Of A Sparse Matrix, Q. Wang, Y. C. Guo, and X. W. Shi
    http://www.jpier.org/PIER/pier90/09.09010512.pdf *)
-let ggps perm (mesh: mesh) : mesh =
+let ggps (mesh: mesh) perm : mesh =
   let n = NCOLS(mesh#point) in
   let perm = match perm with
     | None -> Array1.create int layout n
