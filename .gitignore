@@ -41,7 +41,7 @@ src/mesh_displayC.ml
 src/mesh_displayF.ml
 src/mesh_triangleC.ml
 src/mesh_triangleF.ml
-src/mesh_C.ml
-src/mesh_F.ml
+src/meshC.ml
+src/meshF.ml
 # Tarball
 *.tar.gz

@@ -102,7 +102,7 @@ let rm_gen fn_base =
 let filenames =
   (* Filename, module name *)
   [ "src/mesh_triangle", "Mesh";
-    "src/mesh_", "Mesh";
+    "src/mesh", "Mesh";
     "src/mesh_display", "Mesh_display";
     "src/easymesh", "Easymesh";
   ]
