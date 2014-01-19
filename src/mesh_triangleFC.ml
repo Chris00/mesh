@@ -189,11 +189,11 @@ let sub (mesh: mesh) ?(pos=FST) len =
     if NROWS(old_att) = 0 || NCOLS(old_att) = 0 then old_att
     else (
       let att = CREATE_MAT(float64, NROWS(old_att), n_tr) in
-      List.iteri (fun i pi ->
-                  for j = FST to LASTROW(att) do
-                    GET(att, j, i) <- GET(old_att, j, pi);
-                  done
-                 ) cols_tr;
+      MeshFC.iteri (fun i pi ->
+                    for j = FST to LASTROW(att) do
+                      GET(att, j, i) <- GET(old_att, j, pi);
+                    done
+                   ) cols_tr;
       att
     ) in
   extend_mesh m

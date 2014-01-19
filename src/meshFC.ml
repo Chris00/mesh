@@ -352,26 +352,34 @@ let min_deg (deg: int array) =
 (* sub
  ***********************************************************************)
 
+(* Iterator with indices adapted to the current layout. *)
+let rec iteri f i = function
+  | [] -> ()
+  | x :: tl -> f i x;  iteri f (succ i) tl
+
+let iteri f l = iteri f FST l
+
+
 let filter_columns_shift (m: int_mat) select shift =
   let cols = ref [] in
-  let nselected = ref 0 in
+  let nselected = ref 0 in (* length of [cols] *)
   for c = FST to LASTCOL(m) do
     if select m c then (cols := c :: !cols;  incr nselected)
   done;
   let cols = List.rev !cols in
   let m' = CREATE_MAT(int, NROWS(m), !nselected) in
-  List.iteri (fun i pi ->
-              for j = FST to LASTROW(m') do
-                GET(m', j, i) <- GET(m, j, pi) - shift
-              done
-             ) cols;
+  iteri (fun i pi ->
+         for j = FST to LASTROW(m') do
+           GET(m', j, i) <- GET(m, j, pi) - shift
+         done
+        ) cols;
   m', !nselected, cols
 
 let sub_markers (v: int_vec) n cols =
   if Array1.dim v = 0 then v (* no markers *)
   else (
     let v' = CREATE_VEC(int, n) in
-    List.iteri (fun i pi ->  v'.{i} <- v.{pi}) cols;
+    iteri (fun i pi ->  v'.{i} <- v.{pi}) cols;
     v'
   )
 
@@ -408,12 +416,12 @@ let internal_sub (mesh: mesh) ?pos len =
       let nbh = CREATE_MAT(int, 3, n_tr) in (* new neighbor *)
       let trans = CREATE_VEC(int, NCOLS(mesh#triangle)) in (* old idx → new *)
       Array1.fill trans (-1); (* default: no corresponding index *)
-      List.iteri (fun i pi -> trans.{pi} <- i) cols_tr;
-      List.iteri (fun i pi ->
-                  GET(nbh,FST,i) <- trans.{GET(old_nbh, FST, pi)};
-                  GET(nbh,SND,i) <- trans.{GET(old_nbh, SND, pi)};
-                  GET(nbh,THIRD,i) <- trans.{GET(old_nbh, THIRD, pi)};
-                 ) cols_tr;
+      iteri (fun i pi -> trans.{pi} <- i) cols_tr;
+      iteri (fun i pi ->
+             GET(nbh,FST,i) <- trans.{GET(old_nbh, FST, pi)};
+             GET(nbh,SND,i) <- trans.{GET(old_nbh, SND, pi)};
+             GET(nbh,THIRD,i) <- trans.{GET(old_nbh, THIRD, pi)};
+            ) cols_tr;
       nbh
     ) in
   (* Edges *)
@@ -659,5 +667,5 @@ let ggps (mesh: mesh) perm : mesh =
   permute_points_unsafe mesh perm
 
 (* Local Variables: *)
-(* compile-command: "make -k" *)
+(* compile-command: "make -k -C .." *)
 (* End: *)
