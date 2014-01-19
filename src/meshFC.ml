@@ -6,11 +6,10 @@ open Bigarray
 open Mesh_common
 
 type mesh = LAYOUT t
-type 'a vector = 'a vec       (* global vec *)
-type vec = LAYOUT vector    (* local vec *)
-type matrix = LAYOUT mat
-type 'a int_vector = 'a int_vec
-type int_vec = LAYOUT int_vector
+type vec = LAYOUT Mesh_common.vec
+type mat = LAYOUT Mesh_common.mat
+type int_mat = LAYOUT Mesh_common.int_mat
+type int_vec = LAYOUT Mesh_common.int_vec
 
 let layout = LAYOUT;;
 
@@ -165,7 +164,7 @@ let matlab (mesh: mesh) ?(edgecolor="black") ?(linestyle="-") ?(facealpha=1.)
 (* Sort the vertices at node [n0] by increasing (counterclockwise)
    angle w.r.t. the base vertex [i0].  [TriangularSurfacePlot] (not
    [PlanarGraphPlot] it seems) requires the vertices to be ordered. *)
-let sort_counterclockwise (pt: matrix) n0 = function
+let sort_counterclockwise (pt: mat) n0 = function
   | ([] | [_]) as adj -> adj
   | n1 :: tl ->
     let x0 = pt.{FST, n0} and y0 = pt.{SND, n0} in
@@ -349,6 +348,102 @@ let min_deg (deg: int array) =
   done;
   !i
 
+
+(* sub
+ ***********************************************************************)
+
+let filter_columns_shift (m: int_mat) select shift =
+  let cols = ref [] in
+  let nselected = ref 0 in
+  for c = FST to LASTCOL(m) do
+    if select m c then (cols := c :: !cols;  incr nselected)
+  done;
+  let cols = List.rev !cols in
+  let m' = CREATE_MAT(int, NROWS(m), !nselected) in
+  List.iteri (fun i pi ->
+              for j = FST to LASTROW(m') do
+                GET(m', j, i) <- GET(m, j, pi) - shift
+              done
+             ) cols;
+  m', !nselected, cols
+
+let sub_markers (v: int_vec) n cols =
+  if Array1.dim v = 0 then v (* no markers *)
+  else (
+    let v' = CREATE_VEC(int, n) in
+    List.iteri (fun i pi ->  v'.{i} <- v.{pi}) cols;
+    v'
+  )
+
+let internal_sub (mesh: mesh) ?pos len =
+  let pos = match pos with
+    | None -> FST
+    | Some pos ->
+       if pos < FST then invalid_arg "Mesh.sub: pos < FST";
+       pos in
+  if len <= 0 then invalid_arg "Mesh.sub: len <= 0";
+  if pos + len > NCOLS(mesh#point) then
+    invalid_arg "Mesh.sub: len too large";
+  let shift = CHOOSE_FC(pos - 1, pos) in
+  let max_point_idx = pos + len - 1 in
+  let sub_point i = pos <= i && i <= max_point_idx in
+  (* Points *)
+  let point = Array2.CHOOSE_FC(sub_right, sub_left) mesh#point pos len in
+  let point_marker = Array1.sub mesh#point_marker pos len in
+  (* Segments *)
+  let select2 (m: int_mat) i = sub_point GET(m,FST,i)
+                               && sub_point GET(m,SND,i) in
+  let new_seg, n, cols = filter_columns_shift mesh#segment select2 shift in
+  let new_seg_marker = sub_markers mesh#segment_marker n cols in
+  (* Triangles *)
+  let select3 (m: int_mat) t = sub_point GET(m,FST,t) && sub_point GET(m,SND,t)
+                               && sub_point GET(m,THIRD,t) in
+  let new_tr, n_tr, cols_tr = filter_columns_shift mesh#triangle
+                                                   select3 shift in
+  (* Neighbors corresponding to the selected triangles. *)
+  let new_neighbor =
+    let old_nbh = mesh#neighbor in
+    if NCOLS(old_nbh) = 0 then old_nbh
+    else (
+      let nbh = CREATE_MAT(int, 3, n_tr) in (* new neighbor *)
+      let trans = CREATE_VEC(int, NCOLS(mesh#triangle)) in (* old idx → new *)
+      Array1.fill trans (-1); (* default: no corresponding index *)
+      List.iteri (fun i pi -> trans.{pi} <- i) cols_tr;
+      List.iteri (fun i pi ->
+                  GET(nbh,FST,i) <- trans.{GET(old_nbh, FST, pi)};
+                  GET(nbh,SND,i) <- trans.{GET(old_nbh, SND, pi)};
+                  GET(nbh,THIRD,i) <- trans.{GET(old_nbh, THIRD, pi)};
+                 ) cols_tr;
+      nbh
+    ) in
+  (* Edges *)
+  let new_edge, n, cols = filter_columns_shift mesh#edge select2 shift in
+  let new_edge_marker = sub_markers mesh#edge_marker n cols in
+  let hole = mesh#hole (* keep *)
+  and region = mesh#region (* keep *) in
+  (object
+      method point = point
+      method point_marker = point_marker
+      method segment = new_seg
+      method segment_marker = new_seg_marker
+      method hole = hole
+      method region = region
+      method triangle = new_tr
+      method neighbor = new_neighbor
+      method edge = new_edge
+      method edge_marker = new_edge_marker
+    end,
+   n_tr, cols_tr)
+
+
+let sub (mesh: mesh) ?pos len =
+  let m, _, _ = internal_sub mesh ?pos len in
+  m
+
+
+(* Permutations
+ ***********************************************************************)
+
 (** Apply the permutation [perm] to the [mesh]. *)
 let do_permute_points name (mesh: mesh) (perm: int_vec) (inv_perm: int_vec)
     : mesh =
@@ -491,6 +586,9 @@ let permute_triangles (mesh: mesh) ~inv perm =
   if inv then do_permute_triangles permute_triangles_name mesh inv_perm
   else do_permute_triangles permute_triangles_name mesh perm
 
+
+(* Band
+ ***********************************************************************)
 
 (* http://ciprian-zavoianu.blogspot.com/2009/01/project-bandwidth-reduction.html
 *)

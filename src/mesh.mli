@@ -149,6 +149,39 @@ class ['l] copy : 'l t -> ['l] t
 (** [new copy mesh] returns an identical mesh where all matrices are a
     fresh copy of the ones of [mesh]. *)
 
+val sub : 'l #t -> ?pos:int -> int -> 'l t
+(** [sub mesh ?pos len] returns a new mesh keeping only the points
+    with indices between [pos] and [pos + len - 1] (included).  Only
+    triangles whose 3 vertices have been selected are kept.  Beware
+    that some sub-matrices may be shared.
+
+    @param pos default: [1] ([fortran_layout]) or 0 ([c_layout]). *)
+
+val permute_points : 'l #t -> ?inv:bool -> 'l int_vec -> 'l t
+(** [permute_points mesh p] returns a new mesh identical to the given
+    [mesh] except that the points indices are transformed through the
+    permutation [p]: the point of index [i] in the new mesh will be
+    the one of index [p.{i}] in [mesh].  In other words, [p] lists
+    [mesh] indices in the order they will have after permutation.
+
+    @raise Invalid_argument if [p] is not a permutation.
+    @param inv consider that the inverse permutation is given.  If
+    [true], the point of index [i] in [mesh] will be mapped to the
+    point of index [p.{i}] in the returned mesh.  Default: [false]. *)
+
+val permute_triangles : 'l #t -> ?inv:bool -> 'l int_vec -> 'l t
+(** [permute_triangles mesh p] returns a new mesh identical to the given
+    [mesh] except that the trangle indices are transformed through the
+    permutation [p]: the triangle of index [i] in the new mesh will be
+    the one of index [p.{i}] in [mesh].  In other words, [p] lists
+    [mesh] indices in the order they will have after permutation.
+
+    @raise Invalid_argument if [p] is not a permutation.
+    @param inv consider that the inverse permutation is given.  If
+    [true], the point of index [i] in [mesh] will be mapped to the
+    point of index [p.{i}] in the returned mesh.  Default: [false]. *)
+
+
 (** {2:band  Band computation and reduction} *)
 
 val band_height_P1 : ?filter:(int -> bool) -> 'l #t -> int
@@ -174,30 +207,6 @@ val cuthill_mckee : ?rev:bool -> ?perm:'l int_vec -> 'l #t -> 'l t
     label for the node initially labeled [i].  This permutation is
     needed to transfer vectors defined on the initial labeling.  The
     length of the permutation vector must be the number of nodes. *)
-
-val permute_points : 'l #t -> ?inv:bool -> 'l int_vec -> 'l t
-(** [permute_points mesh p] returns a new mesh identical to the given
-    [mesh] except that the points indices are transformed through the
-    permutation [p]: the point of index [i] in the new mesh will be
-    the one of index [p.{i}] in [mesh].  In other words, [p] lists
-    [mesh] indices in the order they will have after permutation.
-
-    @raise Invalid_argument if [p] is not a permutation.
-    @param inv consider that the inverse permutation is given.  If
-    [true], the point of index [i] in [mesh] will be mapped to the
-    point of index [p.{i}] in the returned mesh.  Default: [false]. *)
-
-val permute_triangles : 'l #t -> ?inv:bool -> 'l int_vec -> 'l t
-(** [permute_triangles mesh p] returns a new mesh identical to the given
-    [mesh] except that the trangle indices are transformed through the
-    permutation [p]: the triangle of index [i] in the new mesh will be
-    the one of index [p.{i}] in [mesh].  In other words, [p] lists
-    [mesh] indices in the order they will have after permutation.
-
-    @raise Invalid_argument if [p] is not a permutation.
-    @param inv consider that the inverse permutation is given.  If
-    [true], the point of index [i] in [mesh] will be mapped to the
-    point of index [p.{i}] in the returned mesh.  Default: [false]. *)
 
 
 (** {2 LaTeX output} *)

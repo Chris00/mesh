@@ -77,6 +77,11 @@ class ['l] copy (mesh: 'l t) =
   end
 
 
+let sub mesh ?pos len =
+  mesh_transform mesh
+                 (fun m -> Mesh_triangleC.sub m ?pos len)
+                 (fun m -> Mesh_triangleF.sub m ?pos len)
+
 let permute_points (mesh: 'l #t) ?(inv=false) perm : 'l t =
   mesh_transform
     mesh

@@ -174,6 +174,49 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area ?(region_area=false)
   (mesh_out, vor)
 
 
+(* Sub
+ ***********************************************************************)
+
+let sub (mesh: mesh) ?(pos=FST) len =
+  let m, n_tr, cols_tr = MeshFC.internal_sub (mesh :> MeshFC.mesh)
+                                             ~pos len in
+  let point_attribute =
+    if NROWS(mesh#point_attribute) = 0 || NCOLS(mesh#point_attribute) = 0 then
+      mesh#point_attribute
+    else
+      Array2.CHOOSE_FC(sub_right, sub_left) mesh#point_attribute pos len in
+  let triangle_attribute =
+    let old_att = mesh#triangle_attribute in
+    if NROWS(old_att) = 0 || NCOLS(old_att) = 0 then old_att
+    else (
+      let att = CREATE_MAT(float64, NROWS(old_att), n_tr) in
+      List.iteri (fun i pi ->
+                  for j = FST to LASTROW(att) do
+                    GET(att, j, i) <- GET(old_att, j, pi);
+                  done
+                 ) cols_tr;
+      att
+    ) in
+  object
+    method point = m#point
+    method point_marker = m#point_marker
+    method segment = m#segment
+    method segment_marker = m#segment_marker
+    method hole = m#hole
+    method region = m#region
+    method triangle = m#triangle
+    method neighbor = m#neighbor
+    method edge = m#edge
+    method edge_marker = m#edge_marker
+
+    method point_attribute = point_attribute
+    method triangle_attribute = triangle_attribute
+  end
+
+
+(* Permutations
+ ***********************************************************************)
+
 let permute_points_name = "Mesh_triangle.permute_points"
 
 let do_permute_points (old_mesh: mesh) (perm: int_vec) inv_perm : mesh =

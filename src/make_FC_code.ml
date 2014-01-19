@@ -29,7 +29,8 @@ let rec tr_include s =
   Str.global_substitute include_re inc s
 
 let arg =
-  "\\([.A-Za-z0-9_ ]+\\|[.A-Za-z0-9_ ]*([.A-Za-z0-9_ ]*)[.A-Za-z0-9_ ]*\\)"
+  "\\([!#.A-Za-z0-9_ !]+\\|\
+   [!#.A-Za-z0-9_ ]*([!#.A-Za-z0-9_ ]*)[#.A-Za-z0-9_ ]*\\)"
 
 let tr_fortran =
   let tr = [
@@ -56,6 +57,7 @@ let tr_fortran =
     "ROWS", "dim1";
     "OF_IDX(\\([^()]+\\))", "\\1 - 1"; (* Fortran -> Easymesh indexes *)
     "TO_IDX(\\([^()]+\\))", "\\1 + 1"; (* Easymesh -> Fortran *)
+    "CHOOSE_FC(\\([^,]*\\), *\\([^()]*\\))", "\\1";
   ] in
   List.map (fun (re, s) -> (Str.regexp re, s)) tr
 
@@ -84,6 +86,7 @@ let tr_c =
     "ROWS", "dim2";
     "OF_IDX(\\([^()]+\\))", "\\1"; (* Easymesh *)
     "TO_IDX(\\([^()]+\\))", "\\1";
+    "CHOOSE_FC(\\([^,]*\\), *\\([^()]*\\))", "\\2";
   ] in
   List.map (fun (re, s) -> (Str.regexp re, s)) tr
 

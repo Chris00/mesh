@@ -37,6 +37,11 @@ class ['l] copy (mesh: 'l t) =
     method edge_marker = copy_vec mesh#edge_marker
   end
 
+let sub mesh ?pos len =
+  mesh_transform mesh
+                 (fun m -> MeshC.sub m ?pos len)
+                 (fun m -> MeshF.sub m ?pos len)
+
 let band_height_P1 ?filter mesh =
   if is_c_layout mesh then
     MeshC.band_height_P1 filter (mesh_to_c mesh)
