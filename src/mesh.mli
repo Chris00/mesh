@@ -134,11 +134,6 @@ object
       Voronoi diagram is finite, the normal vector is zero. *)
 end
 
-class ['l] alias : 'l #t -> ['l] t
-(** [alias mesh] creates a new object that shares its matrices with
-    [mesh].  This is especially useful if you want to extend a mesh
-    object trough inheritance. *)
-
 val layout : 'l #pslg -> 'l layout
 (** [layout mesh] returns the layout of [mesh]. *)
 
