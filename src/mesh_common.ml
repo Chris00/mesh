@@ -27,14 +27,17 @@ let max2 a b = if (a:int) > b then a else b
 let max4 a b c d = max2 (max2 a b) (max2 c d)
 
 class ['l] pslg (layout : 'l layout) =
-object
-  method point = Array2.create float64 layout 2 0
-  method point_marker = Array1.create int layout 0
-  method segment = Array2.create int layout 2 0
-  method segment_marker = Array1.create int layout 0
-  method hole = Array2.create float64 layout 2 0
-  method region = Array2.create float64 layout 2 0
-end
+  let empty_mat = Array2.create float64 layout 2 0
+  and empty_int_mat = Array2.create int layout 2 0
+  and empty_int_vec = Array1.create int layout 0 in
+  object
+    method point = empty_mat
+    method point_marker = empty_int_vec
+    method segment = empty_int_mat
+    method segment_marker = empty_int_vec
+    method hole = empty_mat
+    method region = empty_mat
+  end
 
 
 class type ['layout] t =
@@ -54,6 +57,23 @@ object
   method normal: 'layout mat
 end
 
+(* Construct the object via a function so that the function parameters
+   are evaluated first and the method execution is just retrieving the
+   value.  *)
+let make_mesh ~point ~point_marker ~segment ~segment_marker ~hole ~region
+              ~triangle ~neighbor ~edge ~edge_marker =
+  (object
+      method point = point
+      method point_marker = point_marker
+      method segment = segment
+      method segment_marker = segment_marker
+      method hole = hole
+      method region = region
+      method triangle = triangle
+      method neighbor = neighbor
+      method edge = edge
+      method edge_marker = edge_marker
+    end : _ t)
 
 let layout (mesh: _ #pslg) = Array2.layout mesh#point
 

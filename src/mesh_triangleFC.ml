@@ -150,20 +150,19 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area ?(region_area=false)
       vor_point, vor_point_attribute, vor_edge, vor_normal =
     triangle (Buffer.contents switches) mesh triangle_area in
   let mesh_out : layout t =
-    (object
-      method point               = point
-      method point_attribute     = point_attribute
-      method point_marker        = point_marker
-      method triangle            = triangle
-      method triangle_attribute  = triangle_attribute
-      method neighbor            = neighbor
-      method segment             = segment
-      method segment_marker      = segment_marker
-      method edge                = edge
-      method edge_marker         = edge_marker
-      method hole = mesh#hole
-      method region = mesh#region
-     end)
+    (make_mesh
+      ~point:              point
+      ~point_attribute:    point_attribute
+      ~point_marker:       point_marker
+      ~triangle:           triangle
+      ~triangle_attribute: triangle_attribute
+      ~neighbor:           neighbor
+      ~segment:            segment
+      ~segment_marker:     segment_marker
+      ~edge:               edge
+      ~edge_marker:        edge_marker
+      ~hole: mesh#hole
+      ~region: mesh#region)
   and vor : layout voronoi =
     (object
       method point               = vor_point
@@ -197,21 +196,9 @@ let sub (mesh: mesh) ?(pos=FST) len =
                  ) cols_tr;
       att
     ) in
-  object
-    method point = m#point
-    method point_marker = m#point_marker
-    method segment = m#segment
-    method segment_marker = m#segment_marker
-    method hole = m#hole
-    method region = m#region
-    method triangle = m#triangle
-    method neighbor = m#neighbor
-    method edge = m#edge
-    method edge_marker = m#edge_marker
-
-    method point_attribute = point_attribute
-    method triangle_attribute = triangle_attribute
-  end
+  extend_mesh m
+              ~point_attribute: point_attribute
+              ~triangle_attribute: triangle_attribute
 
 
 (* Permutations
@@ -232,21 +219,9 @@ let do_permute_points (old_mesh: mesh) (perm: int_vec) inv_perm : mesh =
       GET(attr, a, i) <- GET(old_attr, a, old_i)
     done
   done;
-  object
-    method point = mesh#point
-    method point_marker = mesh#point_marker
-    method segment = mesh#segment
-    method segment_marker = mesh#segment_marker
-    method hole = mesh#hole
-    method region = mesh#region
-    method triangle = mesh#triangle
-    method neighbor = mesh#neighbor
-    method edge = mesh#edge
-    method edge_marker = mesh#edge_marker
-
-    method point_attribute = attr
-    method triangle_attribute = old_mesh#triangle_attribute
-  end
+  extend_mesh mesh
+              ~point_attribute: attr
+              ~triangle_attribute: old_mesh#triangle_attribute
 
 
 let permute_points (mesh: mesh) ~inv (perm: int_vec) =
@@ -269,21 +244,9 @@ let do_permute_triangles (old_mesh: mesh) (perm: int_vec) : mesh =
       GET(attr, a, i) <- GET(old_attr, a, old_i)
     done
   done;
-  object
-    method point = mesh#point
-    method point_marker = mesh#point_marker
-    method segment = mesh#segment
-    method segment_marker = mesh#segment_marker
-    method hole = mesh#hole
-    method region = mesh#region
-    method triangle = mesh#triangle
-    method neighbor = mesh#neighbor
-    method edge = mesh#edge
-    method edge_marker = mesh#edge_marker
-
-    method point_attribute = old_mesh#point_attribute
-    method triangle_attribute = attr
-  end
+  extend_mesh mesh
+              ~point_attribute: (old_mesh#point_attribute)
+              ~triangle_attribute: attr
 
 let permute_triangles (mesh: mesh) ~inv (perm: int_vec) =
   let inv_perm = MeshFC.inverse_perm permute_triangles_name perm in

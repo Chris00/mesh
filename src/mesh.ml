@@ -23,19 +23,18 @@ open Mesh_utils
 
 include Mesh_common
 
-class ['l] copy (mesh: 'l t) =
-  object
-    method point = copy_mat mesh#point
-    method point_marker = copy_vec mesh#point_marker
-    method segment = copy_mat mesh#segment
-    method segment_marker = copy_vec mesh#segment_marker
-    method hole = copy_mat mesh#hole
-    method region = copy_mat mesh#region
-    method triangle = copy_mat mesh#triangle
-    method neighbor = copy_mat mesh#neighbor
-    method edge = copy_mat mesh#edge
-    method edge_marker = copy_vec mesh#edge_marker
-  end
+let copy (mesh: 'l t) =
+  make_mesh
+    ~point: (copy_mat mesh#point)
+    ~point_marker: (copy_vec mesh#point_marker)
+    ~segment: (copy_mat mesh#segment)
+    ~segment_marker: (copy_vec mesh#segment_marker)
+    ~hole: (copy_mat mesh#hole)
+    ~region: (copy_mat mesh#region)
+    ~triangle: (copy_mat mesh#triangle)
+    ~neighbor: (copy_mat mesh#neighbor)
+    ~edge: (copy_mat mesh#edge)
+    ~edge_marker: (copy_vec mesh#edge_marker)
 
 let sub mesh ?pos len =
   mesh_transform mesh
@@ -118,5 +117,5 @@ let mathematica (mesh: 'a #t) (z: 'a vec) filename =
 
 
 (* Local Variables: *)
-(* compile-command: "make -k mesh.cmo" *)
+(* compile-command: "make -k -C .." *)
 (* End: *)

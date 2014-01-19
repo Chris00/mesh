@@ -197,7 +197,7 @@ val refine :
 
     For other parameters, see {!triangulate}. *)
 
-class ['l] copy : 'l t -> ['l] t
+val copy : 'l t -> 'l t
 (** See {!Mesh.copy}. *)
 
 val sub : 'l #t -> ?pos:int -> int -> 'l t

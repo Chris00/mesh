@@ -26,20 +26,31 @@ end
 
 class ['l] t (mesh: 'l #Mesh.t) =
   let layout = Mesh.layout mesh in
+  let point = mesh#point in
+  let point_marker = mesh#point_marker in
+  let segment = mesh#segment in
+  let segment_marker = mesh#segment_marker in
+  let hole = mesh#hole in
+  let region = mesh#region in
+  let triangle = mesh#triangle in
+  let neighbor = mesh#neighbor in
+  let edge = mesh#edge in
+  let edge_marker = mesh#edge_marker in
+  let empty_attribute = Array2.create float64 layout 0 0 in
   object
-    method point = mesh#point
-    method point_marker = mesh#point_marker
-    method segment = mesh#segment
-    method segment_marker = mesh#segment_marker
-    method hole = mesh#hole
-    method region = mesh#region
-    method triangle = mesh#triangle
-    method neighbor = mesh#neighbor
-    method edge = mesh#edge
-    method edge_marker = mesh#edge_marker
+    method point = point
+    method point_marker = point_marker
+    method segment = segment
+    method segment_marker = segment_marker
+    method hole = hole
+    method region = region
+    method triangle = triangle
+    method neighbor = neighbor
+    method edge = edge
+    method edge_marker = edge_marker
 
-    method point_attribute = Array2.create float64 layout 0 0
-    method triangle_attribute = Array2.create float64 layout 0 0
+    method point_attribute = empty_attribute
+    method triangle_attribute = empty_attribute
   end
 
 let mesh_to_c (m: _ #t) = (Obj.magic m : c_layout t)
@@ -52,27 +63,6 @@ let mesh_transform (mesh: 'l #t) f_c f_fortran =
   else
     let mesh' : fortran_layout t = f_fortran (mesh_to_fortran mesh) in
     (Obj.magic mesh' : 'l t)
-
-
-class ['a] mesh_of_pslg (pslg: 'a pslg) =
-  let layout = Array2.layout pslg#point in
-  let empty_int_mat : 'a Mesh.int_mat = Array2.create int layout 2 0 in
-object
-  method point = pslg#point
-  method point_marker = pslg#point_marker
-  method segment = pslg#segment
-  method segment_marker = pslg#segment_marker
-  method hole = pslg#hole
-  method region = pslg#region
-
-  method triangle = empty_int_mat
-  method neighbor = empty_int_mat
-  method edge = empty_int_mat
-  method edge_marker = Array1.create int layout 0
-
-  method point_attribute = pslg#point_attribute
-  method triangle_attribute = Array2.create float64 layout 2 0
-end
 
 class type ['l] voronoi =
 object
@@ -92,3 +82,55 @@ let invalid_arg m = raise(Invalid_argument m)
 
 let is_finite x = neg_infinity < x && x < infinity (* => is not NaN *)
 
+let make_mesh ~point ~point_marker ~segment ~segment_marker ~hole ~region
+              ~triangle ~neighbor ~edge ~edge_marker ~point_attribute
+              ~triangle_attribute =
+  (object
+      method point = point
+      method point_marker = point_marker
+      method segment = segment
+      method segment_marker = segment_marker
+      method hole = hole
+      method region = region
+      method triangle = triangle
+      method neighbor = neighbor
+      method edge = edge
+      method edge_marker = edge_marker
+      method point_attribute = point_attribute
+      method triangle_attribute = triangle_attribute
+    end : _ t)
+
+let mesh_of_pslg (pslg: 'a pslg) =
+  let layout = Array2.layout pslg#point in
+  let empty_int_mat : 'a Mesh.int_mat = Array2.create int layout 2 0 in
+  make_mesh
+    (* PSLG *)
+    ~point: pslg#point
+    ~point_marker: pslg#point_marker
+    ~segment: pslg#segment
+    ~segment_marker: pslg#segment_marker
+    ~hole: pslg#hole
+    ~region: pslg#region
+    (* Mesh *)
+    ~triangle: empty_int_mat
+    ~neighbor: empty_int_mat
+    ~edge: empty_int_mat
+    ~edge_marker: (Array1.create int layout 0)
+    (* Mesh_triangle *)
+    ~point_attribute: pslg#point_attribute
+    ~triangle_attribute: (Array2.create float64 layout 2 0)
+
+let extend_mesh (mesh: _ Mesh.t) ~point_attribute ~triangle_attribute =
+  make_mesh
+    ~point: mesh#point
+    ~point_marker: mesh#point_marker
+    ~segment: mesh#segment
+    ~segment_marker: mesh#segment_marker
+    ~hole: mesh#hole
+    ~region: mesh#region
+    ~triangle: mesh#triangle
+    ~neighbor: mesh#neighbor
+    ~edge: mesh#edge
+    ~edge_marker: mesh#edge_marker
+    ~point_attribute
+    ~triangle_attribute

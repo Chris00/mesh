@@ -56,7 +56,7 @@ let triangle ?delaunay ?min_angle ?max_area ?region_area ?max_steiner
 let triangulate ?delaunay ?min_angle ?max_area ?region_area ?max_steiner
     ?voronoi ?edge ?neighbor ?subparam ?triunsuitable ?check_finite ?debug
     pslg =
-  let mesh = new mesh_of_pslg pslg in
+  let mesh = mesh_of_pslg pslg in
   triangle ?delaunay ?min_angle ?max_area ?region_area ?max_steiner ?voronoi
     ?edge ?neighbor ?subparam ?triunsuitable ?check_finite ?debug
     ~pslg:true ~refine:false mesh
@@ -69,13 +69,10 @@ let refine ?delaunay ?min_angle ?max_area ?max_steiner
     ~pslg:false ~refine:true mesh
 
 
-class ['l] copy (mesh: 'l t) =
-  object
-    inherit ['l] Mesh.copy (mesh :> 'l Mesh.t)
-    method point_attribute = copy_mat mesh#point_attribute
-    method triangle_attribute = copy_mat mesh#triangle_attribute
-  end
-
+let copy (mesh: 'l t) =
+  extend_mesh (Mesh.copy (mesh :> _ Mesh.t))
+              ~point_attribute: (copy_mat mesh#point_attribute)
+              ~triangle_attribute: (copy_mat mesh#triangle_attribute)
 
 let sub mesh ?pos len =
   mesh_transform mesh

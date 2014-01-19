@@ -90,31 +90,29 @@ let read (pslg: pslg) fname : mesh =
                                         )
     done;
     close_in fh;
-    (object
-       method point = pt;
-       method point_marker = pt_marker;
-       method triangle = tr;
-       method neighbor = tr_nbh;
-       method edge = edge;
-       method edge_marker = edge_marker;
-       method segment = pslg#segment
-       method segment_marker = pslg#segment_marker
-       method hole = pslg#hole
-       method region = pslg#region
-     end)
+    (Mesh_common.make_mesh
+       ~point: pt
+       ~point_marker: pt_marker
+       ~triangle: tr
+       ~neighbor: tr_nbh
+       ~edge: edge
+       ~edge_marker: edge_marker
+       ~segment: pslg#segment
+       ~segment_marker: pslg#segment_marker
+       ~hole: pslg#hole
+       ~region: pslg#region)
   with Sys_error _ ->
-    (object
-       method point = pt;
-       method point_marker = pt_marker;
-       method triangle = tr;
-       method neighbor = tr_nbh;
-       method edge = CREATE_MAT(int, 2, 0)
-       method edge_marker = CREATE_VEC(int, 0)
-       method segment = pslg#segment
-       method segment_marker = pslg#segment_marker
-       method hole = pslg#hole
-       method region = pslg#region
-     end)
+    (Mesh_common.make_mesh
+       ~point: pt
+       ~point_marker: pt_marker
+       ~triangle: tr
+       ~neighbor: tr_nbh
+       ~edge: (CREATE_MAT(int, 2, 0))
+       ~edge_marker: (CREATE_VEC(int, 0))
+       ~segment: pslg#segment
+       ~segment_marker: pslg#segment_marker
+       ~hole: pslg#hole
+       ~region: pslg#region)
 
 let empty_pslg : pslg =
   let empty_mat = CREATE_MAT(float64, 2, 0)

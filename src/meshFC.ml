@@ -419,20 +419,17 @@ let internal_sub (mesh: mesh) ?pos len =
   (* Edges *)
   let new_edge, n, cols = filter_columns_shift mesh#edge select2 shift in
   let new_edge_marker = sub_markers mesh#edge_marker n cols in
-  let hole = mesh#hole (* keep *)
-  and region = mesh#region (* keep *) in
-  (object
-      method point = point
-      method point_marker = point_marker
-      method segment = new_seg
-      method segment_marker = new_seg_marker
-      method hole = hole
-      method region = region
-      method triangle = new_tr
-      method neighbor = new_neighbor
-      method edge = new_edge
-      method edge_marker = new_edge_marker
-    end,
+  (make_mesh
+     ~point: point
+     ~point_marker: point_marker
+     ~segment: new_seg
+     ~segment_marker: new_seg_marker
+     ~hole: mesh#hole (* keep *)
+     ~region: mesh#region (* keep *)
+     ~triangle: new_tr
+     ~neighbor: new_neighbor
+     ~edge: new_edge
+     ~edge_marker: new_edge_marker,
    n_tr, cols_tr)
 
 
@@ -490,18 +487,17 @@ let do_permute_points name (mesh: mesh) (perm: int_vec) (inv_perm: int_vec)
     GET(edge, FST, e) <- inv_perm.{GET(old_edge, FST, e)};
     GET(edge, SND, e) <- inv_perm.{GET(old_edge, SND, e)};
   done;
-  object
-    method point = pt
-    method point_marker = ptm
-    method segment = seg
-    method segment_marker = mesh#segment_marker
-    method hole = mesh#hole
-    method region = mesh#region
-    method triangle = tr
-    method neighbor = mesh#neighbor
-    method edge = edge
-    method edge_marker = mesh#edge_marker
-  end
+  make_mesh
+    ~point: pt
+    ~point_marker: ptm
+    ~segment: seg
+    ~segment_marker: mesh#segment_marker
+    ~hole: mesh#hole
+    ~region: mesh#region
+    ~triangle: tr
+    ~neighbor: mesh#neighbor
+    ~edge: edge
+    ~edge_marker: mesh#edge_marker
 
 
 let permute_points_name = "Mesh.permute_points"
@@ -566,18 +562,18 @@ let do_permute_triangles name (mesh: mesh) (perm: int_vec) =
       done;
       nbh
     ) in
-  object
-    method point = mesh#point
-    method point_marker = mesh#point_marker
-    method segment = mesh#segment
-    method segment_marker = mesh#segment_marker
-    method hole = mesh#hole
-    method region = mesh#region
-    method triangle = tr
-    method neighbor = nbh
-    method edge = mesh#edge
-    method edge_marker = mesh#edge_marker
-  end
+  make_mesh
+    ~point: mesh#point
+    ~point_marker: mesh#point_marker
+    ~segment: mesh#segment
+    ~segment_marker: mesh#segment_marker
+    ~hole: mesh#hole
+    ~region: mesh#region
+    ~triangle: tr
+    ~neighbor: nbh
+    ~edge: mesh#edge
+    ~edge_marker: mesh#edge_marker
+
 
 let permute_triangles_name = "Mesh.permute_triangles"
 
