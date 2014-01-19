@@ -145,6 +145,9 @@ val layout : 'l #pslg -> 'l layout
 val is_c_layout : 'l #pslg -> bool
 (** [is_c_layout] returns true if the mesh layout is C. *)
 
+class ['l] copy : 'l t -> ['l] t
+(** [new copy mesh] returns an identical mesh where all matrices are a
+    fresh copy of the ones of [mesh]. *)
 
 (** {2:band  Band computation and reduction} *)
 

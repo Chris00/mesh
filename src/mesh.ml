@@ -23,6 +23,20 @@ open Mesh_utils
 
 include Mesh_common
 
+class ['l] copy (mesh: 'l t) =
+  object
+    method point = copy_mat mesh#point
+    method point_marker = copy_vec mesh#point_marker
+    method segment = copy_mat mesh#segment
+    method segment_marker = copy_vec mesh#segment_marker
+    method hole = copy_mat mesh#hole
+    method region = copy_mat mesh#region
+    method triangle = copy_mat mesh#triangle
+    method neighbor = copy_mat mesh#neighbor
+    method edge = copy_mat mesh#edge
+    method edge_marker = copy_vec mesh#edge_marker
+  end
+
 let band_height_P1 ?filter mesh =
   if is_c_layout mesh then
     MeshC.band_height_P1 filter (mesh_to_c mesh)

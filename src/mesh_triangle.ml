@@ -69,6 +69,14 @@ let refine ?delaunay ?min_angle ?max_area ?max_steiner
     ~pslg:false ~refine:true mesh
 
 
+class ['l] copy (mesh: 'l t) =
+  object
+    inherit ['l] Mesh.copy (mesh :> 'l Mesh.t)
+    method point_attribute = copy_mat mesh#point_attribute
+    method triangle_attribute = copy_mat mesh#triangle_attribute
+  end
+
+
 let permute_points (mesh: 'l #t) ?(inv=false) perm : 'l t =
   mesh_transform
     mesh

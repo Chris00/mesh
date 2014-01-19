@@ -197,6 +197,9 @@ val refine :
 
     For other parameters, see {!triangulate}. *)
 
+class ['l] copy : 'l t -> ['l] t
+(** See {!Mesh.copy}. *)
+
 val permute_points : 'l #t -> ?inv:bool -> 'l Mesh.int_vec ->'l t
 (** [permute_points perm mesh], see {!Mesh.permute_points}.  This
     version also permutes the [#point_attribute] matrix. *)
