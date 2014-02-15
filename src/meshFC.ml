@@ -13,6 +13,47 @@ type int_vec = LAYOUT Mesh_common.int_vec
 
 let layout = LAYOUT;;
 
+let empty_vec = Array1.create int layout 0
+let empty_mat2 = CREATE_MAT(float64, 2, 0)
+let empty_mat4 = CREATE_MAT(float64, 4, 0)
+
+let pslg ~hole ~region ~point_marker ~point ~segment_marker ~segment =
+  let point_marker = match point_marker with
+    | None -> empty_vec
+    | Some m ->
+       let n = Array1.dim m in
+       if 0 < n && n < NCOLS(point) then
+         invalid_arg "Mesh.pslg: point_marker too small";
+       m in
+  let segment_marker = match segment_marker with
+    | None -> empty_vec
+    | Some m ->
+       let n = Array1.dim m in
+       if 0 < n && n < NCOLS(segment) then
+         invalid_arg "Mesh.pslg: segment_marker too small";
+       m in
+  let hole = match hole with
+    | None -> empty_mat2
+    | Some h ->
+       if NCOLS(h) > 0 && NROWS(h) <> 2 then
+         invalid_arg "Mesh.pslg: ROWS hole must be 2";
+       h in
+  let region = match region with
+    | None -> empty_mat4
+    | Some r ->
+       if NCOLS(r) > 0 && NROWS(r) <> 4 then
+         invalid_arg "Mesh.pslg: ROWS region must be 4";
+       r in
+  (object
+      method point = point
+      method point_marker = point_marker
+      method segment = segment
+      method segment_marker = segment_marker
+      method hole = hole
+      method region = region
+    end : LAYOUT pslg)
+
+
 
 (** Return the smaller box (xmin, xmax, ymin, ymax) containing the [mesh]. *)
 let bounding_box (mesh: mesh) =

@@ -50,6 +50,16 @@ object
       conductivity) associated with the nodes. *)
 end
 
+val pslg : ?hole: 'l Mesh.mat -> ?region: 'l Mesh.mat ->
+           ?point_attribute: 'l Mesh.mat -> ?point_marker: 'l Mesh.int_vec ->
+           'l Mesh.mat ->
+           ?segment_marker: 'l Mesh.int_vec -> 'l Mesh.int_mat
+           -> 'l pslg
+(** [pslg ~point ~segment] creates a PSLG with the proper methods.
+    The default values for unspecified values are empty arrays.
+    @raise Invalid_argument if a size is incorrect. *)
+
+
 (** Object describing various characteristics of a mesh ({!Mesh.t}
     enriched with methods specific to Triangle).  It can also be used
     to construct [t] values from Mesh.t with empty attributes matrices. *)

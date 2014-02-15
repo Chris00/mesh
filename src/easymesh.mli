@@ -35,6 +35,13 @@ class ['l] pslg : 'l Bigarray.layout -> ['l] Mesh.pslg
     easily switch mesh generators as some may require objects with
     more methods.) *)
 
+val pslg : ?hole: 'l Mesh.mat -> ?region: 'l Mesh.mat ->
+           ?point_marker: 'l Mesh.int_vec -> 'l Mesh.mat ->
+           ?segment_marker: 'l Mesh.int_vec -> 'l Mesh.int_mat
+           -> 'l pslg
+(** Same as {!Mesh.pslg}.  Duplicated here to ease the writing of code
+    that is easily ported to various meshers. *)
+
 
 val triangulate : max_area:float -> 'layout Mesh.pslg -> 'layout Mesh.t
 (** [triangulate ~max_area pslg] returns a triangulation of the

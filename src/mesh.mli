@@ -76,7 +76,7 @@ object
   method hole : 'l mat
   (** Array of holes.  For each hole, the array specifies a point (x,y)
       inside the hole.  It is of size [2 * n] ([fortran_layout]) where
-      [n >= 0] is the number of wholes. *)
+      [n >= 0] is the number of holes. *)
 
   method region : 'l mat
   (** Array of regional attributes and area constraints.  It is of
@@ -88,6 +88,15 @@ object
       specify a regional attribute but not a maximum area for a given
       region, set [region{4,i}] to a negative value. *)
 end
+
+val pslg : ?hole: 'l mat -> ?region: 'l mat ->
+           ?point_marker: 'l int_vec -> 'l mat ->
+           ?segment_marker: 'l int_vec -> 'l int_mat
+           -> 'l pslg
+(** [pslg point segment] creates a PSLG with the proper methods.
+    The default values for unspecified values are empty arrays.
+    @raise Invalid_argument if a size is incorrect. *)
+
 
 (** Object describing various characteristics of a mesh. *)
 class type ['layout] t =

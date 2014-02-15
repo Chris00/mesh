@@ -14,6 +14,53 @@ type int_vec = layout Mesh.int_vec
 let layout = Bigarray.LAYOUT
 let default_switches = "DEFAULT_SWITCHES"
 
+let empty_mat0 = CREATE_MAT(float64, 0, 0)
+
+let pslg ~hole ~region ~point_attribute ~point_marker ~point
+         ~segment_marker ~segment =
+  let point_marker = match point_marker with
+    | None -> MeshFC.empty_vec
+    | Some m ->
+       let n = Array1.dim m in
+       if 0 < n && n < NCOLS(point) then
+         invalid_arg "Mesh_triangle.pslg: point_marker too small";
+       m in
+  let point_attribute = match point_attribute with
+    | None -> empty_mat0
+    | Some a ->
+       if NROWS(a) > 0 && NCOLS(a) <> NCOLS(point) then
+         invalid_arg "Mesh_triangle.pslg: COLS point_attribute <> COLS point";
+       a in
+  let segment_marker = match segment_marker with
+    | None -> MeshFC.empty_vec
+    | Some m ->
+       let n = Array1.dim m in
+       if 0 < n && n < NCOLS(segment) then
+         invalid_arg "Mesh_triangle.pslg: segment_marker too small";
+       m in
+  let hole = match hole with
+    | None -> MeshFC.empty_mat2
+    | Some h ->
+       if NCOLS(h) > 0 && NROWS(h) <> 2 then
+         invalid_arg "Mesh_triangle.pslg: ROWS hole must be 2";
+       h in
+  let region = match region with
+    | None -> MeshFC.empty_mat4
+    | Some r ->
+       if NCOLS(r) > 0 && NROWS(r) <> 4 then
+         invalid_arg "Mesh_triangle.pslg: ROWS region must be 4";
+       r in
+  (object
+      method point = point
+      method point_marker = point_marker
+      method point_attribute = point_attribute
+      method segment = segment
+      method segment_marker = segment_marker
+      method hole = hole
+      method region = region
+    end : LAYOUT pslg)
+
+
 external triangle :
   string ->                        (* options *)
   layout t ->

@@ -17,6 +17,12 @@ external vec_opt_to_c :
 external vec_opt_to_fortran :
   ('a, 'b, 'c) Array1.t option -> ('a, 'b, fortran_layout) Array1.t option
   = "%identity"
+external mat_opt_to_c :
+  ('a, 'b, 'c) Array2.t option -> ('a, 'b, c_layout) Array2.t option
+  = "%identity"
+external mat_opt_to_fortran :
+  ('a, 'b, 'c) Array2.t option -> ('a, 'b, fortran_layout) Array2.t option
+  = "%identity"
 
 let is_c_layout (l: _ layout) =
   l = (Obj.magic c_layout : _ layout)

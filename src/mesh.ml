@@ -23,6 +23,26 @@ open Mesh_utils
 
 include Mesh_common
 
+let pslg ?(hole: 'a mat option) ?(region: 'a mat option)
+         ?(point_marker: 'a int_vec option) (point: 'a mat)
+         ?(segment_marker: 'a int_vec option) (segment: 'a int_mat) =
+  if Mesh_utils.is_c_layout (Array2.layout point) then
+    let m = MeshC.pslg ~hole:(mat_opt_to_c hole)
+                       ~region:(mat_opt_to_c region)
+                       ~point_marker:(vec_opt_to_c point_marker)
+                       ~point:(mat_to_c point)
+                       ~segment_marker:(vec_opt_to_c segment_marker)
+                       ~segment:(mat_to_c segment) in
+    (Obj.magic (m: c_layout pslg) : 'a pslg)
+  else
+    let m = MeshF.pslg ~hole:(mat_opt_to_fortran hole)
+                       ~region:(mat_opt_to_fortran region)
+                       ~point_marker:(vec_opt_to_fortran point_marker)
+                       ~point:(mat_to_fortran point)
+                       ~segment_marker:(vec_opt_to_fortran segment_marker)
+                       ~segment:(mat_to_fortran segment) in
+    (Obj.magic (m: fortran_layout pslg) : 'a pslg)
+
 let copy (mesh: 'l t) =
   make_mesh
     ~point: (copy_mat mesh#point)
@@ -35,6 +55,7 @@ let copy (mesh: 'l t) =
     ~neighbor: (copy_mat mesh#neighbor)
     ~edge: (copy_mat mesh#edge)
     ~edge_marker: (copy_vec mesh#edge_marker)
+
 
 let sub mesh ?pos len =
   mesh_transform mesh

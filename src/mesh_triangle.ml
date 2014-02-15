@@ -24,6 +24,32 @@ let () = init()
 
 include Mesh_triangle_common
 
+let pslg ?(hole: 'a Mesh.mat option) ?(region: 'a Mesh.mat option)
+         ?(point_attribute: 'a Mesh.mat option)
+         ?(point_marker: 'a Mesh.int_vec option) (point: 'a Mesh.mat)
+         ?(segment_marker: 'a Mesh.int_vec option) (segment: 'a Mesh.int_mat) =
+  if Mesh_utils.is_c_layout (Array2.layout point) then
+    let m = Mesh_triangleC.pslg
+              ~hole:(mat_opt_to_c hole)
+              ~region:(mat_opt_to_c region)
+              ~point_attribute:(mat_opt_to_c point_attribute)
+              ~point_marker:(vec_opt_to_c point_marker)
+              ~point:(mat_to_c point)
+              ~segment_marker:(vec_opt_to_c segment_marker)
+              ~segment:(mat_to_c segment) in
+    (Obj.magic (m: c_layout pslg) : 'a pslg)
+  else
+    let m = Mesh_triangleF.pslg
+              ~hole:(mat_opt_to_fortran hole)
+              ~region:(mat_opt_to_fortran region)
+              ~point_attribute:(mat_opt_to_fortran point_attribute)
+              ~point_marker:(vec_opt_to_fortran point_marker)
+              ~point:(mat_to_fortran point)
+              ~segment_marker:(vec_opt_to_fortran segment_marker)
+              ~segment:(mat_to_fortran segment) in
+    (Obj.magic (m: fortran_layout pslg) : 'a pslg)
+
+
 let triangle ?delaunay ?min_angle ?max_area ?region_area ?max_steiner
              ?voronoi ?edge ?neighbor ?subparam ?triangle_area
              ?check_finite ?debug ?triunsuitable
