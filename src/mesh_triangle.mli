@@ -153,11 +153,13 @@ val triangulate :
     Default: [true].
 
     @param neighbor Outputs an array of triangles neighboring each
-    triangle in [#neighbor].  Default: [false].
+    triangle in [#neighbor].  The first neighbor [#neighbor.{1,t}] of
+    triangle [t] is opposite the first corner [#triangle.{1,t}] of
+    triangle [t], and so on.  Default: [false].
 
     @param max_area Imposes a maximum triangle area.
 
-    @region_area uses the maximum area specified for each region in
+    @param region_area uses the maximum area specified for each region in
     [#region].  Default: [false] even if [#region] is a non-empty
     matrix (i.e. you have to enable it explicitly).
 
