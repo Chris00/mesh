@@ -93,6 +93,11 @@ struct
     then MeshC.latex ?edge (mesh_to_c mesh) filename
     else MeshF.latex ?edge (mesh_to_fortran mesh) filename
 
+  let write ?edge (mesh: _ #t) fh =
+    if is_c_layout(mesh :> _ pslg)
+    then MeshC.latex_write ?edge (mesh_to_c mesh) fh
+    else MeshF.latex_write ?edge (mesh_to_fortran mesh) fh
+
   let level_curves ?boundary (mesh: 'a #t) (z: 'a vec)
       ?level_eq levels filename =
     if is_c_layout(mesh :> _ pslg) then

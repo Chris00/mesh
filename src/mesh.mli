@@ -236,6 +236,9 @@ sig
       function returns [None], the edge is not drawn.  Default: all
       are black. *)
 
+  val write : ?edge:(int -> color option) -> 'l #t -> out_channel -> unit
+  (** Same as {!save} but write the command to the channel. *)
+
   val level_curves : ?boundary:(int -> color option) ->
     'l #t -> 'l vec -> ?level_eq:(float -> float -> bool) ->
     (float * color) list -> string -> unit

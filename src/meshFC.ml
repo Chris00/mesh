@@ -72,7 +72,7 @@ let bounding_box (mesh: mesh) =
   done;
   (!xmin, !xmax, !ymin, !ymax)
 
-let latex ?edge:(edge_color=fun _ -> Some black) (mesh: mesh) filename =
+let latex_write ?edge:(edge_color=fun _ -> Some black) (mesh: mesh) fh =
   let edge = mesh#edge in
   let pt = mesh#point in
   if NCOLS(edge) = 0 then invalid_arg "Mesh.latex: mesh#edge must be nonempty";
@@ -81,7 +81,6 @@ let latex ?edge:(edge_color=fun _ -> Some black) (mesh: mesh) filename =
   if NCOLS(pt) = 0 then invalid_arg "Mesh.latex: mesh#point must be nonempty";
   if NROWS(pt) <> 2 then
     invalid_arg "Mesh.latex: mesh#point must have 2 rows (fortran)";
-  let fh = open_out filename in
   let xmin, xmax, ymin, ymax = bounding_box mesh in
   latex_begin fh (xmax -. xmin) (ymax -. ymin) xmin ymin;
   (* Write lines *)
@@ -101,9 +100,14 @@ let latex ?edge:(edge_color=fun _ -> Some black) (mesh: mesh) filename =
   for i = FST to LASTCOL(pt) do
     point_xy fh i (GET(pt, FST,i)) (GET(pt, SND,i));
   done;
-  latex_end fh;
-  close_out fh
+  latex_end fh
 
+let latex ?edge mesh filename =
+  let fh = open_out filename in
+  try latex_write ?edge mesh fh;
+      close_out fh
+  with e -> close_out fh;
+           raise e
 
 let scilab (mesh: mesh) (z: vec) fname =
   let triangle = mesh#triangle in
