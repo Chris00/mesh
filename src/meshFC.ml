@@ -156,7 +156,7 @@ let scilab (mesh: mesh) (z: vec) fname =
 let is_allowed c =
   ('0' <= c && c <= '9') || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || c = '_'
 
-let matlab (mesh: mesh) ?(edgecolor="black") ?(linestyle="-") ?(facealpha=1.)
+let matlab (mesh: mesh) ?(edgecolor=`Color 0) ?(linestyle="-") ?(facealpha=1.)
            (z: vec) fname =
   let tr = mesh#triangle in
   let pt = mesh#point in
@@ -195,12 +195,22 @@ let matlab (mesh: mesh) ?(edgecolor="black") ?(linestyle="-") ?(facealpha=1.)
   for t = FST to LASTCOL(tr) do
     fprintf fh "%i %i %i; " (GET(tr, FST,t)) (GET(tr, SND,t)) (GET(tr, THIRD,t))
   done;
+  let edgecolor = match edgecolor with
+    | `None -> "'none'"
+    | `Flat -> "'flat'"
+    | `Interp -> "'interp'"
+    | `Color c ->
+       if c < 0 then "'none'"
+       else let b = float(c land 0xFF) /. 255.
+            and g = float((c lsr 8) land 0xFF) /. 255.
+            and r = float((c lsr 16) land 0xFF) /. 255. in
+            sprintf "[%g,%g,%g]" r g b in
   let facealpha = if facealpha < 0. then 0.
                   else if facealpha > 1. then 1.
                   else facealpha in
   (* FIXME: protect against strings containing "'". *)
   fprintf fh "];\ntrisurf(mesh_triangles, mesh_x, mesh_y, mesh_z, \
-              'FaceAlpha', %f, 'EdgeColor', '%s', 'LineStyle', '%s');\n"
+              'FaceAlpha', %f, 'EdgeColor', %s, 'LineStyle', '%s');\n"
           facealpha edgecolor linestyle;
   close_out fh
 ;;
