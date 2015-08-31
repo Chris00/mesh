@@ -9,10 +9,11 @@ Description: This is an interface to various mesh generators,
   functions defined on them to TikZ, Scilab, Matlab, and Mathematica
   formats.
 Authors:     Christophe Troestler
-Maintainers: Christophe.Troestler@umons.ac.be
+Maintainers: Christophe Troestler <Christophe.Troestler@umons.ac.be>
 License:     LGPL-2.0 with OCaml linking exception
 Plugins:     StdFiles (0.4), META (0.4)
-Homepage:    http://forge.ocamlcore.org/projects/mesh/
+Homepage:    https://github.com/Chris00/mesh
+#BugReports:  https://github.com/Chris00/mesh/issues
 
 Flag libtriangle
   Description: Enable if you build on a system with libtriangle
@@ -111,5 +112,5 @@ Executable attributes
 
 SourceRepository trunk
   Type:       git
-  Location:   ssh://forge.ocamlcore.org//git/mesh/mesh.git
-  Browser:    https://forge.ocamlcore.org/scm/browser.php?group_id=232
+  Location:   https://github.com/Chris00/mesh.git
+  Browser:    https://github.com/Chris00/mesh
