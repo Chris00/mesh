@@ -110,6 +110,16 @@ Executable attributes
   CompiledObject: best
   Install:      false
 
+Executable export
+  Build$:	flag(tests)
+  Path:         tests
+  MainIs:       export.ml
+  BuildTools:   ocamlbuild
+  BuildDepends: mesh,mesh.triangle
+  CompiledObject: best
+  Install:      false
+
+
 SourceRepository trunk
   Type:       git
   Location:   https://github.com/Chris00/mesh.git
