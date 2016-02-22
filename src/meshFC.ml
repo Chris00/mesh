@@ -131,6 +131,7 @@ let scilab (mesh: mesh) (z: vec) fname =
   fprintf fh "// Run in Scilab with: exec('%s')\n\
               // Written by the OCaml Mesh module (version $(pkg_version)).\n\
               // mesh: %i triangles, %i points.\n\
+              // xs2pdf(ocaml.f, '%s.pdf')
               ocaml = struct('f', scf(), 'e', null, \
                              'x', fscanfMat('%s'), 'y', fscanfMat('%s'), \
                              'z', fscanfMat('%s'));\n\
@@ -139,7 +140,7 @@ let scilab (mesh: mesh) (z: vec) fname =
               ocaml.e = gce();\n\
               ocaml.e.hiddencolor = -1;\n\
               ocaml.f.color_map = jetcolormap(32);\n"
-           sci (NCOLS(triangle)) (NCOLS(pt)) xf yf zf;
+    sci (NCOLS(triangle)) (NCOLS(pt)) fname xf yf zf;
   close_out fh;
   let save_mat fname coord =
     let fh = open_out fname in
