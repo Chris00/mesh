@@ -13,7 +13,11 @@ DISTFILES = AUTHORS.txt INSTALL.txt README.txt \
 all byte native: setup.data
 	ocaml setup.ml -build
 
-GENERATE_ML_FILES = ocaml src/make_FC_code.ml
+BYTES_DIR = $(shell ocamlfind query bytes)
+BYTES_CMA = $(wildcard $(BYTES_DIR)/bytes.cma)
+BYTES_INC = $(if $(BYTES_CMA), -I $(BYTES_DIR) $(BYTES_CMA))
+
+GENERATE_ML_FILES = ocaml $(BYTES_INC) src/make_FC_code.ml
 
 # For development of the package.
 # FIXME: some tests should go to setup.ml

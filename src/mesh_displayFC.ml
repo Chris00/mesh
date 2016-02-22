@@ -134,7 +134,7 @@ let triangle s color {x=x0; y=y0} {x=x1; y=y1} {x=x2; y=y2} =
 
 let rec array_of_points s pts =
   let l = List.length pts in
-  let apts = Array.create l (0,0) in
+  let apts = Array.make l (0,0) in
   fill_array_of_points s apts 0 pts;
   apts
 and fill_array_of_points s apts i = function

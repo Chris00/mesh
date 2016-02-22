@@ -153,8 +153,9 @@ let scilab (mesh: mesh) (z: vec) fname =
   save_mat yf (fun i -> GET(pt, SND,i));
   save_mat zf (fun i -> z.{i})
 
-let is_allowed c =
-  ('0' <= c && c <= '9') || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || c = '_'
+let is_allowed_matlab c =
+  ('0' <= c && c <= '9') || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')
+  || c = '_'
 
 let matlab (mesh: mesh) ?(edgecolor=`Color 0) ?(linestyle="-") ?(facealpha=1.)
            (z: vec) fname =
@@ -170,14 +171,16 @@ let matlab (mesh: mesh) ?(edgecolor=`Color 0) ?(linestyle="-") ?(facealpha=1.)
     invalid_arg "Mesh.matlab: mesh#point must have 2 rows (fortran)";
   let dir = Filename.dirname fname
   and base = Filename.basename fname in
-  let base = (if Filename.check_suffix base ".m" then
-                 String.sub base 0 (String.length base - 2)
-               else String.copy base) in
+  let base =
+    if Filename.check_suffix base ".m" then
+      Bytes.unsafe_of_string(String.sub base 0 (String.length base - 2))
+    else Bytes.of_string base in
   (* Matlab filenames can contain only alphanumeric characters and
      underscores.  Convert all other characters to underscore *)
-  for i = 0 to String.length base - 1 do
-    if not(is_allowed base.[i]) then base.[i] <- '_'
+  for i = 0 to Bytes.length base - 1 do
+    if not(is_allowed_matlab (Bytes.get base i)) then Bytes.set base i '_'
   done;
+  let base = Bytes.unsafe_to_string base in
   let mat = Filename.concat dir (base ^ ".m") in
   let save_xy fh coord =
     for p = FST to LASTCOL(pt) do fprintf fh "%.13g " (GET(pt, coord,p)) done;
@@ -260,25 +263,38 @@ let adjacency (mesh: mesh) =
 let is_allowed_mathematica c =
   ('0' <= c && c <= '9') || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')
 
+let rec count_mathematica_allowed base =
+  let n = ref 0 in
+  for i = 0 to String.length base - 1 do
+    if is_allowed_mathematica (String.unsafe_get base i) then incr n
+  done;
+  !n
+
 (* Remove all chars that are not alphanumeric. *)
 let mathematica_safe base =
-  let j = ref 0 in
-  for i = 0 to String.length base - 1 do
-    if is_allowed_mathematica base.[i] then (
-      base.[!j] <- base.[i];
-      incr j;
+  let len = count_mathematica_allowed base in
+  if len = String.length base then base
+  else (
+    let base' = Bytes.create len in
+    let j = ref 0 in
+    for i = 0 to String.length base - 1 do
+      let c = String.unsafe_get base i in
+      if is_allowed_mathematica c then (
+        Bytes.set base' !j c;
+        incr j;
     )
-  done;
-  if !j < String.length base then String.sub base 0 !j else base
+    done;
+    Bytes.unsafe_to_string base'
+  )
 
 let mathematica_print_float fh f =
-  let s = sprintf "%.16g" f in
+  let s = Bytes.unsafe_of_string(sprintf "%.16g" f) in
   try
-    let e = String.index s 'e' in
+    let e = Bytes.index s 'e' in
     output fh s 0 e;  output_string fh "*^";
-    output fh s (e + 1) (String.length s - e - 1)
+    output fh s (e + 1) (Bytes.length s - e - 1)
   with Not_found ->
-    output fh s 0 (String.length s)
+    output fh s 0 (Bytes.length s)
 
 let mathematica (mesh: mesh) (z: vec) fname =
   let pt = mesh#point in
