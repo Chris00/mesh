@@ -131,11 +131,10 @@ let scilab (mesh: mesh) (z: vec) fname =
   fprintf fh "// Run in Scilab with: exec('%s')\n\
               // Written by the OCaml Mesh module.\n\
               // mesh: %i triangles, %i points.\n\
-              xf = fscanfMat('%s');\n\
-              yf = fscanfMat('%s');\n\
-              zf = fscanfMat('%s');\n\
+              ocaml = struct('x', fscanfMat('%s'), 'y', fscanfMat('%s'), \
+                             'z', fscanfMat('%s'));\n\
               clf();\n\
-              plot3d(xf, yf, zf, theta=70, alpha=10)\n"
+              plot3d(ocaml.x, ocaml.y, ocaml.z, theta=70, alpha=10)\n"
            sci (NCOLS(triangle)) (NCOLS(pt)) xf yf zf;
   close_out fh;
   let save_mat fname coord =
