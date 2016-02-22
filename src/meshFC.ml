@@ -129,7 +129,7 @@ let scilab (mesh: mesh) (z: vec) fname =
   and zf = fname ^ "_z.dat" in
   let fh = open_out sci in
   fprintf fh "// Run in Scilab with: exec('%s')\n\
-              // Written by the OCaml Mesh module.\n\
+              // Written by the OCaml Mesh module (version $(pkg_version)).\n\
               // mesh: %i triangles, %i points.\n\
               ocaml = struct('f', scf(), 'e', null, \
                              'x', fscanfMat('%s'), 'y', fscanfMat('%s'), \
@@ -189,7 +189,8 @@ let matlab (mesh: mesh) ?(edgecolor=`Color 0) ?(linestyle="-") ?(facealpha=1.)
     for p = FST to LASTCOL(pt) do fprintf fh "%.13g " (GET(pt, coord,p)) done;
     fprintf fh "\n" in
   let fh = open_out mat in
-  fprintf fh "%% Created by the OCaml Mesh module (run %s).\n\
+  fprintf fh "%% Run in Matlab with: run %s\n\
+              %% Created by the OCaml Mesh module (version $(pkg_version)).\n\
               %% print -painters -dpdf -r600 %s.pdf\n" mat base;
   fprintf fh "mesh_x = [" ;
   save_xy fh FST;
@@ -316,7 +317,8 @@ let mathematica (mesh: mesh) (z: vec) fname =
     else mathematica_safe base, fname ^ ".m" in
   let pkg = String.capitalize pkg in
   let fh = open_out fname in
-  fprintf fh "(* Created by the OCaml Mesh module *)\n";
+  fprintf fh "(* Created by the OCaml Mesh module (version $(pkg_version)) \
+              *)\n";
   fprintf fh "%s`xyz = {" pkg;
   output_string fh "{";
   mathematica_print_float fh pt.{FST, FST};  output_string fh ", ";

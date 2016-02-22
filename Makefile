@@ -1,7 +1,8 @@
 WEB = mesh.forge.ocamlcore.org:/home/groups/mesh/htdocs/
 TRIANGLE_URL = http://www.netlib.org/voronoi/triangle.zip
 
-DIR = $(shell oasis query name)-$(shell oasis query version)
+PKG_VERSION = $(shell oasis query version)
+DIR = $(shell oasis query name)-$(PKG_VERSION)
 TARBALL = $(DIR).tar.gz
 
 DISTFILES = AUTHORS.txt INSTALL.txt README.txt \
@@ -17,7 +18,8 @@ BYTES_DIR = $(shell ocamlfind query bytes)
 BYTES_CMA = $(wildcard $(BYTES_DIR)/bytes.cma)
 BYTES_INC = $(if $(BYTES_CMA), -I $(BYTES_DIR) $(BYTES_CMA))
 
-GENERATE_ML_FILES = ocaml $(BYTES_INC) src/make_FC_code.ml
+GENERATE_ML_FILES = ocaml $(BYTES_INC) src/make_FC_code.ml \
+  --pkg-version $(PKG_VERSION)
 
 # For development of the package.
 # FIXME: some tests should go to setup.ml

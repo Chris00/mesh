@@ -1,4 +1,7 @@
-(* Generate the layout dependent files by textual substitution. *)
+(* Generate the layout dependent files by textual substitution.
+
+   This script is supposed to be run before oasis.  The tarballs
+   must contain the already generated files. *)
 
 #load "str.cma";;
 
@@ -91,13 +94,14 @@ let tr_c =
   List.map (fun (re, s) -> (Str.regexp re, s)) tr
 
 
-let gen_FC ~mod_name fn_base =
+let gen_FC ~mod_name ~pkg_version fn_base =
   let s = string_of_file (fn_base ^ "FC.ml") in
   let s = tr_include s in
   let replace s (re,tr) = Str.global_replace re tr s in
-  let m = (Str.regexp "MOD", mod_name) in
-  write_ro (fn_base ^ "F.ml") (List.fold_left replace s (m :: tr_fortran));
-  write_ro (fn_base ^ "C.ml") (List.fold_left replace s (m :: tr_c))
+  let tr = [(Str.regexp "MOD", mod_name);
+            (Str.regexp_string "$(pkg_version)", pkg_version) ] in
+  write_ro (fn_base ^ "F.ml") (List.fold_left replace s (tr @ tr_fortran));
+  write_ro (fn_base ^ "C.ml") (List.fold_left replace s (tr @ tr_c))
 
 let rm_gen fn_base =
   (try Sys.remove (fn_base ^ "F.ml") with _ -> ());
@@ -114,8 +118,10 @@ let filenames =
 
 let () =
   let clean = ref false in
+  let pkg_version = ref "devel" in
   let specs = [
     "--clean", Arg.Set clean, " Remove the generated .ml files";
+    "--pkg-version", Arg.Set_string pkg_version, "The version of the package";
   ] in
   Arg.parse (Arg.align specs) (fun _ -> raise(Arg.Bad "no anonymous arg"))
             "ocaml make_FC_code.ml";
@@ -123,4 +129,5 @@ let () =
   if !clean then
     List.iter (fun (fn, _) -> rm_gen fn) filenames
   else
-    List.iter (fun (fn, mod_name) -> gen_FC fn ~mod_name) filenames
+    List.iter (fun (fn, mod_name) ->
+        gen_FC fn ~mod_name ~pkg_version:!pkg_version) filenames
