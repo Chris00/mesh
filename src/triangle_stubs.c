@@ -31,7 +31,7 @@ typedef REAL *vertex; /* taken from triangle.c */
 #define REAL_BIGARRAY_VAL(v) ((REAL *) Data_bigarray_val(v))
 #define INT_BIGARRAY_VAL(v) ((long int *) Data_bigarray_val(v))
 
-/* WARNING: Keep in sync with ['l Mesh.t] Caml data type */
+/* WARNING: Keep in sync with ['l Mesh.t] OCaml data type */
 static value meth_point;
 static value meth_point_attribute;
 static value meth_point_marker;
@@ -121,7 +121,7 @@ value ocaml_triangle_init(value vunit)
 #include "triangulate_stub.c"
 
 
-#define NARGS_TRIUNSUITABLE 7 /* Number of Caml args */
+#define NARGS_TRIUNSUITABLE 7 /* Number of OCaml args */
 
 CAMLexport
 int triunsuitable(vertex triorg, vertex tridest, vertex triapex, REAL area)

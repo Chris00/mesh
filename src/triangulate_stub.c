@@ -91,7 +91,7 @@ CAMLexport value NAME(value switches,
   if (in.segmentlist != NULL) free(in.segmentlist);
   if (in.segmentmarkerlist != NULL) free(in.segmentmarkerlist);
   
-  /* Create a Caml structure from [out] */
+  /* Create an OCaml structure from [out] */
   tuple = alloc(14, 0);
 
   /* Point.  The array has been allocated by triangle but must be

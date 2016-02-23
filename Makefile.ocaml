@@ -26,7 +26,7 @@ LINKPKG = $(if $(OCAMLPACKS), -linkpkg)
 OCAMLC_FLAGS += $(if $(OCAMLINCLUDES), $(addprefix -I , $(OCAMLINCLUDES)))
 OCAMLOPT_FLAGS += $(if $(OCAMLINCLUDES), $(addprefix -I , $(OCAMLINCLUDES)))
 
-# Caml general dependencies
+# OCaml general dependencies
 .SUFFIXES: .ml .mli .cmi .cmo .cma .cmx .cmxa
 
 %.cmi: %.mli

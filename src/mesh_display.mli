@@ -16,7 +16,7 @@
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the file
    LICENSE for more details. *)
 
-(** Draw meshes and level curves in a Caml Graphics window.
+(** Draw meshes and level curves in an OCaml Graphics window.
 
     @version 0.5
     @author Christophe Troestler <Christophe.Troestler\@umons.ac.be>
