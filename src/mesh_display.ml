@@ -1,9 +1,9 @@
 (* File: mesh_display.ml
 
-   Copyright (C) 2008
+   Copyright (C) 2008-
 
-     Christophe Troestler <Christophe.Troestler@umh.ac.be>
-     WWW: http://math.umh.ac.be/an/software/
+     Christophe Troestler <Christophe.Troestler@umons.ac.be>
+     WWW: http://math.umons.ac.be/an/software/
 
    This library is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License version 2.1 or

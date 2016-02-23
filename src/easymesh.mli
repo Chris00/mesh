@@ -1,9 +1,8 @@
-(* Easymesh.mli                    Time-stamp: <2010-11-20 19:01:31 trch>
+(* easymesh.mli
 
-  Copyright (C) 2001-2004
+  Copyright (C) 2001-
 
-     Christophe Troestler
-     email: Christophe.Troestler@umons.ac.be
+     Christophe Troestler <Christophe.Troestler@umons.ac.be>
      WWW: http://math.umons.ac.be/an/en/software/
 
    This library is free software; you can redistribute it and/or
@@ -26,7 +25,6 @@
    is a simple and easy to use mesh generator.  However, it is not
    very robust and can segfault instead of reporting an error.
 
-   @version 0.5
    @author Christophe Troestler (Christophe.Troestler\@umons.ac.be)
 *)
 

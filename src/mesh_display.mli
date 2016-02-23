@@ -1,9 +1,8 @@
 (* File: mesh_display.mli
 
-   Copyright (C) 2006
+   Copyright (C) 2006-
 
-     Christophe Troestler
-     email: Christophe.Troestler@umons.ac.be
+     Christophe Troestler <Christophe.Troestler@umons.ac.be>
      WWW: http://math.umons.ac.be/an/en/software/
 
    This library is free software; you can redistribute it and/or modify
@@ -18,7 +17,6 @@
 
 (** Draw meshes and level curves in an OCaml Graphics window.
 
-    @version 0.5
     @author Christophe Troestler <Christophe.Troestler\@umons.ac.be>
 *)
 

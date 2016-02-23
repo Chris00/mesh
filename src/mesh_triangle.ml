@@ -1,6 +1,6 @@
-(* File: triangle.ml
+(* File: mesh_triangle.ml
 
-   Copyright (C) 2009
+   Copyright (C) 2009-
 
      Christophe Troestler <Christophe.Troestler@umons.ac.be>
      WWW: http://math.umons.ac.be/an/software/

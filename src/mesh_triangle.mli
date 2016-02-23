@@ -1,9 +1,8 @@
-(* File: triangle.mli
+(* File: mesh_triangle.mli
 
    Copyright (C) 2006-
 
-     Christophe Troestler
-     email: Christophe.Troestler@umh.ac.be
+     Christophe Troestler <Christophe.Troestler@umons.ac.be>
      WWW: http://math.umons.ac.be/an/software/
 
    This library is free software; you can redistribute it and/or modify
