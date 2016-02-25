@@ -44,7 +44,7 @@ let setup_t =
      to [true]. *)
   if has_graphics then
     let change_flag = function
-      | Flag(cs, flag) when cs.cs_name = "graphics" ->
+      | Flag(cs, flag) when cs.cs_name = "has_graphics" ->
          let flag = { flag with
                       flag_default = [(OASISExpr.EBool true, true)] } in
          Flag(cs, flag)

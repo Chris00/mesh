@@ -19,7 +19,7 @@ Flag libtriangle
   Description: Enable if you build on a system with libtriangle
   Default: false
 
-Flag graphics
+Flag has_graphics
   Description: Enable if the module Graphics is present
   Default: false
 
@@ -35,7 +35,7 @@ Library mesh
   BuildDepends: bigarray, bytes
 
 Library mesh_display
-  Build$:        flag(graphics)
+  Build$:        flag(has_graphics)
   Path:          src/
   BuildTools:    ocamlbuild
   Modules:       Mesh_display
@@ -71,7 +71,7 @@ Document API
 
 # Tests:
 Executable square_easymesh
-  Build$:	flag(tests) && flag(lacaml) && flag(graphics)
+  Build$:	flag(tests) && flag(lacaml) && flag(has_graphics)
   Path:         tests/
   MainIs:       square_easymesh.ml
   BuildTools:   ocamlbuild
