@@ -28,7 +28,6 @@ AUTHORS.txt
 INSTALL.txt
 README.txt
 setup.data
-setup.ml
 *.clib
 *.mllib
 src/META
