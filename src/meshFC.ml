@@ -131,7 +131,7 @@ let scilab (mesh: mesh) (z: vec) fname =
   fprintf fh "// Run in Scilab with: exec('%s')\n\
               // Written by the OCaml Mesh module (version $(pkg_version)).\n\
               // mesh: %i triangles, %i points.\n\
-              // xs2pdf(ocaml.f, '%s.pdf')
+              // xs2pdf(ocaml.f, '%s.pdf')\n\
               ocaml = struct('f', scf(), 'e', null, \
                              'x', fscanfMat('%s'), 'y', fscanfMat('%s'), \
                              'z', fscanfMat('%s'));\n\
