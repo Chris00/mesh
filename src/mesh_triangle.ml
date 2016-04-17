@@ -52,7 +52,7 @@ let pslg ?(hole: 'a Mesh.mat option) ?(region: 'a Mesh.mat option)
 
 let triangle ?delaunay ?min_angle ?max_area ?region_area ?max_steiner
              ?voronoi ?edge ?neighbor ?subparam ?triangle_area
-             ?check_finite ?debug ?triunsuitable
+             ?check_finite ?debug ?verbose ?triunsuitable
              ~pslg ~refine mesh =
   let layout = Array2.layout mesh#point in
   if is_c_layout layout then
@@ -63,7 +63,7 @@ let triangle ?delaunay ?min_angle ?max_area ?region_area ?max_steiner
       Mesh_triangleC.triangulate
         ?delaunay
         ?min_angle ?max_area ?region_area ?max_steiner ?voronoi ?neighbor ?edge
-        ?subparam ?triangle_area ?triunsuitable ?check_finite ?debug
+        ?subparam ?triangle_area ?triunsuitable ?check_finite ?debug ?verbose
         ~pslg ~refine (mesh_to_c mesh) in
     (Obj.magic(res:c_layout t * c_layout voronoi) : 'a t * 'a voronoi)
   else
@@ -74,24 +74,26 @@ let triangle ?delaunay ?min_angle ?max_area ?region_area ?max_steiner
       Mesh_triangleF.triangulate
         ?delaunay
         ?min_angle ?max_area ?region_area ?max_steiner ?voronoi ?neighbor ?edge
-        ?subparam ?triangle_area ?triunsuitable ?check_finite ?debug
+        ?subparam ?triangle_area ?triunsuitable ?check_finite ?debug ?verbose
         ~pslg ~refine (mesh_to_fortran mesh) in
     (Obj.magic(res:fortran_layout t * fortran_layout voronoi) : 'a t * 'a voronoi)
 
 
 let triangulate ?delaunay ?min_angle ?max_area ?region_area ?max_steiner
-    ?voronoi ?edge ?neighbor ?subparam ?triunsuitable ?check_finite ?debug
-    pslg =
+      ?voronoi ?edge ?neighbor ?subparam ?triunsuitable ?check_finite
+      ?debug ?verbose
+      pslg =
   let mesh = mesh_of_pslg pslg in
   triangle ?delaunay ?min_angle ?max_area ?region_area ?max_steiner ?voronoi
-    ?edge ?neighbor ?subparam ?triunsuitable ?check_finite ?debug
+    ?edge ?neighbor ?subparam ?triunsuitable ?check_finite ?debug ?verbose
     ~pslg:true ~refine:false mesh
 
 let refine ?delaunay ?min_angle ?max_area ?max_steiner
     ?voronoi ?edge ?neighbor ?subparam ?triangle_area ?triunsuitable
-    ?check_finite ?debug mesh =
+    ?check_finite ?debug ?verbose mesh =
   triangle ?delaunay ?min_angle ?max_area ?max_steiner ?voronoi
-    ?edge ?neighbor ?subparam ?triangle_area ?triunsuitable ?check_finite ?debug
+    ?edge ?neighbor ?subparam ?triangle_area ?triunsuitable ?check_finite
+    ?debug ?verbose
     ~pslg:false ~refine:true mesh
 
 

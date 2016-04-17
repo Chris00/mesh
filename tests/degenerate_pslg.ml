@@ -9,4 +9,5 @@ let rectangle_pslg a1 b1 a2 b2 =
                                                   [| 2; 3; 4; 1 |] |] in
   M.pslg points seg
 
-let rectangle = M.triangulate (rectangle_pslg 0. 1. 0. 1.)
+let rectangle =
+  M.triangulate (rectangle_pslg 0. 1. 0. 1.) ~verbose:`VV

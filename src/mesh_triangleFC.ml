@@ -78,7 +78,7 @@ let empty_vec = Array1.create float64 layout 0 (* not used => global *)
 let triangulate ?(delaunay=true) ?min_angle ?max_area ?(region_area=false)
     ?max_steiner ?(voronoi=false) ?(edge=true) ?(neighbor=false)
     ?(subparam=false) ?triangle_area ?triunsuitable
-    ?(check_finite=true) ?(debug=true)
+    ?(check_finite=true) ?(debug=true) ?verbose
     ~pslg ~refine (mesh: layout t) =
   (* Check points *)
   let point = mesh#point in
@@ -191,6 +191,11 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area ?(region_area=false)
   if neighbor then Buffer.add_char switches 'n';
   if subparam then Buffer.add_string switches "o2";
   if not debug then Buffer.add_char switches 'Q';
+  (match verbose with
+   | Some `V -> Buffer.add_string switches "V";
+   | Some `VV -> Buffer.add_string switches "V";
+   | Some `VVV -> Buffer.add_string switches "VVV";
+   | None -> ());
   (* Call triangle and build the resulting objects *)
   let point, point_attribute, point_marker, triangle, triangle_attribute,
       neighbor, segment, segment_marker, edge, edge_marker,

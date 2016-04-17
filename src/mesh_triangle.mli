@@ -52,8 +52,8 @@ end
 val pslg : ?hole: 'l Mesh.mat -> ?region: 'l Mesh.mat ->
            ?point_attribute: 'l Mesh.mat -> ?point_marker: 'l Mesh.int_vec ->
            'l Mesh.mat ->
-           ?segment_marker: 'l Mesh.int_vec -> 'l Mesh.int_mat
-           -> 'l pslg
+           ?segment_marker: 'l Mesh.int_vec ->
+           'l Mesh.int_mat -> 'l pslg
 (** [pslg point segment] creates a PSLG with the proper methods.
     The default values for unspecified values are empty arrays.
     @raise Invalid_argument if a size is incorrect. *)
@@ -117,6 +117,7 @@ val triangulate :
   ?triunsuitable:triunsuitable ->
   ?check_finite:bool ->
   ?debug:bool ->
+  ?verbose:[ `V | `VV | `VVV ] ->
   'a pslg -> 'a t * 'a voronoi
 (** [triangulate pslg] returns a triangulation and a possibly a
     Voronoi diagram of the domain described by [pslg].  If
@@ -195,6 +196,7 @@ val refine :
   ?triunsuitable:triunsuitable ->
   ?check_finite:bool ->
   ?debug:bool ->
+  ?verbose:[ `V | `VV | `VVV ] ->
   'a t -> 'a t * 'a voronoi
 (** [refine mesh] returns a refined version of the [mesh].  The
     initial indices for the points are preserved, additional nodes are
