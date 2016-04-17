@@ -124,6 +124,15 @@ Executable export
   CompiledObject: best
   Install:      false
 
+Executable degenerate_pslg
+  Build$:	flag(tests)
+  Path:         tests
+  MainIs:       degenerate_pslg.ml
+  BuildTools:   ocamlbuild
+  BuildDepends: mesh, mesh.triangle
+  CompiledObject: best
+  Install:      false
+
 
 SourceRepository trunk
   Type:       git
