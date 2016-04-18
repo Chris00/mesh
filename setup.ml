@@ -38,7 +38,7 @@ open OASISTypes
 let setup_t =
   (* Unless one installs on OSX with "brew install ocaml --with-x11",
      the [Graphics] module will not be present. *)
-  let has_graphics = try BaseCheck.package_version "graphics"; true
+  let has_graphics = try ignore(BaseCheck.package_version "graphics"); true
                      with Failure _ -> false in
   (* Change [setup_t] to set the default value of the flag "graphics"
      to [true]. *)
@@ -50,9 +50,9 @@ let setup_t =
          Flag(cs, flag)
       | section -> section in
     let package =
-      { setup_t.package with
-        sections = List.map change_flag setup_t.package.sections } in
-    { setup_t with package }
+      { setup_t.BaseSetup.package with
+        sections = List.map change_flag setup_t.BaseSetup.package.sections } in
+    { setup_t with BaseSetup.package = package }
   else
     setup_t
 
