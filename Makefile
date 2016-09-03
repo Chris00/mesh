@@ -25,7 +25,7 @@ GENERATE_ML_FILES = ocaml $(BYTES_INC) src/make_FC_code.ml \
 # FIXME: some tests should go to setup.ml
 CONFIGURE = ocaml setup.ml -configure --enable-tests --enable-lacaml
 setup.data: configure
-configure: setup.ml
+configure: setup.ml opam/opam
 	@WGET=`which wget`;						     \
 	UNZIP=`which unzip`;						     \
 	if [ -f "src/triangle/triangle.c" -a -f "src/triangle/triangle.h" ]; \
@@ -53,6 +53,9 @@ setup.ml: _oasis
 
 doc install uninstall reinstall: all
 	ocaml setup.ml -$@
+
+opam/opam: _oasis
+	oasis2opam --local -y
 
 upload-doc: doc
 	scp -C -p -r _build/API.docdir $(WEB)
