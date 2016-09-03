@@ -123,10 +123,13 @@ struct
                       level color filename
 end
 
-let scilab (mesh: 'a #t) (z: 'a vec) filename =
+let scilab (mesh: 'a #t) ?longitude ?azimuth ?mode ?box ?edgecolor
+      (z: 'a vec) filename =
   if is_c_layout mesh
-  then MeshC.scilab (mesh_to_c mesh) (vec_to_c z) filename
-  else MeshF.scilab (mesh_to_fortran mesh) (vec_to_fortran z) filename
+  then MeshC.scilab (mesh_to_c mesh) ?longitude ?azimuth ?mode ?box
+         ?edgecolor (vec_to_c z) filename
+  else MeshF.scilab (mesh_to_fortran mesh) ?longitude ?azimuth ?mode ?box
+         ?edgecolor (vec_to_fortran z) filename
 
 let matlab (mesh: 'a #t) ?edgecolor ?linestyle ?facealpha (z: 'a vec) filename =
   if is_c_layout mesh

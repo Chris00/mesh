@@ -109,7 +109,9 @@ let latex ?edge mesh filename =
   with e -> close_out fh;
            raise e
 
-let scilab (mesh: mesh) (z: vec) fname =
+let scilab (mesh: mesh) ?(longitude=70.) ?(azimuth=60.)
+      ?(mode=`Triangles) ?(box=`Full) ?edgecolor
+      (z: vec) fname =
   let triangle = mesh#triangle in
   let pt = mesh#point in
   if NCOLS(triangle) = 0 then
@@ -127,20 +129,49 @@ let scilab (mesh: mesh) (z: vec) fname =
   and xf = fname ^ "_x.dat"
   and yf = fname ^ "_y.dat"
   and zf = fname ^ "_z.dat" in
+  let mode = match mode with
+    | `Triangles -> 1
+    | `Triangles_only -> 0
+    | `No_triangles -> -1 in
+  let box = match box with
+    | `None -> 0
+    | `Behind -> 2
+    | `Box_only -> 3
+    | `Full -> 4 in
+  let edgecolor, er, eg, eb = match edgecolor with
+    | None -> false, 0., 0., 0.
+    | Some(`Color c) ->
+       (true,
+        float((c lsr 16) land 0xFF) /. 255.,
+        float((c lsr 8) land 0xFF) /. 255.,
+        float(c land 0xFF) /. 255.)
+    | Some(`Grey c) ->
+       if c <= 0. || c > 1. then (false, 0., 0., 0.)
+       else (true, c, c, c) in
   let fh = open_out sci in
-  fprintf fh "// Run in Scilab with: exec('%s')\n\
+  (* Put the edge color at the bottom of the colormap so it is usually
+     hidden.  Moreover, put enough color in the map so the edge color
+     is seldom drawn. *)
+  fprintf fh "mode(0);\n\
+              // Run in Scilab with: exec('%s')\n\
               // Written by the OCaml Mesh module (version $(pkg_version)).\n\
               // mesh: %i triangles, %i points.\n\
-              // xs2pdf(ocaml.f, '%s.pdf')\n\
               ocaml = struct('f', scf(), 'e', null, \
                              'x', fscanfMat('%s'), 'y', fscanfMat('%s'), \
                              'z', fscanfMat('%s'));\n\
               clf();\n\
-              plot3d1(ocaml.x, ocaml.y, ocaml.z, theta=70, alpha=10);\n\
               ocaml.e = gce();\n\
               ocaml.e.hiddencolor = -1;\n\
-              ocaml.f.color_map = jetcolormap(32);\n"
-    sci (NCOLS(triangle)) (NCOLS(pt)) fname xf yf zf;
+              ocaml.f.color_map = jetcolormap(100);\n"
+    sci (NCOLS(triangle)) (NCOLS(pt)) xf yf zf;
+  if edgecolor && mode >= 0 then
+    fprintf fh "ocaml.f.color_map(1,:) = [%g, %g, %g];\n\
+                xset('color', 1);\n"
+      er eg eb;
+  fprintf fh "plot3d1(ocaml.x, ocaml.y, ocaml.z, theta=%g, alpha=%g, \
+                flag=[%d,2,%d]);\n\
+              disp('Save: xs2pdf(ocaml.f, ''%s.pdf'')');\n"
+    longitude azimuth mode box fname;
   close_out fh;
   let save_mat fname coord =
     let fh = open_out fname in

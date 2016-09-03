@@ -279,12 +279,28 @@ end
 
 (** {2 Scilab} *)
 
-val scilab : 'l #t -> 'l vec -> string -> unit
+val scilab : 'l #t -> ?longitude: float -> ?azimuth: float ->
+             ?mode:[`Triangles | `Triangles_only | `No_triangles] ->
+             ?box:[`None | `Behind | `Box_only | `Full] ->
+             ?edgecolor:[`Color of int | `Grey of float] ->
+             'l vec -> string -> unit
   (** [scilab mesh z file] saves the mesh data and the function values
       [z] (i.e. [z.{i}] is the function value at the point
       [mesh.point.{_,i}] ([fortran layout])) on that mesh so that when
       Scilab runs the created [file].sci script, the graph of the
-      function is drawn. *)
+      function is drawn.
+
+      @param longitude sets the longitude in degrees of the
+             observation point.
+      @param azimuth sets the azimuth in degrees of the observation point.
+      @param mode [`Triangles] draw the triangles on the surface,
+                  [`Triangles_only] only draw the triangles (no surface color),
+                  [`No_triangles] only draw the colored surface.
+      @param box [`None] draw no bow at all,
+                 [`Behind] only draw the axes behind the plot,
+                 [`Box_only] only draw the box and label axes,
+                 [`Full] draw the box, label axes, and add ticks.
+   *)
 
 (** {2 Matlab} *)
 
