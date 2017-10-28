@@ -1,4 +1,4 @@
-Triangular mesh generation and manipulation.
+Triangular mesh generation and manipulation
 
 This is an interface to various mesh generators, in particular
 triangle. It also provides functions to optimize the numbering of mesh

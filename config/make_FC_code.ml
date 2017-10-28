@@ -3,8 +3,6 @@
    This script is supposed to be run before oasis.  The tarballs
    must contain the already generated files. *)
 
-#load "str.cma";;
-
 let string_of_file fn =
   let buf = Buffer.create 4096 in
   let fh = open_in fn in
@@ -26,9 +24,7 @@ let write_ro fn s =
 let include_re = Str.regexp "INCLUDE(\\([^()]+\\))"
 
 let rec tr_include s =
-  let inc s =
-    let fn = Filename.concat "src" (Str.matched_group 1 s) in
-    tr_include (string_of_file fn) in
+  let inc s = tr_include (string_of_file (Str.matched_group 1 s)) in
   Str.global_substitute include_re inc s
 
 let arg =
@@ -110,10 +106,10 @@ let rm_gen fn_base =
 
 let filenames =
   (* Filename, module name *)
-  [ "src/mesh_triangle", "Mesh";
-    "src/mesh", "Mesh";
-    "src/mesh_display", "Mesh_display";
-    "src/easymesh", "Easymesh";
+  [ "mesh_triangle", "Mesh";
+    "mesh", "Mesh";
+    "mesh_display", "Mesh_display";
+    "easymesh", "Easymesh";
   ]
 
 let () =
@@ -129,5 +125,7 @@ let () =
   if !clean then
     List.iter (fun (fn, _) -> rm_gen fn) filenames
   else
-    List.iter (fun (fn, mod_name) ->
-        gen_FC fn ~mod_name ~pkg_version:!pkg_version) filenames
+    List.iter (fun (fn_base, mod_name) ->
+        if Sys.file_exists (fn_base ^ "FC.ml") then
+          gen_FC fn_base ~mod_name ~pkg_version:!pkg_version
+      ) filenames

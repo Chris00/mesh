@@ -21,11 +21,11 @@
 
 #ifdef LIBTRIANGLE
 /* Use the external library if it exists. */
-#include "triangle.h"
+#include <triangle.h>
 typedef REAL *vertex; /* taken from triangle.c */
 #else
 /* Include triangle code. */
-#include "triangle/triangle.c"
+#include "triangle.c"
 #endif
 
 #define REAL_BIGARRAY_VAL(v) ((REAL *) Data_bigarray_val(v))

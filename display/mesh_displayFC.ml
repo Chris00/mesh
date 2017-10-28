@@ -156,7 +156,7 @@ let fill_quadrilateral s color {x=x0; y=y0} {x=x1; y=y1} {x=x2; y=y2}
 
 (************************************************************************)
 (* Include peformed by make_FC_code.ml *)
-INCLUDE(mesh_level_curvesFC.ml);;
+INCLUDE(../src/mesh_level_curvesFC.ml);;
 (************************************************************************)
 
 let level_curves ~width ~height ?(boundary=(fun _ -> Some 0))

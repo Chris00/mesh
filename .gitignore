@@ -1,16 +1,7 @@
 # OCaml							-*-conf-unix-*-
-*.annot
-*.cm[ioax]
-*.cmxa
-*.exe
-*.com
-*.byte
-*.native
-doc
-.depend.ocaml
-._d/
-src/triangle
-src/triangle.zip
+.merlin
+*.install
+triangle/triangle
 src/levels.tex
 src/testmesh*.tex
 _build
@@ -21,26 +12,9 @@ RE:.*\.ba[0-9]
 *.log
 *.pdf
 auto/
-# Test executables
-tests/square
 # Generated files (unmodified)
 AUTHORS.txt
 INSTALL.txt
 README.txt
-setup.data
-*.clib
-*.mllib
-src/META
-configure
-API.docdir
-API.odocl
-src/easymeshC.ml
-src/easymeshF.ml
-src/mesh_displayC.ml
-src/mesh_displayF.ml
-src/mesh_triangleC.ml
-src/mesh_triangleF.ml
-src/meshC.ml
-src/meshF.ml
 # Tarball
 *.tar.gz

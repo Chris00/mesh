@@ -1,5 +1,0 @@
-# OASIS_START
-# OASIS_STOP
-
-<**/*.ml>: annot, safe_string
-

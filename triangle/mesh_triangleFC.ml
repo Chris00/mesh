@@ -14,12 +14,15 @@ type int_vec = layout Mesh.int_vec
 let layout = Bigarray.LAYOUT
 let default_switches = "DEFAULT_SWITCHES"
 
+let empty_vec = Array1.create int layout 0
 let empty_mat0 = CREATE_MAT(float64, 0, 0)
+let empty_mat2 = CREATE_MAT(float64, 2, 0)
+let empty_mat4 = CREATE_MAT(float64, 4, 0)
 
 let pslg ~hole ~region ~point_attribute ~point_marker ~point
          ~segment_marker ~segment =
   let point_marker = match point_marker with
-    | None -> MeshFC.empty_vec
+    | None -> empty_vec
     | Some m ->
        let n = Array1.dim m in
        if 0 < n && n < NCOLS(point) then
@@ -32,20 +35,20 @@ let pslg ~hole ~region ~point_attribute ~point_marker ~point
          invalid_arg "Mesh_triangle.pslg: COLS point_attribute <> COLS point";
        a in
   let segment_marker = match segment_marker with
-    | None -> MeshFC.empty_vec
+    | None -> empty_vec
     | Some m ->
        let n = Array1.dim m in
        if 0 < n && n < NCOLS(segment) then
          invalid_arg "Mesh_triangle.pslg: segment_marker too small";
        m in
   let hole = match hole with
-    | None -> MeshFC.empty_mat2
+    | None -> empty_mat2
     | Some h ->
        if NCOLS(h) > 0 && NROWS(h) <> 2 then
          invalid_arg "Mesh_triangle.pslg: ROWS hole must be 2";
        h in
   let region = match region with
-    | None -> MeshFC.empty_mat4
+    | None -> empty_mat4
     | Some r ->
        if NCOLS(r) > 0 && NROWS(r) <> 4 then
          invalid_arg "Mesh_triangle.pslg: ROWS region must be 4";
@@ -229,7 +232,7 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area ?(region_area=false)
  ***********************************************************************)
 
 let sub (mesh: mesh) ?(pos=FST) len =
-  let m, n_tr, cols_tr = MeshFC.internal_sub (mesh :> MeshFC.mesh)
+  let m, n_tr, cols_tr = Mesh__MeshFC.internal_sub (mesh :> Mesh__MeshFC.mesh)
                                              ~pos len in
   let point_attribute =
     if NROWS(mesh#point_attribute) = 0 || NCOLS(mesh#point_attribute) = 0 then
@@ -241,7 +244,7 @@ let sub (mesh: mesh) ?(pos=FST) len =
     if NROWS(old_att) = 0 || NCOLS(old_att) = 0 then old_att
     else (
       let att = CREATE_MAT(float64, NROWS(old_att), n_tr) in
-      MeshFC.iteri (fun i pi ->
+      Mesh__MeshFC.iteri (fun i pi ->
                     for j = FST to LASTROW(att) do
                       GET(att, j, i) <- GET(old_att, j, pi);
                     done
@@ -259,8 +262,8 @@ let sub (mesh: mesh) ?(pos=FST) len =
 let permute_points_name = "Mesh_triangle.permute_points"
 
 let do_permute_points (old_mesh: mesh) (perm: int_vec) inv_perm : mesh =
-  let mesh = MeshFC.do_permute_points permute_points_name
-                                      (old_mesh :> MeshFC.mesh)
+  let mesh = Mesh__MeshFC.do_permute_points permute_points_name
+                                      (old_mesh :> Mesh__MeshFC.mesh)
                                       perm inv_perm in
   (* Permute the attributes *)
   let old_attr : mat = old_mesh#point_attribute in
@@ -277,7 +280,7 @@ let do_permute_points (old_mesh: mesh) (perm: int_vec) inv_perm : mesh =
 
 
 let permute_points (mesh: mesh) ~inv (perm: int_vec) =
-  let inv_perm = MeshFC.inverse_perm permute_points_name perm in
+  let inv_perm = Mesh__MeshFC.inverse_perm permute_points_name perm in
   if inv then do_permute_points mesh inv_perm perm
   else do_permute_points mesh perm inv_perm
 
@@ -285,8 +288,8 @@ let permute_points (mesh: mesh) ~inv (perm: int_vec) =
 let permute_triangles_name = "Mesh_triangle.permute_triangles"
 
 let do_permute_triangles (old_mesh: mesh) (perm: int_vec) : mesh =
-  let mesh = MeshFC.do_permute_triangles permute_triangles_name
-                                         (old_mesh :> MeshFC.mesh) perm in
+  let mesh = Mesh__MeshFC.do_permute_triangles permute_triangles_name
+                                         (old_mesh :> Mesh__MeshFC.mesh) perm in
   (* Permute attributes *)
   let old_attr : mat = old_mesh#triangle_attribute in
   let attr = CREATE_MAT(float64, NROWS(old_attr), NCOLS(old_attr)) in
@@ -301,6 +304,6 @@ let do_permute_triangles (old_mesh: mesh) (perm: int_vec) : mesh =
               ~triangle_attribute: attr
 
 let permute_triangles (mesh: mesh) ~inv (perm: int_vec) =
-  let inv_perm = MeshFC.inverse_perm permute_triangles_name perm in
+  let inv_perm = Mesh__MeshFC.inverse_perm permute_triangles_name perm in
   if inv then do_permute_triangles mesh inv_perm
   else do_permute_triangles mesh perm
