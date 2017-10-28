@@ -126,6 +126,8 @@ let latex_end fh =
 (* PGF output *)
 let latex_begin fh width height xmin ymin =
   fprintf fh "\\begin{pgfscope}\n";
+  fprintf fh "  %% Written by OCaml Mesh.  width: %g, height: %g, xmin: %g, \
+              ymin: %g\n" width height xmin ymin;
   fprintf fh "  %% \\meshline{R,G,B}{x1}{y1}{x2}{y2}\n";
   (* We need to put the path in a scope otherwise one gets "TeX
      capacity exceeded". *)
