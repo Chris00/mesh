@@ -154,7 +154,7 @@ let scilab (mesh: mesh) ?(longitude=70.) ?(azimuth=60.)
      is seldom drawn. *)
   fprintf fh "mode(0);\n\
               // Run in Scilab with: exec('%s')\n\
-              // Written by the OCaml Mesh module (version $(pkg_version)).\n\
+              // Written by the OCaml Mesh module (version %%VERSION%%)).\n\
               // mesh: %i triangles, %i points.\n\
               ocaml = struct('f', scf(), 'e', null, \
                              'x', fscanfMat('%s'), 'y', fscanfMat('%s'), \
@@ -222,7 +222,7 @@ let matlab (mesh: mesh) ?(edgecolor=`Color 0) ?(linestyle="-") ?(facealpha=1.)
     fprintf fh "\n" in
   let fh = open_out mat in
   fprintf fh "%% Run in Matlab with: run %s\n\
-              %% Created by the OCaml Mesh module (version $(pkg_version)).\n\
+              %% Created by the OCaml Mesh module (version %%VERSION%%).\n\
               %% print -painters -dpdf -r600 %s.pdf\n" mat base;
   fprintf fh "mesh_x = [" ;
   save_xy fh FST;
@@ -349,7 +349,7 @@ let mathematica (mesh: mesh) (z: vec) fname =
     else mathematica_safe base, fname ^ ".m" in
   let pkg = String.capitalize pkg in
   let fh = open_out fname in
-  fprintf fh "(* Created by the OCaml Mesh module (version $(pkg_version)) \
+  fprintf fh "(* Created by the OCaml Mesh module (version %%VERSION%%)) \
               *)\n";
   fprintf fh "%s`xyz = {" pkg;
   output_string fh "{";
