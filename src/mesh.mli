@@ -37,13 +37,16 @@ open Bigarray
 (** {2 Mesh data format} *)
 
 type 'layout vec = (float, float64_elt, 'layout) Array1.t
-    (** Float vector (parametrized by the layout). *)
+(** Float vector (parametrized by the layout). *)
+
 type 'layout mat = (float, float64_elt, 'layout) Array2.t
-    (** Float matrix (parametrized by the layout). *)
+(** Float matrix (parametrized by the layout). *)
+
 type 'layout int_vec = (int, int_elt, 'layout) Array1.t
-    (** Integer vector (parametrized by the layout). *)
+(** Integer vector (parametrized by the layout). *)
+
 type 'layout int_mat = (int, int_elt, 'layout) Array2.t
-    (** Integer matrix (parametrized by the layout). *)
+(** Integer matrix (parametrized by the layout). *)
 
 (** Planar Straight Line Graph datastructure.  By default, creating an
     object from this class results in all methods being initialized
@@ -53,8 +56,8 @@ object
   method point : 'l mat
   (** Array of points coordinates (x,y).  It is of size [2 * n]
       ([fortran_layout]) where [n >= 3] is the number of points.  So the
-      coordinates of point number [i] are [(point.{1,i}, point.{2,i})].
-  *)
+      coordinates of point number [i] are [(point.{1,i}, point.{2,i})]. *)
+
   method point_marker : 'l int_vec
   (** Array of points markers.  Points inside the domain receive the
       marker [0], so assign markers [>= 1] to distinguish different
@@ -68,6 +71,7 @@ object
       in the triangulation is enforced (although each segment may be
       subdivided into smaller edges).  It is of size [2 * n]
       ([fortran_layout]) for some [n >= 0]. *)
+
   method segment_marker : 'l int_vec
   (** Array of segment markers.  It must either be empty (in which
       case it is equivalent to all the markers being [1]), or it must be
@@ -109,15 +113,18 @@ object
       triangle represents a nonlinear element.  Its size is [c * n]
       ([fortran_layout]) where [n > 0] is the number of triangles and
       [c >= 3] is the number of nodes. *)
+
   method neighbor : 'layout int_mat
   (** Array of triangle neighbors; 3 int per triangle.  It is of size
       [3 * n] ([fortran_layout]) where [n] is 0 (i.e., neighbouring
       information is not given) or the number of triangles.  Negative
       entries must be skipped (boundary triangles have less than 3
       neighbors).  *)
+
   method edge : 'layout int_mat
   (** Array of edge endpoints; 2 int per edge.  It is of size [2 * n]
       ([fortran_layout]) where [n > 0] is the number of edges. *)
+
   method edge_marker : 'layout int_vec
   (** Array of edge markers.  Edges inside the domain receive the
       marker [0].  It must either be empty (meaning that the
@@ -132,9 +139,11 @@ object
   (** Array of points coordinates (x,y).  It is of size [2 * n]
       ([fortran_layout]) where [n] is the number of points.  So the
       coordinates of point number [i] are [(point.{1,i}, point.{2,i})]. *)
+
   method edge  : 'layout int_mat
   (** Array of edge endpoints; 2 int per edge.  It is of size [2 * n]
       ([fortran_layout]) where [n > 0] is the number of edges. *)
+
   method normal: 'layout mat
   (** Array of normal vectors, used for infinite rays in the Voronoi
       diagram.  It is of dimensions [2 * n] ([fortran_layout]) for
@@ -341,3 +350,10 @@ val mathematica : 'l #t -> 'l vec -> string -> unit
     If [file] contains other digits than alphanumeric
     (e.g. underscores), they are removed for the context names
     [File] used for internal variables. *)
+
+
+
+;;
+(* Local Variables: *)
+(* compile-command: "make -k -w -C .." *)
+(* End: *)

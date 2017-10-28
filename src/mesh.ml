@@ -145,5 +145,5 @@ let mathematica (mesh: 'a #t) (z: 'a vec) filename =
 
 
 (* Local Variables: *)
-(* compile-command: "make -k -C .." *)
+(* compile-command: "make -k -w -C .." *)
 (* End: *)
