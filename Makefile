@@ -1,5 +1,9 @@
 TRIANGLE_URL = http://www.netlib.org/voronoi/triangle.zip
 
+PACKAGES = mesh mesh-display mesh-easymesh mesh-triangle
+PKGVERSION = $(shell git describe --always)
+TARBALL = _build/mesh-$(PKGVERSION).tbz
+
 all byte native:
 	jbuilder build @install --dev
 
@@ -8,40 +12,51 @@ clean:
 
 doc:
 	jbuilder build --dev @doc
+	echo '.def { background: #f0f0f0; }' >> _build/default/_doc/odoc.css
+
+tests:
+	jbuilder runtest
+
+submit:
+	topkg distrib --skip-build --skip-tests
+#       Add the Trangle files so the tarball can easily be compiled.
+	tar -C _build -xf $(TARBALL)
+	mkdir _build/mesh-$(PKGVERSION)/triangle/triangle/
+	cp -a triangle/triangle/triangle.* \
+	  _build/mesh-$(PKGVERSION)/triangle/triangle/
+	tar -C _build -zcf $(TARBALL) mesh-$(PKGVERSION)
+	$(RM) -rf _build/mesh-$(PKGVERSION)/
+	topkg publish distrib
+# 	Create packahes and perform the subtitution that topkkg does not
+#	(until opam2, https://discuss.ocaml.org/t/sync-versions-of-several-packages-coming-from-a-single-repo/808/5)
+	for p in $(PACKAGES); do \
+	  topkg opam pkg -n $$p; \
+	  sed -e 's/\(^ *"mesh"\) */\1 {= "$(PKGVERSION)"}/' --in-place \
+	  _build/$$p.$(PKGVERSION)/opam; \
+	done
+# until we have https://github.com/ocaml/opam-publish/issues/38
+	[ -d packages ] || (echo "ERROR: Make a symbolic link packages → \
+		opam-repo/packages"; exit 1)
+	for p in $(PACKAGES); do \
+	  cp -r _build/$$p.$(PKGVERSION) packages/$$p/; \
+	done
+	cd packages && git add $(PACKAGES)
+#	CONDUIT_TLS=native topkg opam submit $(addprefix -n, $(PACKAGES))
 
 
 
-
-GENERATE_ML_FILES = ocaml $(BYTES_INC) src/make_FC_code.ml \
-  --pkg-version $(PKG_VERSION)
-
-# For development of the package.
-# FIXME: some tests should go to setup.ml
-CONFIGURE = ocaml setup.ml -configure --enable-tests --enable-lacaml
-setup.data: configure
-configure: setup.ml opam/opam
-	@WGET=`which wget`;						     \
-	UNZIP=`which unzip`;						     \
-	if [ -f "src/triangle/triangle.c" -a -f "src/triangle/triangle.h" ]; \
-	then								     \
-	  echo "*** Using the Triangle library installed in src/triangle/";  \
-	  $(CONFIGURE);					     		     \
-	elif [ -f "/usr/include/triangle.h" ]; then			     \
-	  echo "*** Assuming Triangle is installed on the system.";	     \
-	  $(CONFIGURE) --enable-libtriangle;		     		     \
-	elif [ "x$$WGET" != "x" -a "x$$UNZIP" != "x" ]; then		     \
-	  mkdir -p src/triangle;					     \
-	  cd src/triangle;						     \
-	  $$WGET $(TRIANGLE_URL);					     \
-	  $$UNZIP triangle.zip;						     \
-	  cd ../..;							     \
-	  $(CONFIGURE);					     		     \
-	else								     \
-	  echo "*** Please download and install Triangle by hand).";	     \
-	  exit 2;							     \
+update-triangle:
+	@WGET=`which wget`;					\
+	UNZIP=`which unzip`;					\
+	if [ "x$$WGET" != "x" -a "x$$UNZIP" != "x" ]; then	\
+	  mkdir -p triangle/triangle;				\
+	  cd triangle/triangle;					\
+	  $$WGET $(TRIANGLE_URL);				\
+	  $$UNZIP triangle.zip;					\
+	  $(RM) triangle.zip;                                   \
+	else							\
+	  echo "*** Please install wget and unzip.";	        \
+	  exit 2;						\
 	fi
 
-upload-doc: doc
-	scp -C -p -r _build/API.docdir $(WEB)
-
-.PHONY: all byte native doc clean distclean
+.PHONY: all byte native doc tests submit update-triangle clean distclean

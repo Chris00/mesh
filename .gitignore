@@ -12,9 +12,4 @@ RE:.*\.ba[0-9]
 *.log
 *.pdf
 auto/
-# Generated files (unmodified)
-AUTHORS.txt
-INSTALL.txt
-README.txt
-# Tarball
-*.tar.gz
+packages

@@ -15,6 +15,6 @@ build-test: [["jbuilder" "runtest" "-p" name "-j" jobs]]
 depends: [
   "ocamlfind" {build & >= "1.5"}
   "jbuilder" {build}
-  "mesh"     {>= "0.9"}
+  "mesh"
   "graphics"
 ]
