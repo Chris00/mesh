@@ -23,7 +23,7 @@
 val draw :
   ?width:int -> ?height:int -> ?color: int -> ?points: bool ->
   ?point_idx:(int -> unit) -> ?triangle_idx:(int -> unit) ->
-  ?voronoi:'a Mesh.voronoi -> ?point_marker_color: int -> ?segments:bool ->
+  ?voronoi:'a Mesh.voronoi -> ?point_marker_color: int ->
   'a #Mesh.t -> unit
   (** [draw mesh] display the mesh on the current OCaml Graphics
       window with the bottom left corner at the current position.
@@ -46,7 +46,7 @@ val draw :
 val display :
   ?width:int -> ?height:int -> ?color: int -> ?points: bool ->
   ?point_idx:(int -> unit) -> ?triangle_idx:(int -> unit) ->
-  ?voronoi:'a Mesh.voronoi -> ?point_marker_color: int -> ?segments:bool ->
+  ?voronoi:'a Mesh.voronoi -> ?point_marker_color: int ->
   'a #Mesh.t -> unit
 (** [display mesh] open an OCaml graphic window and draw the mesh on
     it.  To quit the graph and let the program continue, one must

@@ -1,7 +1,7 @@
 TRIANGLE_URL = http://www.netlib.org/voronoi/triangle.zip
 
 all byte native:
-	jbuilder build @install #--dev
+	jbuilder build @install --dev
 
 clean:
 	jbuilder clean

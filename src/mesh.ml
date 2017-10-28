@@ -17,7 +17,6 @@
 
 
 open Bigarray
-open Printf
 open Mesh_utils
 
 include Mesh_common
@@ -74,13 +73,13 @@ let cuthill_mckee ?(rev=true) ?(perm: 'l int_vec option) (mesh: 'l #t) =
 
 let permute_points (mesh: 'l #t) ?(inv=false) (perm: 'l int_vec) =
   mesh_transform mesh
-                 (fun m -> MeshC.permute_points m inv (vec_to_c perm))
-                 (fun m -> MeshF.permute_points m inv (vec_to_fortran perm))
+                 (fun m -> MeshC.permute_points m ~inv (vec_to_c perm))
+                 (fun m -> MeshF.permute_points m ~inv (vec_to_fortran perm))
 
 let permute_triangles (mesh: 'l #t) ?(inv=false) (perm: 'l int_vec) =
   mesh_transform mesh
-                 (fun m -> MeshC.permute_triangles m inv (vec_to_c perm))
-                 (fun m -> MeshF.permute_triangles m inv (vec_to_fortran perm))
+                 (fun m -> MeshC.permute_triangles m ~inv (vec_to_c perm))
+                 (fun m -> MeshF.permute_triangles m ~inv (vec_to_fortran perm))
 
 
 module LaTeX =

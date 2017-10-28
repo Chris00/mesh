@@ -45,7 +45,7 @@ let make_surf mesh width height =
 
 let draw ?(width=600) ?(height=600) ?(color=foreground) ?(points=true)
          ?point_idx ?triangle_idx ?voronoi
-         ?(segments=true) ?point_marker_color (mesh: mesh) =
+         ?point_marker_color (mesh: mesh) =
   let surf = make_surf mesh width height in
   (* Triangles and Points *)
   let pt = mesh#point
@@ -93,7 +93,7 @@ let draw ?(width=600) ?(height=600) ?(color=foreground) ?(points=true)
                ) in
   let point_idx = match point_idx with
     | None -> (fun _ _ _ _ -> ())
-    | Some f -> (fun s px py i ->
+    | Some f -> (fun _s px py i ->
                 moveto px py;
                 f i;
                 set_color color) in
@@ -111,14 +111,14 @@ let draw ?(width=600) ?(height=600) ?(color=foreground) ?(points=true)
   (* Voronoi diagram *)
   begin match voronoi with
   | None -> ()
-  | Some vor -> ()                      (* FIXME: todo *)
+  | Some _vor -> ()                      (* FIXME: todo *)
   end
 ;;
 
 type point = { x : float; y : float }
 
 (* For level curves, we just draw a dot. *)
-let point s i {x=x; y=y} =
+let point s _i {x=x; y=y} =
   draw_rect (pixel_x s x) (pixel_y s y) 1 1
 
 let line s color {x=x0; y=y0} {x=x1; y=y1} =

@@ -299,7 +299,7 @@ let adjacency (mesh: mesh) =
 let is_allowed_mathematica c =
   ('0' <= c && c <= '9') || ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z')
 
-let rec count_mathematica_allowed base =
+let count_mathematica_allowed base =
   let n = ref 0 in
   for i = 0 to String.length base - 1 do
     if is_allowed_mathematica (String.unsafe_get base i) then incr n
@@ -347,7 +347,7 @@ let mathematica (mesh: mesh) (z: vec) fname =
     if Filename.check_suffix base ".m" then
       mathematica_safe(String.sub base 0 (String.length base - 2)), fname
     else mathematica_safe base, fname ^ ".m" in
-  let pkg = String.capitalize pkg in
+  let pkg = String.capitalize_ascii pkg in
   let fh = open_out fname in
   fprintf fh "(* Created by the OCaml Mesh module (version %%VERSION%%)) \
               *)\n";
@@ -770,8 +770,8 @@ let ggps (mesh: mesh) perm : mesh =
     deg.(i1) <- deg.(i1) + 1;
     deg.(i2) <- deg.(i2) + 1;
   done;
-  let v = min_deg deg in
-
+  let _v = min_deg deg in
+  (* FIXME *)
   permute_points_unsafe mesh perm
 
 (* Local Variables: *)

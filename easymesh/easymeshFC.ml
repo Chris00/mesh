@@ -15,10 +15,10 @@ let output_pslg fh (pslg: pslg) area =
   and seg_marker = pslg#segment_marker in
   let pt_marker =
     if Array1.dim pt_marker > 0 then (fun i -> pt_marker.{i})
-    else (fun i -> 1) in
+    else (fun _i -> 1) in
   let seg_marker =
     if Array1.dim seg_marker > 0 then (fun i -> seg_marker.{i})
-    else (fun i -> 1) in
+    else (fun _i -> 1) in
   (* Save points coordinates *)
   fprintf fh "%i\n" (NCOLS(pt)); (* number of nodes *)
   for i = FST to LASTCOL(pt) do
@@ -47,7 +47,7 @@ let read (pslg: pslg) fname : mesh =
   let pt = CREATE_MAT(float64, 2, nnodes) in
   let pt_marker = CREATE_VEC(int, nnodes) in
   let sb = Scanning.from_channel fh in
-  for i = FST to LASTCOL(pt) do
+  for _i = FST to LASTCOL(pt) do
     bscanf sb " %i: %g %g %i" (fun i x y m ->
                                  let i = TO_IDX(i) in
                                  GET(pt, FST,i) <- x;
@@ -61,7 +61,7 @@ let read (pslg: pslg) fname : mesh =
   let tr = CREATE_MAT(int, 3, n)
   and tr_nbh = CREATE_MAT(int, 3, n) in
   let sb = Scanning.from_channel fh in
-  for i = FST to LASTCOL(tr) do
+  for _i = FST to LASTCOL(tr) do
     bscanf sb " %i: %i %i %i %i %i %i %_i %_i %_i %_f %_f %_i"
       (fun e i j k ei ej ek ->
          let e = TO_IDX(e) in
@@ -81,7 +81,7 @@ let read (pslg: pslg) fname : mesh =
     let edge = CREATE_MAT(int, 2, n)
     and edge_marker = CREATE_VEC(int, n) in
     let sb = Scanning.from_channel fh in
-    for i = FST to LASTCOL(edge) do
+    for _i = FST to LASTCOL(edge) do
       bscanf sb " %i: %i %i %_i %_i %i" (fun s c d m ->
                                            let s = TO_IDX(s) in
                                            GET(edge, 1,s) <- TO_IDX(c);

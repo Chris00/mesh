@@ -31,15 +31,15 @@ open Mesh_common
 *)
 
 let draw ?width ?height ?color ?points ?point_idx ?triangle_idx ?voronoi
-         ?point_marker_color ?segments
+         ?point_marker_color
          (mesh: 'a #Mesh.t) =
   if Mesh.is_c_layout mesh then
     Mesh_displayC.draw ?width ?height ?color ?points ?point_idx ?triangle_idx
-                       ?voronoi ?point_marker_color ?segments
+                       ?voronoi ?point_marker_color
                        (mesh_to_c mesh)
   else
     Mesh_displayF.draw ?width ?height ?color ?points ?point_idx ?triangle_idx
-                       ?voronoi ?point_marker_color ?segments
+                       ?voronoi ?point_marker_color
                        (mesh_to_fortran mesh)
 
 let init_graph width height =
@@ -62,12 +62,12 @@ let hold_graph () =
   with Exit -> ()
 
 let display ?(width=600) ?(height=600) ?color ?points ?point_idx ?triangle_idx
-            ?voronoi ?point_marker_color ?(segments=true) mesh =
+            ?voronoi ?point_marker_color mesh =
   init_graph width height;
   set_window_title("Mesh (" ^ Filename.basename Sys.argv.(0) ^ ")");
   draw ~width ~height ?color ?points ?point_idx ?triangle_idx
        ?voronoi ?point_marker_color
-       ~segments mesh;
+       mesh;
   hold_graph()
 
 let level_curves ?(width=600) ?(height=600) ?boundary (mesh: 'a #Mesh.t)

@@ -16,7 +16,6 @@
    LICENSE for more details. *)
 
 open Bigarray
-open Printf
 open Mesh_utils
 
 external init : unit -> unit = "ocaml_triangle_init"
@@ -125,11 +124,11 @@ let permute_triangles (mesh: 'l #t) ?(inv=false) perm : 'l t =
 
 
 (* Save to triangle format *)
-let save mesh filename =
-  (* .node file *)
-  let fh = open_out (filename ^ ".node") in
-  close_out fh
-  (* .ele file *)
-  (* .poly file *)
-  (* .edge file *)
-  (* .neigh file *)
+(* let save mesh filename =
+ *   (\* .node file *\)
+ *   let fh = open_out (filename ^ ".node") in
+ *   close_out fh
+ *   (\* .ele file *\)
+ *   (\* .poly file *\)
+ *   (\* .edge file *\)
+ *   (\* .neigh file *\) *)

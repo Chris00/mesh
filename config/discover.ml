@@ -23,4 +23,4 @@ let configure t =
   write_sexp "c_library_flags.sexp" (sexp_of_list sexp_of_string cclib)
 
 let () =
-  Configurator.main "discover" configure
+  Configurator.main ~name:"discover" configure
