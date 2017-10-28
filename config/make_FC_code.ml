@@ -14,9 +14,12 @@ let string_of_file fn =
   done;
   Buffer.contents buf
 
-let write_ro fn s =
+let write_ro ?orig_path fn s =
   (try Sys.remove fn with _ -> ());
   let fh = open_out_gen [Open_wronly; Open_creat; Open_trunc] 0o444 fn in
+  (match orig_path with
+   | Some fn -> Printf.fprintf fh "# 1 %S\n" fn
+   | None -> ());
   output_string fh s;
   close_out fh
 
@@ -90,14 +93,15 @@ let tr_c =
   List.map (fun (re, s) -> (Str.regexp re, s)) tr
 
 
-let gen_FC ~mod_name ~pkg_version fn_base =
+let gen_FC ~mod_name ~fn_base ~orig_path =
   let s = string_of_file (fn_base ^ "FC.ml") in
   let s = tr_include s in
   let replace s (re,tr) = Str.global_replace re tr s in
-  let tr = [(Str.regexp "MOD", mod_name);
-            (Str.regexp_string "$(pkg_version)", pkg_version) ] in
-  write_ro (fn_base ^ "F.ml") (List.fold_left replace s (tr @ tr_fortran));
-  write_ro (fn_base ^ "C.ml") (List.fold_left replace s (tr @ tr_c))
+  let tr = [(Str.regexp "MOD", mod_name)] in
+  write_ro (fn_base ^ "F.ml") ~orig_path
+    (List.fold_left replace s (tr @ tr_fortran));
+  write_ro (fn_base ^ "C.ml") ~orig_path
+    (List.fold_left replace s (tr @ tr_c))
 
 let rm_gen fn_base =
   (try Sys.remove (fn_base ^ "F.ml") with _ -> ());
@@ -112,20 +116,25 @@ let filenames =
     "easymesh", "Easymesh";
   ]
 
-let () =
-  let clean = ref false in
-  let pkg_version = ref "devel" in
-  let specs = [
-    "--clean", Arg.Set clean, " Remove the generated .ml files";
-    "--pkg-version", Arg.Set_string pkg_version, "The version of the package";
-  ] in
-  Arg.parse (Arg.align specs) (fun _ -> raise(Arg.Bad "no anonymous arg"))
-            "ocaml make_FC_code.ml";
+(** Working directory relative to the base of the project.  This is
+   important for the file of the error to be clickable from, say, Emacs. *)
+let get_relwd () =
+  let d = ref (Sys.getcwd()) in
+  let path = ref [] in
+  let b = ref(Filename.basename !d) in
+  while !b <> "_build" && !b <> "/" do
+    path := !b :: !path;
+    d := Filename.dirname !d;
+    b := Filename.basename !d;
+  done;
+  match !path with
+  | _ :: path -> String.concat Filename.dir_sep path
+  | [] -> ""
 
-  if !clean then
-    List.iter (fun (fn, _) -> rm_gen fn) filenames
-  else
-    List.iter (fun (fn_base, mod_name) ->
-        if Sys.file_exists (fn_base ^ "FC.ml") then
-          gen_FC fn_base ~mod_name ~pkg_version:!pkg_version
-      ) filenames
+let () =
+  List.iter (fun (fn_base, mod_name) ->
+      let d = get_relwd() in
+      let fn_orig = fn_base ^ "FC.ml" in
+      if Sys.file_exists fn_orig then
+        gen_FC ~mod_name ~fn_base ~orig_path:(Filename.concat d fn_orig)
+    ) filenames
