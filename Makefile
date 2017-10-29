@@ -24,7 +24,7 @@ submit:
 	mkdir _build/mesh-$(PKGVERSION)/triangle/triangle/
 	cp -a triangle/triangle/triangle.* \
 	  _build/mesh-$(PKGVERSION)/triangle/triangle/
-	tar -C _build -zcf $(TARBALL) mesh-$(PKGVERSION)
+	tar -C _build -jcf $(TARBALL) mesh-$(PKGVERSION)
 	$(RM) -rf _build/mesh-$(PKGVERSION)/
 	topkg publish distrib
 # 	Create packahes and perform the subtitution that topkkg does not
