@@ -38,6 +38,7 @@ submit:
 	[ -d packages ] || (echo "ERROR: Make a symbolic link packages → \
 		opam-repo/packages"; exit 1)
 	for p in $(PACKAGES); do \
+	  mkdir -p packages/$$p; \
 	  cp -r _build/$$p.$(PKGVERSION) packages/$$p/; \
 	done
 	cd packages && git add $(PACKAGES)
