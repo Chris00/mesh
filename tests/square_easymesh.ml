@@ -22,5 +22,5 @@ let mesh_square =
 let () =
   printf "The mesh has %i nodes.\n%!" (Array2.dim2 mesh_square#point);
   printf "Press 'q' on its window to quit the mesh display.%!";
-  Mesh_display.display mesh_square;
+  Mesh_graphics.display mesh_square;
   printf "\n";

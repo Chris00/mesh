@@ -1,4 +1,4 @@
-(* File: mesh_display.ml
+(* File: mesh_graphics.ml
 
    Copyright (C) 2008-
 
@@ -34,11 +34,11 @@ let draw ?width ?height ?color ?points ?point_idx ?triangle_idx ?voronoi
          ?point_marker_color
          (mesh: 'a #Mesh.t) =
   if Mesh.is_c_layout mesh then
-    Mesh_displayC.draw ?width ?height ?color ?points ?point_idx ?triangle_idx
+    Mesh_graphicsC.draw ?width ?height ?color ?points ?point_idx ?triangle_idx
                        ?voronoi ?point_marker_color
                        (mesh_to_c mesh)
   else
-    Mesh_displayF.draw ?width ?height ?color ?points ?point_idx ?triangle_idx
+    Mesh_graphicsF.draw ?width ?height ?color ?points ?point_idx ?triangle_idx
                        ?voronoi ?point_marker_color
                        (mesh_to_fortran mesh)
 
@@ -73,10 +73,10 @@ let display ?(width=600) ?(height=600) ?color ?points ?point_idx ?triangle_idx
 let level_curves ?(width=600) ?(height=600) ?boundary (mesh: 'a #Mesh.t)
                  (z: 'a Mesh.vec) ?level_eq levels =
   if Mesh.is_c_layout mesh then
-    Mesh_displayC.level_curves ~width ~height ?boundary
+    Mesh_graphicsC.level_curves ~width ~height ?boundary
                                (mesh_to_c mesh) (vec_to_c z) ?level_eq levels
   else
-    Mesh_displayF.level_curves ~width ~height ?boundary
+    Mesh_graphicsF.level_curves ~width ~height ?boundary
                                (mesh_to_fortran mesh) (vec_to_fortran z)
                                ?level_eq levels
 
@@ -90,19 +90,19 @@ let display_level_curves ?(width=600) ?(height=600) ?boundary mesh z
 let super_level ?(width=600) ?(height=600) ?boundary (mesh: 'a #Mesh.t)
                 (z: 'a Mesh.vec) level color =
   if Mesh.is_c_layout mesh then
-    Mesh_displayC.super_level ~width ~height ?boundary
+    Mesh_graphicsC.super_level ~width ~height ?boundary
                               (mesh_to_c mesh) (vec_to_c z) level color
   else
-    Mesh_displayF.super_level ~width ~height ?boundary
+    Mesh_graphicsF.super_level ~width ~height ?boundary
                               (mesh_to_fortran mesh) (vec_to_fortran z)
                               level color
 
 let sub_level ?(width=600) ?(height=600) ?boundary (mesh: 'a #Mesh.t)
               (z: 'a Mesh.vec) level color =
   if Mesh.is_c_layout mesh then
-    Mesh_displayC.sub_level ~width ~height ?boundary
+    Mesh_graphicsC.sub_level ~width ~height ?boundary
                             (mesh_to_c mesh) (vec_to_c z) level color
   else
-    Mesh_displayF.sub_level ~width ~height ?boundary
+    Mesh_graphicsF.sub_level ~width ~height ?boundary
                             (mesh_to_fortran mesh) (vec_to_fortran z)
                             level color

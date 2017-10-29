@@ -46,9 +46,9 @@ let () =
                     draw_string(string_of_int i) in
   let triangle_idx i = set_color 0x00FF00;
                        draw_string(string_of_int i) in
-  Mesh_display.draw square ~width:400 ~height:400 ~point_idx ~triangle_idx;
+  Mesh_graphics.draw square ~width:400 ~height:400 ~point_idx ~triangle_idx;
   moveto 460 10;
-  Mesh_display.draw square' ~width:400 ~height:400 ~point_idx;
+  Mesh_graphics.draw square' ~width:400 ~height:400 ~point_idx;
 
   ignore(wait_next_event [Button_down; Key_pressed]);
   close_graph()

@@ -1,18 +1,18 @@
 (jbuild_version 1)
 
 (library
- ((name        mesh_display)
-  (public_name mesh-display)
+ ((name        mesh_graphics)
+  (public_name mesh-graphics)
   (synopsis  "Triangular mesh representation using the graphics module")
-  (modules   (Mesh_display
-              Mesh_displayF Mesh_displayC Mesh_common Mesh_utils))
+  (modules   (Mesh_graphics
+              Mesh_graphicsF Mesh_graphicsC Mesh_common Mesh_utils))
   (flags     (:standard -safe-string))
   (libraries (mesh graphics))))
 
 (rule
- ((targets (mesh_displayF.ml mesh_displayC.ml))
+ ((targets (mesh_graphicsF.ml mesh_graphicsC.ml))
   (deps    (../config/make_FC_code.exe
-            mesh_displayFC.ml  ../src/mesh_level_curvesFC.ml))
+            mesh_graphicsFC.ml  ../src/mesh_level_curvesFC.ml))
   (action  (run ../config/make_FC_code.exe))))
 
 (rule

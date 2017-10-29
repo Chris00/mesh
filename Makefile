@@ -1,6 +1,6 @@
 TRIANGLE_URL = http://www.netlib.org/voronoi/triangle.zip
 
-PACKAGES = mesh mesh-display mesh-easymesh mesh-triangle
+PACKAGES = mesh mesh-graphics mesh-easymesh mesh-triangle
 PKGVERSION = $(shell git describe --always)
 TARBALL = _build/mesh-$(PKGVERSION).tbz
 

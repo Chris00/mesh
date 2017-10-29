@@ -112,7 +112,7 @@ let filenames =
   (* Filename, module name *)
   [ "mesh_triangle", "Mesh";
     "mesh", "Mesh";
-    "mesh_display", "Mesh_display";
+    "mesh_graphics", "Mesh_graphics";
     "mesh_easymesh", "Mesh_easymesh";
   ]
 

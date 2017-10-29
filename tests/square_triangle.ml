@@ -23,7 +23,7 @@ let () =
   let mesh = fst(Mesh_triangle.triangulate pslg ~max_area) in
   printf "The mesh has %i nodes.\n%!" (Array2.dim2 mesh#point);
   printf "Press 'q' on its window to quit the mesh display.%!";
-  Mesh_display.display mesh;
+  Mesh_graphics.display mesh;
   let triunsuitable x1 y1 x2 y2 x3 y3 area = area > max_area in
-  Mesh_display.display (fst(Mesh_triangle.triangulate pslg ~triunsuitable));
+  Mesh_graphics.display (fst(Mesh_triangle.triangulate pslg ~triunsuitable));
   printf "\n";
