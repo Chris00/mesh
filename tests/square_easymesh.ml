@@ -16,7 +16,7 @@ let mesh_square =
     method point = pt
     method segment = edges
   end in
-  Easymesh.triangulate plsg ~max_area:0.03
+  Mesh_easymesh.triangulate plsg ~max_area:0.03
 
 
 let () =

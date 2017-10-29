@@ -3,14 +3,14 @@
 (executables
  ((names     (square_easymesh ))
   (modules   (square_easymesh ))
-  (libraries (mesh_display lacaml))))
+  (libraries (mesh_graphics mesh_easymesh lacaml))))
 
 (executables
  ((names     (square_triangle level_display refine attributes export
               degenerate_pslg))
   (modules   (square_triangle level_display refine attributes export
               degenerate_pslg))
-  (libraries (mesh_triangle mesh_display lacaml))))
+  (libraries (mesh_triangle mesh_easymesh mesh_display lacaml))))
 
 (alias
  ((name    runtest)

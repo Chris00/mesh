@@ -4,14 +4,15 @@
  ((name        mesh_easymesh)
   (public_name mesh-easymesh)
   (synopsis  "Triangular mesh generation with Easymesh")
-  (modules   (Easymesh  EasymeshF EasymeshC Mesh_common Mesh_utils))
+  (modules   (Mesh_easymesh  Mesh_easymeshF Mesh_easymeshC
+              Mesh_common Mesh_utils))
   (flags     (:standard -safe-string))
   (libraries (mesh bigarray bytes))))
 
 (rule
- ((targets (easymeshF.ml easymeshC.ml))
+ ((targets (mesh_easymeshF.ml mesh_easymeshC.ml))
   (deps    (../config/make_FC_code.exe
-            easymeshFC.ml))
+            mesh_easymeshFC.ml))
   (action  (run ../config/make_FC_code.exe))))
 
 (rule

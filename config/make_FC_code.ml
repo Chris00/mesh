@@ -113,7 +113,7 @@ let filenames =
   [ "mesh_triangle", "Mesh";
     "mesh", "Mesh";
     "mesh_display", "Mesh_display";
-    "easymesh", "Easymesh";
+    "mesh_easymesh", "Mesh_easymesh";
   ]
 
 (** Working directory relative to the base of the project.  This is
