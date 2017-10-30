@@ -59,7 +59,12 @@
 #define W       5 
  
 #define MAX_NODES 3000 
- 
+
+
+/* Prototypes */
+void swap_side(int);
+
+
 /*-----------------------------+ 
 |  definitions for the chains  | 
 +-----------------------------*/ 
@@ -150,7 +155,7 @@ double dist(struct nod *na, struct nod *nb)
  
  
 /*=========================================================================*/ 
-in_elem(struct nod *n) 
+int in_elem(struct nod *n) 
 { 
  int e; 
   
@@ -168,7 +173,7 @@ in_elem(struct nod *n)
  
  
 /*=========================================================================*/ 
-bowyer(int n, int spac) 
+void bowyer(int n, int spac) 
 { 
  int e, i, s, swap; 
  struct nod vor; 
@@ -200,12 +205,12 @@ bowyer(int n, int spac)
   } 
  while(swap==1); 
  
-} 
+}
 /*-bowyer------------------------------------------------------------------*/ 
  
  
 /*=========================================================================*/ 
-circles(int e) 
+void circles(int e) 
 /*---------------------------------------------------+ 
 |  This function calculates radii of inscribed and   | 
 |  circumscribed circle for a given element (int e)  | 
@@ -247,7 +252,7 @@ circles(int e)
  
  
 /*=========================================================================*/ 
-spacing(int e, int n) 
+void spacing(int e, int n) 
 /*----------------------------------------------------------------+ 
 |  This function calculates the value of the spacing function in  | 
 |  a new node 'n' which is inserted in element 'e' by a linear    | 
@@ -277,7 +282,7 @@ spacing(int e, int n)
  
  
 /*=========================================================================*/ 
-insert_node(double x, double y, int spac, 
+int insert_node(double x, double y, int spac, 
 	 int prev_n, int prev_s_mark, int mark, int next_s_mark, int next_n) 
 { 
  int    i,j,k,en, n, e,ei,ej,ek, s,si,sj,sk; 
@@ -385,7 +390,7 @@ insert_node(double x, double y, int spac,
  
  
 /*=========================================================================*/ 
-swap_side(int s) 
+void swap_side(int s) 
 { 
  int    a, b, c, d, ea, eb, eac, ead, ebc, ebd, sad, sac, sbc, sbd; 
  double sx, sy; 
@@ -538,7 +543,7 @@ void erase()
  
  
 /*=========================================================================*/ 
-diamond() 
+void diamond() 
 { 
  int    ea, eb, eac, ead, ebc, ebd, s; 
   
@@ -569,7 +574,7 @@ diamond()
  
  
 /*=========================================================================*/ 
-classify() 
+void classify() 
 /*----------------------------------------------------------+ 
 |  This function searches through all elements every time.  | 
 |  Some optimisation will definitely bee needed             | 
@@ -665,7 +670,7 @@ classify()
  
  
 /*=========================================================================*/ 
-new_node() 
+void new_node() 
 /*---------------------------------------------------+ 
 |  This function is very important.                  | 
 |  It determines the position of the inserted node.  | 
@@ -739,7 +744,7 @@ new_node()
  
  
 /*=========================================================================*/ 
-neighbours()  
+void neighbours()  
 /*--------------------------------------------------------------+ 
 |  Counting the elements which surround each node.              | 
 |  It is important for the two functions: 'relax' and 'smooth'  | 
@@ -761,7 +766,7 @@ neighbours()
  
  
 /*=========================================================================*/ 
-materials() 
+void materials() 
 { 
  int e, c, mater, iter, over, s; 
  int ei, ej, ek, si, sj, sk; 
@@ -830,7 +835,7 @@ materials()
  
  
 /*=========================================================================*/ 
-relax() 
+void relax() 
 { 
  int s, T, E; 
   
@@ -890,7 +895,7 @@ int smooth()
  
  
 /*=========================================================================*/ 
-renum() 
+void renum() 
 { 
  int n, o, s, e, e2, c, d, i, j, k; 
  int new_elem=0, new_node=0, new_side=0, next_e, next_s, lowest; 
@@ -1026,7 +1031,7 @@ char name[80]; int len;
  
  
 /*=========================================================================*/ 
-load_i(FILE *in, int *numb) 
+void load_i(FILE *in, int *numb) 
 { 
  char dum, dummy[128]; 
  
@@ -1035,9 +1040,9 @@ load_i(FILE *in, int *numb)
    if(dummy[0]=='#' && strlen(dummy)>1 && dummy[strlen(dummy)-1]=='#') {} 
    else if(dummy[0]=='#') {do{fscanf(in,"%c", &dum);} while(dum!='#');} 
    else                   {*numb=atoi(dummy); break;} } 
-} 
+}
  
-load_d(FILE *in, double *numb) 
+void load_d(FILE *in, double *numb) 
 { 
  char dum, dummy[128]; 
  
@@ -1048,7 +1053,7 @@ load_d(FILE *in, double *numb)
    else                   {*numb=atof(dummy); break;} } 
 } 
  
-load_s(FILE *in, char *string) 
+void load_s(FILE *in, char *string) 
 { 
  char dum, dummy[128]; 
  
@@ -1062,7 +1067,7 @@ load_s(FILE *in, char *string)
  
  
 /*=========================================================================*/ 
-load() 
+int load() 
 { 
  int  c, n, s, Fl, M, N0, chains, bound; 
  char dummy[80]; 
@@ -1330,7 +1335,7 @@ load()
  
  
 /*=========================================================================*/ 
-save() 
+int save() 
 { 
  int  e, s, n, r_Nn=0, r_Ns=0, r_Ne=0; 
  
@@ -1484,7 +1489,7 @@ FILE *dxf_file;
 char dxf_name[81]; 
  
 /*=========================================================================*/ 
-start_dxf() 
+int start_dxf() 
 { 
  if((dxf_file=fopen(dxf_name,"w"))==NULL) 
   { 
@@ -1505,7 +1510,7 @@ start_dxf()
  
  
 /*=========================================================================*/ 
-line_dxf(double x1, double y1, double z1,  
+int line_dxf(double x1, double y1, double z1,  
 	 double x2, double y2, double z2,  
 	 char *layer) 
 { 
@@ -1532,7 +1537,7 @@ line_dxf(double x1, double y1, double z1,
  
  
 /*=========================================================================*/ 
-end_dxf() 
+int end_dxf() 
 { 
  fprintf(dxf_file, "0\n"); 
  fprintf(dxf_file, "ENDSEC\n"); 
@@ -1546,7 +1551,7 @@ end_dxf()
  
  
 /*=========================================================================*/ 
-draw_dxf() 
+void draw_dxf() 
 { 
  int    e, n, s, ei, ej, ek, ea, eb; 
  double x, y, xc, yc, xd, yd, xa, ya, xb, yb; 
@@ -1603,7 +1608,7 @@ FILE *fig_file;
 char fig_name[81]; 
  
 /*=========================================================================*/ 
-start_fig() 
+int start_fig() 
 { 
  if((fig_file=fopen(fig_name,"w"))==NULL) 
   { 
@@ -1625,7 +1630,7 @@ start_fig()
  
  
 /*=========================================================================*/ 
-line_fig(int x1, int y1,  
+int line_fig(int x1, int y1,  
 	 int x2, int y2,  
 	 int style, int width, int color, float le) 
 { 
@@ -1658,7 +1663,7 @@ line_fig(int x1, int y1,
  
  
 /*=========================================================================*/ 
-end_fig() 
+int end_fig() 
 { 
  fclose(fig_file); 
  
@@ -1671,7 +1676,7 @@ end_fig()
  Let's say that drawing area is 20 x 20 cm. One cm in xfig is 450 poins. 
  It means that drawing area is 9000 x 9000 points. 
 ---------------------------------------------------------------------------*/ 
-draw_fig() 
+void draw_fig() 
 { 
  int    e, n, s, ei, ej, ek, ea, eb; 
  double x, y, xc, yc, xd, yd, xa, ya, xb, yb, 
@@ -1736,7 +1741,7 @@ draw_fig()
 	       450+(int)floor(scl*xb), 450+(int)floor(scl*yb), 
 	       0, 1, 4, 0.000); 
     } 
-} 
+}
 /*-draw_fig---------------------------------------------------------------*/ 
  
  
