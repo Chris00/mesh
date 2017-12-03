@@ -295,7 +295,7 @@ val scilab : 'l #t -> ?longitude: float -> ?azimuth: float ->
              'l vec -> string -> unit
   (** [scilab mesh z file] saves the mesh data and the function values
       [z] (i.e. [z.{i}] is the function value at the point
-      [mesh.point.{_,i}] ([fortran layout])) on that mesh so that when
+      [mesh#point.{_,i}] ([fortran layout])) on that mesh so that when
       Scilab runs the created [file].sci script, the graph of the
       function is drawn.
 

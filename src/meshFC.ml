@@ -154,7 +154,7 @@ let scilab (mesh: mesh) ?(longitude=70.) ?(azimuth=60.)
      is seldom drawn. *)
   fprintf fh "mode(0);\n\
               // Run in Scilab with: exec('%s')\n\
-              // Written by the OCaml Mesh module (version %%VERSION%%)).\n\
+              // Written by the OCaml Mesh module (version %%VERSION%%).\n\
               // mesh: %i triangles, %i points.\n\
               ocaml = struct('f', scf(), 'e', null, \
                              'x', fscanfMat('%s'), 'y', fscanfMat('%s'), \
