@@ -122,6 +122,8 @@ let scilab (mesh: mesh) ?(longitude=70.) ?(azimuth=60.)
   if NCOLS(pt) = 0 then invalid_arg "Mesh.scilab: mesh#point must be nonempty";
   if NROWS(pt) <> 2 then
     invalid_arg "Mesh.scilab: mesh#point must have 2 rows (fortran)";
+  if Array1.dim z < NCOLS(pt) then
+    invalid_arg "Mesh.scilab: vector too small";
   let fname =
     if Filename.check_suffix fname ".sci" then Filename.chop_extension fname
     else fname in
@@ -179,7 +181,7 @@ let scilab (mesh: mesh) ?(longitude=70.) ?(azimuth=60.)
        have to transpose the matrices. *)
     for point = FST to THIRD do
       for t = FST to LASTCOL(triangle) do
-        fprintf fh "%.13g " (coord (GET(triangle, point,t)))
+        fprintf fh "%.16e " (coord (GET(triangle, point,t)))
       done;
       fprintf fh "\n";
     done;
