@@ -165,7 +165,8 @@ let scilab (mesh: mesh) ?(longitude=70.) ?(azimuth=60.)
               ocaml.e = gce();\n\
               ocaml.e.hiddencolor = -1;\n\
               ocaml.f.color_map = jetcolormap(100);\n"
-    sci (NCOLS(triangle)) (NCOLS(pt)) xf yf zf;
+    sci (NCOLS(triangle)) (NCOLS(pt))
+    (Filename.basename xf) (Filename.basename yf) (Filename.basename zf);
   if edgecolor && mode >= 0 then
     fprintf fh "ocaml.f.color_map(1,:) = [%g, %g, %g];\n\
                 xset('color', 1);\n"
