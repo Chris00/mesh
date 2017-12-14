@@ -16,7 +16,7 @@
    LICENSE for more details. *)
 
 (** Put the full path if not in your search path. *)
-let easymesh = "EasyMesh"
+let easymesh = "EasyMesh.exe"
 
 open Printf
 open Bigarray
