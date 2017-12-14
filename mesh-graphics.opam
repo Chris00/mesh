@@ -19,3 +19,4 @@ depends: [
   "mesh"
   "graphics"
 ]
+available: [ ocaml-version >= "4.03.0" ]
