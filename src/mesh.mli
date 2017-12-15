@@ -243,7 +243,9 @@ sig
 
       @param edge allows to specify the color of each edge.  If the
       function returns [None], the edge is not drawn.  Default: all
-      are black. *)
+      are black.
+      @raise Invalid_argument if [mesh#edge] is empty or [mesh#point] is
+      empty. *)
 
   val write : ?edge:(int -> color option) -> 'l #t -> out_channel -> unit
   (** Same as {!save} but write the command to the channel. *)
