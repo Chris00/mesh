@@ -174,7 +174,7 @@ let scilab (mesh: mesh) ?(longitude=70.) ?(azimuth=60.)
   fprintf fh "plot3d1(ocaml.x, ocaml.y, ocaml.z, theta=%g, alpha=%g, \
                 flag=[%d,2,%d]);\n\
               disp('Save: xs2pdf(ocaml.f, ''%s.pdf'')');\n"
-    longitude azimuth mode box fname;
+    longitude azimuth mode box (Filename.basename fname);
   close_out fh;
   let save_mat fname coord =
     let fh = open_out fname in
