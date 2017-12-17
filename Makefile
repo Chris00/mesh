@@ -19,7 +19,7 @@ tests:
 
 submit:
 	topkg distrib --skip-build --skip-tests
-#       Add the Trangle files so the tarball can easily be compiled.
+#       Add the Triangle files so the tarball can easily be compiled.
 	tar -C _build -xf $(TARBALL)
 	mkdir _build/mesh-$(PKGVERSION)/triangle/triangle/
 	cp -a triangle/triangle/triangle.* \
