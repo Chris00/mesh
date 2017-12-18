@@ -1,7 +1,7 @@
 0.9.1 2017-12-18
 ----------------
 
-- Add `Mesh.create`.
+- Add `Mesh.create` and `Mesh_triangle.create`.
 - Slightly improve the documentation.
 - `Mesh.scilab`: improve suggested command to export to PDF.
 
