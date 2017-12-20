@@ -30,8 +30,7 @@
 (rule
  ((targets (EasyMesh.exe))
   (deps    (easymesh.c))
-  ;(action  (run ${!CC} -o EasyMesh.exe easymesh.c -ccopt -lm))))
-  (action  (run cc -o EasyMesh.exe easymesh.c -lm))))
+  (action  (system "${CC} -o EasyMesh.exe easymesh.c -lm"))))
 
 (install
  ((section bin)
