@@ -15,5 +15,6 @@
 (alias
  ((name    runtest)
   (package mesh-graphics)
-  (deps   (square_easymesh.exe))
-  (action (run ${exe:square_easymesh.exe}))))
+  (deps   (square_easymesh.exe ../easymesh/EasyMesh.exe))
+  (action (setenv PATH "../easymesh/"
+           (run ${exe:square_easymesh.exe})))))
