@@ -11,11 +11,7 @@ let mesh_square =
   let edges = Array2.of_array int fortran_layout
     [| [| 1; 2; 3; 4 |];   (* start *)
        [| 2; 3; 4; 1 |] |] (* end *) in
-  let plsg = object
-    inherit [_] Mesh.pslg fortran_layout
-    method point = pt
-    method segment = edges
-  end in
+  let plsg = Mesh.pslg pt edges in
   Mesh_easymesh.triangulate plsg ~max_area:0.03
 
 
