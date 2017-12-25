@@ -31,6 +31,7 @@
  ((targets (EasyMesh.exe))
   (deps    (easymesh.c))
   (action  (system "${CC} -o EasyMesh.exe easymesh.c -lm"))))
+  ;(action  (run ${CC} -o EasyMesh.exe easymesh.c -lm))))
 
 (install
  ((section bin)
