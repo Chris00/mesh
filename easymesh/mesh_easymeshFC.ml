@@ -48,7 +48,7 @@ let read (pslg: pslg) fname : mesh =
   let pt_marker = CREATE_VEC(int, nnodes) in
   let sb = Scanning.from_channel fh in
   for _i = FST to LASTCOL(pt) do
-    bscanf sb " %i: %g %g %i" (fun i x y m ->
+    bscanf sb " %i %g %g %i" (fun i x y m ->
                                  let i = TO_IDX(i) in
                                  GET(pt, FST,i) <- x;
                                  GET(pt, SND,i) <- y;
@@ -62,7 +62,7 @@ let read (pslg: pslg) fname : mesh =
   and tr_nbh = CREATE_MAT(int, 3, n) in
   let sb = Scanning.from_channel fh in
   for _i = FST to LASTCOL(tr) do
-    bscanf sb " %i: %i %i %i %i %i %i %_i %_i %_i %_f %_f %_i"
+    bscanf sb " %i %i %i %i %i %i %i %_i %_i %_i %_f %_f %_i"
       (fun e i j k ei ej ek ->
          let e = TO_IDX(e) in
          GET(tr, 1,e) <- TO_IDX(i);
@@ -82,7 +82,7 @@ let read (pslg: pslg) fname : mesh =
     and edge_marker = CREATE_VEC(int, n) in
     let sb = Scanning.from_channel fh in
     for _i = FST to LASTCOL(edge) do
-      bscanf sb " %i: %i %i %_i %_i %i" (fun s c d m ->
+      bscanf sb " %i %i %i %_i %_i %i" (fun s c d m ->
                                            let s = TO_IDX(s) in
                                            GET(edge, 1,s) <- TO_IDX(c);
                                            GET(edge, 2,s) <- TO_IDX(d);
