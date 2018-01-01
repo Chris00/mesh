@@ -184,7 +184,7 @@ let create ~hole ~region ~point_attribute ~point_marker ~point
    end : LAYOUT t)
 
 external triangle :
-  string ->                        (* options *)
+  string ->                       (* switches *)
   layout t ->
   vec                             (* trianglearea *)
   -> mat * mat * int_vec * int_mat * mat * int_mat * int_mat * int_vec
@@ -289,7 +289,7 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area ?(region_area=false)
   (match min_angle with
   | None -> ()
   | Some a ->
-    if a < 0. || a > 60. then (* required: 3 min_algle <= 180 *)
+    if a < 0. || a > 60. then (* required: 3 min_angle <= 180 *)
       Buffer.add_char switches 'q'
     else
       (* Angle may include a decimal point, but not exponential notation. *)
