@@ -27,45 +27,80 @@ let check_point name point =
   if NROWS(point) <> 2 then
     invalid_arg(name ^ ": ROWS points must be 2")
 
+let check_point_marker name ~npoint m =
+  let n = Array1.dim m in
+  if 0 < n && n <> npoint then
+    invalid_arg(sprintf "%s: dim point_marker = %d <> COLS point = %d"
+                  name n npoint)
+
 let get_point_marker name ~npoint = function
   | None -> empty_vec
-  | Some m ->
-     let n = Array1.dim m in
-     if 0 < n && n <> npoint then
-       invalid_arg(sprintf "%s: dim point_marker = %d <> COLS point = %d"
-                     name n npoint);
-     m
+  | Some m -> check_point_marker name ~npoint m;
+              m
+
+let check_point_attribute name ~npoint a =
+  if NROWS(a) > 0 && NCOLS(a) <> npoint then
+    invalid_arg(sprintf "%s: COLS point_attribute = %d <> COLS point = %d"
+                  name (NCOLS(a)) npoint)
 
 let get_point_attribute name ~npoint = function
   | None -> empty_mat0
-  | Some a ->
-     if NROWS(a) > 0 && NCOLS(a) <> npoint then
-       invalid_arg(sprintf "%s: COLS point_attribute = %d <> COLS point = %d"
-                     name (NCOLS(a)) npoint);
-     a
+  | Some a -> check_point_attribute name ~npoint a;
+              a
+
+let check_segment name s =
+  if NCOLS(s) > 0 && NROWS(s) <> 2 then
+    invalid_arg(name ^ ": ROWS segment must be 2")
+
+let get_segment name = function
+  | None -> empty_int_mat2
+  | Some s -> check_segment name s;
+              s
+
+let check_segment_marker name ~nsegment m =
+  let n = Array1.dim m in
+  if 0 < n && n <> nsegment then
+    invalid_arg(sprintf "%s: dim segment_marker = %d <> COLS segment = %d"
+                  name n nsegment)
 
 let get_segment_marker name ~nsegment = function
   | None -> empty_vec
-  | Some m ->
-     let n = Array1.dim m in
-     if 0 < n && n <> nsegment then
-       invalid_arg(sprintf "%s: dim segment_marker = %d <> COLS segment = %d"
-                     name n nsegment);
-     m
+  | Some m -> check_segment_marker name ~nsegment m;
+              m
+
+let check_hole name h =
+  if NCOLS(h) > 0 && NROWS(h) <> 2 then
+    invalid_arg(name ^ ": ROWS hole must be 2")
 
 let get_hole name = function
   | None -> empty_mat2
-  | Some h ->
-     if NCOLS(h) > 0 && NROWS(h) <> 2 then
-       invalid_arg(name ^ ": ROWS hole must be 2");
-     h
+  | Some h -> check_hole name h;
+              h
+
+let check_region name r =
+  if NCOLS(r) > 0 && NROWS(r) <> 4 then
+    invalid_arg(name ^ ": ROWS region must be 4")
 
 let get_region name = function
   | None -> empty_mat4
-  | Some r ->
-     if NCOLS(r) > 0 && NROWS(r) <> 4 then
-       invalid_arg(name ^ ": ROWS region must be 4");
-     r
+  | Some r -> check_region name r;
+              r
+
+let check_triangle name tr =
+  if NCOLS(tr) = 0 then
+    invalid_arg(name ^ ": must have at least one triangle");
+  if NROWS(tr) < 3 then
+    invalid_arg(name ^ ": ROWS mesh#triangle < 3")
+
+let check_triangle_attribute name ~ntriangle a =
+  if NROWS(a) > 0 && NCOLS(a) <> ntriangle then
+    invalid_arg(sprintf "%s: COLS triangle_attribute = %d <> COLS triangle \
+                         = %d" name (NCOLS(a)) ntriangle)
+
+let get_triangle_attribute name ~ntriangle = function
+  | None -> empty_mat0
+  | Some a -> check_triangle_attribute name ~ntriangle a;
+              a
 
 let pslg ~hole ~region ~point_attribute ~point_marker ~point
          ~segment_marker ~segment =
@@ -75,6 +110,7 @@ let pslg ~hole ~region ~point_attribute ~point_marker ~point
     get_point_marker "Mesh_triangle.pslg" ~npoint point_marker in
   let point_attribute =
     get_point_attribute "Mesh_triangle.pslg" ~npoint point_attribute in
+  check_segment "Mesh_triangle.pslg" segment;
   let segment_marker = get_segment_marker "Mesh_triangle.pslg"
                          ~nsegment:(NCOLS(segment)) segment_marker in
   let hole = get_hole "Mesh_triangle.pslg" hole in
@@ -97,29 +133,16 @@ let create ~hole ~region ~point_attribute ~point_marker ~point
   let point_marker =
     get_point_marker "Mesh_triangle.create" ~npoint point_marker in
   let point_attribute =
-    get_point_attribute "Mesh_triangle.pslg" ~npoint point_attribute in
-  let segment = match segment with
-    | None -> empty_int_mat2
-    | Some s ->
-       if NCOLS(s) > 0 && NROWS(s) <> 2 then
-         invalid_arg "Mesh_triangle.create: ROWS segment must be 2";
-       s in
+    get_point_attribute "Mesh_triangle.create" ~npoint point_attribute in
+  let segment = get_segment "Mesh_triangle.create" segment in
   let segment_marker = get_segment_marker "Mesh_triangle.create"
                          ~nsegment:(NCOLS(segment)) segment_marker in
   let hole = get_hole "Mesh_triangle.create" hole in
   let region = get_region "Mesh_triangle.create" region in
-  if NCOLS(triangle) = 0 then
-    invalid_arg "Mesh_triangle.create: triangle cannot be empty";
-  if NROWS(triangle) < 3 then
-    invalid_arg "Mesh_triangle.create: ROWS triangle must be at least 3";
+  check_triangle "Mesh_triangle.create" triangle;
   let ntriangle = NCOLS(triangle) in
-  let triangle_attribute = match triangle_attribute with
-    | None -> empty_mat0
-    | Some a ->
-       if NROWS(a) > 0 && NCOLS(a) <> ntriangle then
-         invalid_arg(sprintf "Mesh_triangle.create: COLS triangle_attribute = \
-                              %d <> COLS triangle = %d" (NCOLS(a)) ntriangle);
-       a in
+  let triangle_attribute = get_triangle_attribute "Mesh_triangle.create"
+                             triangle_attribute ~ntriangle in
   let neighbor = match neighbor with
     | None -> empty_int_mat3
     | Some nbh ->
@@ -181,23 +204,20 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area ?(region_area=false)
     ~pslg ~refine (mesh: layout t) =
   (* Check points *)
   let point = mesh#point in
-  if NROWS(point) <> 2 then invalid_arg("ROWS mesh#point <> 2");
-  if NCOLS(mesh#point_attribute) > 0
-    && NCOLS(mesh#point_attribute) < NCOLS(point) then
-    invalid_arg("COLS mesh#point_attribute < COLS mesh#point");
-  if Array1.dim mesh#point_marker > 0
-    && Array1.dim mesh#point_marker < NCOLS(point) then
-    invalid_arg("dim mesh#point_marker < COLS mesh#point");
+  check_point "Mesh_triangle" point;
+  let npoint = NCOLS(point) in
+  check_point_attribute "Mesh_triangle" ~npoint mesh#point_attribute;
+  check_point_marker "Mesh_triangle" ~npoint mesh#point_marker;
   if check_finite then (
     (* Check that no point contains NaN (or infinities).  Triangle
        seems to go into an infinite loop with these which can easily
        be confused with other difficulties. *)
     for i = FST to NCOLS(point) do
       if not(is_finite(GET(point, FST, i))) then
-        invalid_arg(sprintf "mesh#point.{%i, %i} is not finite"
+        invalid_arg(sprintf "Mesh_triangle: mesh#point.{%i, %i} is not finite"
                             LINE_COL(FST, i));
       if not(is_finite(GET(point, SND, i))) then
-        invalid_arg(sprintf "mesh#point.{%i, %i} is not finite"
+        invalid_arg(sprintf "Mesh_triangle: mesh#point.{%i, %i} is not finite"
                             LINE_COL(SND, i));
     done;
   );
@@ -205,36 +225,32 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area ?(region_area=false)
   Buffer.add_string switches default_switches;
   (* Check for PSLG *)
   if pslg then (
-    if NCOLS(mesh#segment) > 0 then begin
-      if NROWS(mesh#segment) <> 2 then invalid_arg("ROWS segment <> 2");
-      if Array1.dim mesh#segment_marker > 0
-        && Array1.dim mesh#segment_marker < NCOLS(mesh#segment) then
-        invalid_arg("dim mesh#segment_marker < COLS mesh#segment");
-    end;
+    check_segment "Mesh_triangle" mesh#segment;
+    check_segment_marker "Mesh_triangle" ~nsegment:(NCOLS(mesh#segment))
+      mesh#segment_marker;
     if not refine then (
       let hole = mesh#hole in
-      if NCOLS(hole) > 0 && NROWS(hole) <> 2 then
-        invalid_arg("ROWS hole <> 2");
+      check_hole "Mesh_triangle" hole;
       let region = mesh#region in
       if NCOLS(region) > 0 then (
-        if NROWS(region) <> 4 then invalid_arg("ROWS region <> 4");
+        check_region "Mesh_triangle" region;
         Buffer.add_char switches 'A'; (* regional attributes *)
         if region_area then Buffer.add_char switches 'a'; (* area constraint *)
       );
       if check_finite then (
         for i = FST to NCOLS(hole) do
           if not(is_finite(GET(hole, FST, i))) then
-            invalid_arg(sprintf "mesh#hole.{%i, %i} is not finite"
-                                LINE_COL(FST, i));
+            invalid_arg(sprintf "Mesh_triangle: mesh#hole.{%i, %i} is not \
+                                 finite" LINE_COL(FST, i));
           if not(is_finite(GET(hole, SND, i))) then
-            invalid_arg(sprintf "mesh#hole.{%i, %i} is not finite"
-                                LINE_COL(SND, i));
+            invalid_arg(sprintf "Mesh_triangle: mesh#hole.{%i, %i} is not \
+                                 finite" LINE_COL(SND, i));
         done;
         for i = FST to NCOLS(region) do
           for j = FST to NROWS(region) do
             if not(is_finite(GET(region, j, i))) then
-              invalid_arg(sprintf "mesh#region.{%i, %i} is not finite"
-                                  LINE_COL(j, i));
+              invalid_arg(sprintf "Mesh_triangle: mesh#region.{%i, %i} is not \
+                                   finite" LINE_COL(j, i));
           done
         done
       )
@@ -245,19 +261,15 @@ let triangulate ?(delaunay=true) ?min_angle ?max_area ?(region_area=false)
   );
   (* Check for refinement -- triangles *)
   if refine then (
-    if NCOLS(mesh#triangle) > 0 then begin
-      if NROWS(mesh#triangle) < 3 then
-        invalid_arg("ROWS mesh#triangle < 3");
-      if NROWS(mesh#triangle_attribute) > 0
-        && NCOLS(mesh#triangle_attribute) < NCOLS(mesh#triangle) then
-        invalid_arg("COLS mesh#triangle_attribute < COLS mesh#triangle");
-    end;
+    check_triangle "Mesh_triangle" mesh#triangle;
+    check_triangle_attribute "Mesh_triangle" mesh#triangle_attribute
+      ~ntriangle:(NCOLS(mesh#triangle));
     Buffer.add_char switches 'r';
     (* Check triangle_area *)
     (match triangle_area with
      | Some a ->
-        if Array1.dim a < NCOLS(mesh#triangle) then
-          invalid_arg("dim triangle_area < COLS mesh#triangle");
+        if Array1.dim a <> NCOLS(mesh#triangle) then
+          invalid_arg("Mesh_triangle: dim triangle_area <> COLS mesh#triangle");
         Buffer.add_char switches 'a';
      | None -> ());
   );
