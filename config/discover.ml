@@ -13,10 +13,11 @@ let configure t =
   let ccopt, cclib =
     if system_libtriangle then
       (* System with libtriangle *)
-      ["-DTRILIBRARY"; "-DEXTERNAL_TEST"; "-DLIBTRIANGLE"],
+      ["-DTRILIBRARY"; "-DEXTERNAL_TEST"; "-DANSI_DECLARATORS";
+       "-DLIBTRIANGLE"],
       ["-ltriangle"]
     else
-      ["-DTRILIBRARY"; "-DEXTERNAL_TEST"], [] in
+      ["-DTRILIBRARY"; "-DEXTERNAL_TEST"; "-DANSI_DECLARATORS"], [] in
   let write_sexp file sexp =
     Out_channel.write_all file ~data:(Sexp.to_string sexp) in
   write_sexp "c_flags.sexp" (sexp_of_list sexp_of_string ccopt);
