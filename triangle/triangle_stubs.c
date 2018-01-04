@@ -127,25 +127,18 @@ CAMLexport
 int triunsuitable(vertex triorg, vertex tridest, vertex triapex, REAL area)
 {
   CAMLparam0();
-  CAMLlocal1(vd);
+  CAMLlocalN(args, NARGS_TRIUNSUITABLE);
   static value * closure = NULL;
-  value args[NARGS_TRIUNSUITABLE];
   if (closure == NULL) {
     closure = caml_named_value("triunsuitable_callback");
   }
 
-#define COPY_DOUBLE(dest, d) \
-  vd = caml_copy_double(d);  \
-  dest = vd
-
-  COPY_DOUBLE(args[0], triorg[0]);
-  COPY_DOUBLE(args[1], triorg[1]);
-  COPY_DOUBLE(args[2], tridest[0]);
-  COPY_DOUBLE(args[3], tridest[1]);
-  COPY_DOUBLE(args[4], triapex[0]);
-  COPY_DOUBLE(args[5], triapex[1]);
-  COPY_DOUBLE(args[6], area);
+  args[0] = caml_copy_double(triorg[0]);
+  args[1] = caml_copy_double(triorg[1]);
+  args[2] = caml_copy_double(tridest[0]);
+  args[3] = caml_copy_double(tridest[1]);
+  args[4] = caml_copy_double(triapex[0]);
+  args[5] = caml_copy_double(triapex[1]);
+  args[6] = caml_copy_double(area);
   CAMLreturn(Bool_val(callbackN(*closure, NARGS_TRIUNSUITABLE, args)));
-
-#undef COPY_DOUBLE
 }
