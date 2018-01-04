@@ -4,7 +4,7 @@
  ((name        mesh)
   (public_name mesh)
   (synopsis  "Triangular mesh generation and manipulation")
-  (modules   (Mesh  Mesh_utils Mesh_common MeshF MeshC))
+  (modules   (Mesh  Mesh_common MeshF MeshC))
   (flags     (:standard -safe-string))
   (libraries (bigarray bytes))))
 

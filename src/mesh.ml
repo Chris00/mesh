@@ -17,7 +17,6 @@
 
 
 open Bigarray
-open Mesh_utils
 
 include Mesh_common
 
@@ -43,6 +42,17 @@ let create (type l) ?(hole: l mat option) ?(region: l mat option)
   | Fortran_layout ->
      MeshF.create ~hole ~region  ~point_marker ~point
        ~segment_marker ~segment  ~neighbor  ~edge ~edge_marker  ~triangle
+
+let copy_vec v =
+  let v' = Array1.create (Array1.kind v) (Array1.layout v) (Array1.dim v) in
+  Array1.blit v v';
+  v'
+
+let copy_mat m =
+  let m' = Array2.create (Array2.kind m) (Array2.layout m)
+                         (Array2.dim1 m) (Array2.dim2 m) in
+  Array2.blit m m';
+  m'
 
 let copy (mesh: 'l t) =
   make_mesh
