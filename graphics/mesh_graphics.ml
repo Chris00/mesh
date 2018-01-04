@@ -19,9 +19,8 @@
 (** Displaying the mesh with Graphics *)
 
 open Printf
+open Bigarray
 open Graphics
-open Mesh_utils
-open Mesh_common
 
 (* TODO:
 
@@ -30,17 +29,16 @@ open Mesh_common
    - allow to switch on and off the nodes #
 *)
 
-let draw ?width ?height ?color ?points ?point_idx ?triangle_idx ?voronoi
-         ?point_marker_color
-         (mesh: 'a #Mesh.t) =
-  if Mesh.is_c_layout mesh then
-    Mesh_graphicsC.draw ?width ?height ?color ?points ?point_idx ?triangle_idx
-                       ?voronoi ?point_marker_color
-                       (mesh_to_c mesh)
-  else
-    Mesh_graphicsF.draw ?width ?height ?color ?points ?point_idx ?triangle_idx
-                       ?voronoi ?point_marker_color
-                       (mesh_to_fortran mesh)
+let draw (type l) ?width ?height ?color ?points ?point_idx ?triangle_idx
+      ?voronoi ?point_marker_color
+      (mesh: l Mesh.t) =
+  match Mesh.layout mesh with
+  | C_layout ->
+     Mesh_graphicsC.draw ?width ?height ?color ?points ?point_idx ?triangle_idx
+       ?voronoi ?point_marker_color mesh
+  | Fortran_layout ->
+     Mesh_graphicsF.draw ?width ?height ?color ?points ?point_idx ?triangle_idx
+       ?voronoi ?point_marker_color mesh
 
 let init_graph width height =
   let xbd = 10 and ybd = 10 in
@@ -70,15 +68,15 @@ let display ?(width=600) ?(height=600) ?color ?points ?point_idx ?triangle_idx
        mesh;
   hold_graph()
 
-let level_curves ?(width=600) ?(height=600) ?boundary (mesh: 'a #Mesh.t)
-                 (z: 'a Mesh.vec) ?level_eq levels =
-  if Mesh.is_c_layout mesh then
-    Mesh_graphicsC.level_curves ~width ~height ?boundary
-                               (mesh_to_c mesh) (vec_to_c z) ?level_eq levels
-  else
-    Mesh_graphicsF.level_curves ~width ~height ?boundary
-                               (mesh_to_fortran mesh) (vec_to_fortran z)
-                               ?level_eq levels
+let level_curves (type l) ?(width=600) ?(height=600) ?boundary (mesh: l Mesh.t)
+                 (z: l Mesh.vec) ?level_eq levels =
+  match Mesh.layout mesh with
+  | C_layout ->
+     Mesh_graphicsC.level_curves ~width ~height ?boundary
+       mesh z ?level_eq levels
+  | Fortran_layout ->
+     Mesh_graphicsF.level_curves ~width ~height ?boundary
+       mesh z ?level_eq levels
 
 let display_level_curves ?(width=600) ?(height=600) ?boundary mesh z
     ?level_eq levels =
@@ -87,22 +85,18 @@ let display_level_curves ?(width=600) ?(height=600) ?boundary mesh z
   level_curves ~width ~height ?boundary mesh z ?level_eq levels;
   hold_graph()
 
-let super_level ?(width=600) ?(height=600) ?boundary (mesh: 'a #Mesh.t)
-                (z: 'a Mesh.vec) level color =
-  if Mesh.is_c_layout mesh then
-    Mesh_graphicsC.super_level ~width ~height ?boundary
-                              (mesh_to_c mesh) (vec_to_c z) level color
-  else
-    Mesh_graphicsF.super_level ~width ~height ?boundary
-                              (mesh_to_fortran mesh) (vec_to_fortran z)
-                              level color
+let super_level (type l) ?(width=600) ?(height=600) ?boundary (mesh: l Mesh.t)
+                (z: l Mesh.vec) level color =
+  match Mesh.layout mesh with
+  | C_layout ->
+     Mesh_graphicsC.super_level ~width ~height ?boundary mesh z level color
+  | Fortran_layout ->
+     Mesh_graphicsF.super_level ~width ~height ?boundary mesh z level color
 
-let sub_level ?(width=600) ?(height=600) ?boundary (mesh: 'a #Mesh.t)
-              (z: 'a Mesh.vec) level color =
-  if Mesh.is_c_layout mesh then
-    Mesh_graphicsC.sub_level ~width ~height ?boundary
-                            (mesh_to_c mesh) (vec_to_c z) level color
-  else
-    Mesh_graphicsF.sub_level ~width ~height ?boundary
-                            (mesh_to_fortran mesh) (vec_to_fortran z)
-                            level color
+let sub_level (type l) ?(width=600) ?(height=600) ?boundary (mesh: l Mesh.t)
+              (z: l Mesh.vec) level color =
+  match Mesh.layout mesh with
+  | C_layout -> Mesh_graphicsC.sub_level ~width ~height ?boundary
+                  mesh z level color
+  | Fortran_layout -> Mesh_graphicsF.sub_level ~width ~height ?boundary
+                        mesh z level color

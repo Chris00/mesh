@@ -565,7 +565,7 @@ let sub_markers (v: int_vec) n cols =
     v'
   )
 
-let internal_sub (mesh: mesh) ?pos len =
+let internal_sub (mesh: LAYOUT #t) ?pos len =
   let pos = match pos with
     | None -> FST
     | Some pos ->

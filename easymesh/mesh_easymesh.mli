@@ -72,6 +72,6 @@ val read : 'layout Bigarray.layout -> string -> 'layout Mesh.t
       the files are well formed is checked (various exceptions may be
       thrown), not the fact that the data describe a real mesh. *)
 
-val write : 'layout #Mesh.t -> string -> unit
+val write : 'layout Mesh.t -> string -> unit
 (** [write mesh file] writes the [mesh] in the files [file].n,
     [file].e and [file].s in easymesh format. *)

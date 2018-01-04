@@ -167,13 +167,14 @@ val layout : 'l #pslg -> 'l layout
 (** [layout mesh] returns the layout of [mesh]. *)
 
 val is_c_layout : 'l #pslg -> bool
-(** [is_c_layout] returns true if the mesh layout is C. *)
+  [@@deprecated "Use [layout] and GADT match"]
+(** @deprecated [is_c_layout] returns true if the mesh layout is C. *)
 
 val copy : 'l t -> 'l t
 (** [new copy mesh] returns an identical mesh where all matrices are a
     fresh copy of the ones of [mesh]. *)
 
-val sub : 'l #t -> ?pos:int -> int -> 'l t
+val sub : 'l t -> ?pos:int -> int -> 'l t
 (** [sub mesh ?pos len] returns a new mesh keeping only the points
     with indices between [pos] and [pos + len - 1] (included).  Only
     triangles whose 3 vertices have been selected are kept.  Beware
@@ -181,7 +182,7 @@ val sub : 'l #t -> ?pos:int -> int -> 'l t
 
     @param pos default: [1] ([fortran_layout]) or 0 ([c_layout]). *)
 
-val permute_points : 'l #t -> ?inv:bool -> 'l int_vec -> 'l t
+val permute_points : 'l t -> ?inv:bool -> 'l int_vec -> 'l t
 (** [permute_points mesh p] returns a new mesh identical to the given
     [mesh] except that the points indices are transformed through the
     permutation [p]: the point of index [i] in the new mesh will be
@@ -193,7 +194,7 @@ val permute_points : 'l #t -> ?inv:bool -> 'l int_vec -> 'l t
     [true], the point of index [i] in [mesh] will be mapped to the
     point of index [p.{i}] in the returned mesh.  Default: [false]. *)
 
-val permute_triangles : 'l #t -> ?inv:bool -> 'l int_vec -> 'l t
+val permute_triangles : 'l t -> ?inv:bool -> 'l int_vec -> 'l t
 (** [permute_triangles mesh p] returns a new mesh identical to the given
     [mesh] except that the trangle indices are transformed through the
     permutation [p]: the triangle of index [i] in the new mesh will be
@@ -208,7 +209,7 @@ val permute_triangles : 'l #t -> ?inv:bool -> 'l int_vec -> 'l t
 
 (** {2:band  Band computation and reduction} *)
 
-val band_height_P1 : ?filter:(int -> bool) -> 'l #t -> int
+val band_height_P1 : ?filter:(int -> bool) -> 'l t -> int
 (** [band_height mesh] returns the number of nonzero super-diagonals +
     1 (for the diagonal) of symmetric band matrices for P1 finite
     elements inner products.  It is the maximum on all triangles T of
@@ -218,7 +219,7 @@ val band_height_P1 : ?filter:(int -> bool) -> 'l #t -> int
     @param filter If provided, only perform the compuation on nodes
     [i] such that [filter i] is true.  Default: no filter. *)
 
-val cuthill_mckee : ?rev:bool -> ?perm:'l int_vec -> 'l #t -> 'l t
+val cuthill_mckee : ?rev:bool -> ?perm:'l int_vec -> 'l t -> 'l t
 (** [cuthill_mckee mesh] return a new mesh that is identical to [mesh]
     except that the labelling of the nodes has been changed to lower
     its band (as computed by {!band_height_P1}).
@@ -248,7 +249,7 @@ sig
   (** RGB Color representation [0xRRGGBB].  It will be converted to
       TeX by the functions below. *)
 
-  val save : ?edge:(int -> color option) -> 'l #t -> string -> unit
+  val save : ?edge:(int -> color option) -> 'l t -> string -> unit
   (** [save mesh file] saves the mesh as LaTeX PGF commands.  You can
       input the file in a [tikzpicture] environment to render the mesh.
 
@@ -258,11 +259,11 @@ sig
       @raise Invalid_argument if [mesh#edge] is empty or [mesh#point] is
       empty. *)
 
-  val write : ?edge:(int -> color option) -> 'l #t -> out_channel -> unit
+  val write : ?edge:(int -> color option) -> 'l t -> out_channel -> unit
   (** Same as {!save} but write the command to the channel. *)
 
   val level_curves : ?boundary:(int -> color option) ->
-    'l #t -> 'l vec -> ?level_eq:(float -> float -> bool) ->
+    'l t -> 'l vec -> ?level_eq:(float -> float -> bool) ->
     (float * color) list -> string -> unit
     (** [level_curves mesh z levels file] outputs into [file] LaTeX
         PGF commands to display the level curves at [levels] of the P1
@@ -286,7 +287,7 @@ sig
         [levels].  *)
 
   val super_level : ?boundary:(int -> color option) ->
-    'l #t -> 'l vec -> float -> color -> string -> unit
+    'l t -> 'l vec -> float -> color -> string -> unit
   (** [super_level mesh z level color file] outputs into [file] the
       LaTeX PGF command to display the super-level \{ (x,y) | z(x,y) >
       l \}.  You can customize the output by defining
@@ -294,14 +295,14 @@ sig
       [\meshfillquadrilateral{R,G,B}{x1}{y1}{x2}{y2}{x3}{y3}{x4}{y4}].  *)
 
   val sub_level : ?boundary:(int -> color option) ->
-    'l #t -> 'l vec -> float -> color -> string -> unit
+    'l t -> 'l vec -> float -> color -> string -> unit
   (** [sub_level mesh z level color file] same as {!super_level}
       except that the sub-level \{ (x,y) | z(x,y) < l \} is drawn. *)
 end
 
 (** {2 Scilab} *)
 
-val scilab : 'l #t -> ?longitude: float -> ?azimuth: float ->
+val scilab : 'l t -> ?longitude: float -> ?azimuth: float ->
              ?mode:[`Triangles | `Triangles_only | `No_triangles] ->
              ?box:[`None | `Behind | `Box_only | `Full] ->
              ?edgecolor:[`Color of int | `Grey of float] ->
@@ -326,7 +327,7 @@ val scilab : 'l #t -> ?longitude: float -> ?azimuth: float ->
 
 (** {2 Matlab} *)
 
-val matlab : 'l #t -> ?edgecolor:[`None | `Flat | `Interp | `Color of int]
+val matlab : 'l t -> ?edgecolor:[`None | `Flat | `Interp | `Color of int]
              -> ?linestyle:string -> ?facealpha:float ->
              'l vec -> string -> unit
   (** [matlab mesh z file] saves the mesh data and the function values
@@ -350,7 +351,7 @@ val matlab : 'l #t -> ?edgecolor:[`None | `Flat | `Interp | `Color of int]
 
 (** {2 Mathematica} *)
 
-val mathematica : 'l #t -> 'l vec -> string -> unit
+val mathematica : 'l t -> 'l vec -> string -> unit
 (** [mathematica mesh z file] saves the mesh data and the function
     values [z] (i.e. [z.{i}] is the function value at the point
     [mesh.point.{_,i}] ([fortran layout])) in the file [file].m so

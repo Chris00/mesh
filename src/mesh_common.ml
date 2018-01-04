@@ -77,23 +77,10 @@ let make_mesh ~point ~point_marker ~segment ~segment_marker ~hole ~region
 
 let layout (mesh: _ #pslg) = Array2.layout mesh#point
 
-let is_c_layout (mesh: _ #pslg) =
-  Mesh_utils.is_c_layout(Array2.layout mesh#point)
-
-let pslg_to_c (m: _ #pslg) = (Obj.magic m : c_layout pslg)
-let pslg_to_fortran (m: _ #pslg) = (Obj.magic m : fortran_layout pslg)
-
-let mesh_to_c (m: _ #t) = (Obj.magic m : c_layout t)
-let mesh_to_fortran (m: _ #t) = (Obj.magic m : fortran_layout t)
-
-let mesh_transform (mesh: 'l #t) f_c f_fortran =
-  if is_c_layout mesh then
-    let mesh' : c_layout t = f_c (mesh_to_c mesh) in
-    (Obj.magic mesh' : 'l t)
-  else
-    let mesh' : fortran_layout t = f_fortran (mesh_to_fortran mesh) in
-    (Obj.magic mesh' : 'l t)
-
+let is_c_layout (type l) (mesh: l #pslg) =
+  match layout mesh with
+  | C_layout -> true
+  | Fortran_layout -> false
 
 (** LaTeX commands *)
 

@@ -4,8 +4,8 @@ open Printf
 open Scanf
 open Bigarray
 
-type pslg = LAYOUT Mesh_common.pslg
-type mesh = LAYOUT Mesh_common.t
+type pslg = LAYOUT Mesh.pslg
+type mesh = LAYOUT Mesh.t
 
 (* Write the [pslg] to the channel [fh]. *)
 let output_pslg fh (pslg: pslg) area =

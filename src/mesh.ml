@@ -21,58 +21,28 @@ open Mesh_utils
 
 include Mesh_common
 
-let pslg ?(hole: 'a mat option) ?(region: 'a mat option)
-         ?(point_marker: 'a int_vec option) (point: 'a mat)
-         ?(segment_marker: 'a int_vec option) (segment: 'a int_mat) =
-  if Mesh_utils.is_c_layout (Array2.layout point) then
-    let m = MeshC.pslg ~hole:(mat_opt_to_c hole)
-                       ~region:(mat_opt_to_c region)
-                       ~point_marker:(vec_opt_to_c point_marker)
-                       ~point:(mat_to_c point)
-                       ~segment_marker:(vec_opt_to_c segment_marker)
-                       ~segment:(mat_to_c segment) in
-    (Obj.magic (m: c_layout pslg) : 'a pslg)
-  else
-    let m = MeshF.pslg ~hole:(mat_opt_to_fortran hole)
-                       ~region:(mat_opt_to_fortran region)
-                       ~point_marker:(vec_opt_to_fortran point_marker)
-                       ~point:(mat_to_fortran point)
-                       ~segment_marker:(vec_opt_to_fortran segment_marker)
-                       ~segment:(mat_to_fortran segment) in
-    (Obj.magic (m: fortran_layout pslg) : 'a pslg)
+let pslg (type l) ?(hole: l mat option) ?(region: l mat option)
+         ?(point_marker: l int_vec option) (point: l mat)
+         ?(segment_marker: l int_vec option) (segment: l int_mat) : l pslg =
+  match Array2.layout point with
+  | C_layout ->
+     MeshC.pslg ~hole ~region  ~point_marker ~point  ~segment_marker ~segment
+  | Fortran_layout ->
+     MeshF.pslg ~hole ~region  ~point_marker ~point  ~segment_marker ~segment
 
-let create ?(hole: 'a mat option) ?(region: 'a mat option)
-      ?(point_marker: 'a int_vec option)  (point:'a mat)
-      ?(segment_marker: 'a int_vec option) ?(segment: 'a int_mat option)
-      ?(neighbor: 'a int_mat option)
-      ?(edge: 'a int_mat option) ?(edge_marker: 'a int_vec option)
-      (triangle: 'a int_mat) =
-  if Mesh_utils.is_c_layout (Array2.layout point) then
-    let m = MeshC.create
-              ~hole:(mat_opt_to_c hole)
-              ~region:(mat_opt_to_c region)
-              ~point_marker:(vec_opt_to_c point_marker)
-              ~point:(mat_to_c point)
-              ~segment_marker:(vec_opt_to_c segment_marker)
-              ~segment:(mat_opt_to_c segment)
-              ~neighbor:(mat_opt_to_c neighbor)
-              ~edge:(mat_opt_to_c edge)
-              ~edge_marker:(vec_opt_to_c edge_marker)
-              ~triangle:(mat_to_c triangle) in
-    (Obj.magic (m: c_layout t) : 'a t)
-  else
-    let m = MeshF.create
-              ~hole:(mat_opt_to_fortran hole)
-              ~region:(mat_opt_to_fortran region)
-              ~point_marker:(vec_opt_to_fortran point_marker)
-              ~point:(mat_to_fortran point)
-              ~segment_marker:(vec_opt_to_fortran segment_marker)
-              ~segment:(mat_opt_to_fortran segment)
-              ~neighbor:(mat_opt_to_fortran neighbor)
-              ~edge:(mat_opt_to_fortran edge)
-              ~edge_marker:(vec_opt_to_fortran edge_marker)
-              ~triangle:(mat_to_fortran triangle) in
-    (Obj.magic (m: fortran_layout t) : 'a t)
+let create (type l) ?(hole: l mat option) ?(region: l mat option)
+      ?(point_marker: l int_vec option)  (point:l mat)
+      ?(segment_marker: l int_vec option) ?(segment: l int_mat option)
+      ?(neighbor: l int_mat option)
+      ?(edge: l int_mat option) ?(edge_marker: l int_vec option)
+      (triangle: l int_mat) : l t =
+  match Array2.layout point with
+  | C_layout ->
+     MeshC.create ~hole ~region  ~point_marker ~point
+       ~segment_marker ~segment  ~neighbor  ~edge ~edge_marker  ~triangle
+  | Fortran_layout ->
+     MeshF.create ~hole ~region  ~point_marker ~point
+       ~segment_marker ~segment  ~neighbor  ~edge ~edge_marker  ~triangle
 
 let copy (mesh: 'l t) =
   make_mesh
@@ -88,92 +58,90 @@ let copy (mesh: 'l t) =
     ~edge_marker: (copy_vec mesh#edge_marker)
 
 
-let sub mesh ?pos len =
-  mesh_transform mesh
-                 (fun m -> MeshC.sub m ?pos len)
-                 (fun m -> MeshF.sub m ?pos len)
+let sub (type l) (mesh: l t) ?pos len : l t =
+  match layout mesh with
+  | C_layout -> MeshC.sub mesh ?pos len
+  | Fortran_layout -> MeshF.sub mesh ?pos len
 
-let band_height_P1 ?filter mesh =
-  if is_c_layout mesh then
-    MeshC.band_height_P1 filter (mesh_to_c mesh)
-  else
-    MeshF.band_height_P1 filter (mesh_to_fortran mesh)
+let band_height_P1 (type l) ?filter (mesh: l t) =
+  match layout mesh with
+  | C_layout -> MeshC.band_height_P1 filter mesh
+  | Fortran_layout -> MeshF.band_height_P1 filter mesh
 
-let cuthill_mckee ?(rev=true) ?(perm: 'l int_vec option) (mesh: 'l #t) =
-  mesh_transform mesh
-                 (fun m -> MeshC.cuthill_mckee ~rev (vec_opt_to_c perm) m)
-                 (fun m -> MeshF.cuthill_mckee ~rev (vec_opt_to_fortran perm) m)
+let cuthill_mckee (type l) ?(rev=true) ?(perm: l int_vec option)
+      (mesh: l t) : l t =
+  match layout mesh with
+  | C_layout -> MeshC.cuthill_mckee ~rev perm mesh
+  | Fortran_layout -> MeshF.cuthill_mckee ~rev perm mesh
 
-let permute_points (mesh: 'l #t) ?(inv=false) (perm: 'l int_vec) =
-  mesh_transform mesh
-                 (fun m -> MeshC.permute_points m ~inv (vec_to_c perm))
-                 (fun m -> MeshF.permute_points m ~inv (vec_to_fortran perm))
+let permute_points (type l) (mesh: l t) ?(inv=false) (perm: l int_vec) : l t =
+  match layout mesh with
+  | C_layout -> MeshC.permute_points mesh ~inv perm
+  | Fortran_layout -> MeshF.permute_points mesh ~inv perm
 
-let permute_triangles (mesh: 'l #t) ?(inv=false) (perm: 'l int_vec) =
-  mesh_transform mesh
-                 (fun m -> MeshC.permute_triangles m ~inv (vec_to_c perm))
-                 (fun m -> MeshF.permute_triangles m ~inv (vec_to_fortran perm))
+let permute_triangles (type l) (mesh: l t) ?(inv=false)
+      (perm: l int_vec) : l t =
+  match layout mesh with
+  | C_layout -> MeshC.permute_triangles mesh ~inv perm
+  | Fortran_layout -> MeshF.permute_triangles mesh ~inv perm
 
 
 module LaTeX =
 struct
   type color = int
 
-  let save ?edge (mesh: _ #t) filename =
-    if is_c_layout(mesh :> _ pslg)
-    then MeshC.latex ?edge (mesh_to_c mesh) filename
-    else MeshF.latex ?edge (mesh_to_fortran mesh) filename
+  let save (type l) ?edge (mesh: l t) filename =
+    match layout mesh with
+    | C_layout -> MeshC.latex ?edge mesh filename
+    | Fortran_layout -> MeshF.latex ?edge mesh filename
 
-  let write ?edge (mesh: _ #t) fh =
-    if is_c_layout(mesh :> _ pslg)
-    then MeshC.latex_write ?edge (mesh_to_c mesh) fh
-    else MeshF.latex_write ?edge (mesh_to_fortran mesh) fh
+  let write (type l) ?edge (mesh: l t) fh =
+    match layout mesh with
+    | C_layout -> MeshC.latex_write ?edge mesh fh
+    | Fortran_layout -> MeshF.latex_write ?edge mesh fh
 
-  let level_curves ?boundary (mesh: 'a #t) (z: 'a vec)
-      ?level_eq levels filename =
-    if is_c_layout(mesh :> _ pslg) then
-      MeshC.level_curves ?boundary (mesh_to_c mesh) (vec_to_c z)
-                         ?level_eq levels filename
-    else
-      MeshF.level_curves ?boundary (mesh_to_fortran mesh) (vec_to_fortran z)
-                         ?level_eq levels filename
+  let level_curves (type l) ?boundary (mesh: l t) (z: l vec)
+        ?level_eq levels filename =
+    match layout mesh with
+    | C_layout -> MeshC.level_curves ?boundary mesh z
+                    ?level_eq levels filename
+    | Fortran_layout -> MeshF.level_curves ?boundary mesh z
+                          ?level_eq levels filename
 
-  let super_level ?boundary (mesh: 'a #t) (z: 'a vec) level color filename =
-    if is_c_layout mesh then
-      MeshC.super_level ?boundary (mesh_to_c mesh) (vec_to_c z)
-                        level color filename
-    else
-      MeshF.super_level ?boundary (mesh_to_fortran mesh) (vec_to_fortran z)
-                        level color filename
+  let super_level (type l) ?boundary (mesh: l t) (z: l vec) level color
+        filename =
+    match layout mesh with
+    | C_layout ->
+       MeshC.super_level ?boundary mesh z level color filename
+    | Fortran_layout ->
+       MeshF.super_level ?boundary mesh z level color filename
 
-  let sub_level ?boundary (mesh: 'a #t) (z: 'a vec) level color filename =
-    if is_c_layout mesh then
-      MeshC.sub_level ?boundary (mesh_to_c mesh) (vec_to_c z)
-                      level color filename
-    else
-      MeshF.sub_level ?boundary (mesh_to_fortran mesh) (vec_to_fortran z)
-                      level color filename
+  let sub_level (type l) ?boundary (mesh: l t) (z: l vec) level color filename =
+    match layout mesh with
+    | C_layout -> MeshC.sub_level ?boundary mesh z level color filename
+    | Fortran_layout -> MeshF.sub_level ?boundary mesh z level color filename
 end
 
-let scilab (mesh: 'a #t) ?longitude ?azimuth ?mode ?box ?edgecolor
-      (z: 'a vec) filename =
-  if is_c_layout mesh
-  then MeshC.scilab (mesh_to_c mesh) ?longitude ?azimuth ?mode ?box
-         ?edgecolor (vec_to_c z) filename
-  else MeshF.scilab (mesh_to_fortran mesh) ?longitude ?azimuth ?mode ?box
-         ?edgecolor (vec_to_fortran z) filename
+let scilab (type l) (mesh: l t) ?longitude ?azimuth ?mode ?box ?edgecolor
+      (z: l vec) filename =
+  match layout mesh with
+  | C_layout -> MeshC.scilab mesh ?longitude ?azimuth ?mode ?box
+                  ?edgecolor z filename
+  | Fortran_layout -> MeshF.scilab mesh ?longitude ?azimuth ?mode ?box
+                        ?edgecolor z filename
 
-let matlab (mesh: 'a #t) ?edgecolor ?linestyle ?facealpha (z: 'a vec) filename =
-  if is_c_layout mesh
-  then MeshC.matlab (mesh_to_c mesh) ?edgecolor ?linestyle ?facealpha
-                    (vec_to_c z) filename
-  else MeshF.matlab (mesh_to_fortran mesh) ?edgecolor ?linestyle ?facealpha
-                    (vec_to_fortran z) filename
+let matlab (type l) (mesh: l t) ?edgecolor ?linestyle ?facealpha
+      (z: l vec) filename =
+  match layout mesh with
+  | C_layout -> MeshC.matlab mesh ?edgecolor ?linestyle ?facealpha
+                  z filename
+  | Fortran_layout -> MeshF.matlab mesh ?edgecolor ?linestyle ?facealpha
+                        z filename
 
-let mathematica (mesh: 'a #t) (z: 'a vec) filename =
-  if is_c_layout mesh
-  then MeshC.mathematica (mesh_to_c mesh) (vec_to_c z) filename
-  else MeshF.mathematica (mesh_to_fortran mesh) (vec_to_fortran z) filename
+let mathematica (type l) (mesh: l t) (z: l vec) filename =
+  match layout mesh with
+  | C_layout -> MeshC.mathematica mesh z filename
+  | Fortran_layout -> MeshF.mathematica mesh z filename
 
 
 (* Local Variables: *)
