@@ -4,8 +4,7 @@
  ((name        mesh_easymesh)
   (public_name mesh-easymesh)
   (synopsis  "Triangular mesh generation with Easymesh")
-  (modules   (Mesh_easymesh  Mesh_easymeshF Mesh_easymeshC
-              Mesh_common))
+  (modules   (Mesh_easymesh  Mesh_easymeshF Mesh_easymeshC))
   (flags     (:standard -safe-string))
   (libraries (mesh bigarray bytes))))
 
@@ -14,11 +13,6 @@
   (deps    (../config/make_FC_code.exe
             mesh_easymeshFC.ml))
   (action  (run ../config/make_FC_code.exe))))
-
-(rule
- ((targets (mesh_common.ml))
-  (deps    (../src/mesh_common.ml))
-  (action  (copy# ${^} mesh_common.ml))))
 
 ;; EasyMesh is no longer downloadble from the internet.  Build it and
 ;; install it alongside Mesh_easymesh

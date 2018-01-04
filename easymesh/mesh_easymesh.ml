@@ -21,7 +21,7 @@ let easymesh = "EasyMesh.exe"
 open Printf
 open Bigarray
 
-class ['l] pslg = ['l] Mesh_common.pslg
+class ['l] pslg = ['l] Mesh.pslg
 
 let pslg = Mesh.pslg
 let create = Mesh.create

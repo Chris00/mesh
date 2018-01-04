@@ -74,45 +74,43 @@ let read (pslg: pslg) fname : mesh =
       )
   done;
   close_in fh;
-  try
-    (* Read edges, if file exists *)
-    let fh = open_in (fname ^ ".s") in
-    let n = int_of_string(input_line fh) in
-    let edge = CREATE_MAT(int, 2, n)
-    and edge_marker = CREATE_VEC(int, n) in
-    let sb = Scanning.from_channel fh in
-    for _i = FST to LASTCOL(edge) do
-      bscanf sb " %i %i %i %_i %_i %i" (fun s c d m ->
-                                           let s = TO_IDX(s) in
-                                           GET(edge, 1,s) <- TO_IDX(c);
-                                           GET(edge, 2,s) <- TO_IDX(d);
-                                           edge_marker.{s} <- m;
-                                        )
-    done;
-    close_in fh;
-    (Mesh_common.make_mesh
-       ~point: pt
-       ~point_marker: pt_marker
-       ~triangle: tr
-       ~neighbor: tr_nbh
-       ~edge: edge
-       ~edge_marker: edge_marker
-       ~segment: pslg#segment
-       ~segment_marker: pslg#segment_marker
-       ~hole: pslg#hole
-       ~region: pslg#region)
-  with Sys_error _ ->
-    (Mesh_common.make_mesh
-       ~point: pt
-       ~point_marker: pt_marker
-       ~triangle: tr
-       ~neighbor: tr_nbh
-       ~edge: (CREATE_MAT(int, 2, 0))
-       ~edge_marker: (CREATE_VEC(int, 0))
-       ~segment: pslg#segment
-       ~segment_marker: pslg#segment_marker
-       ~hole: pslg#hole
-       ~region: pslg#region)
+  let edge, edge_marker =
+    try
+      (* Read edges, if file exists *)
+      let fh = open_in (fname ^ ".s") in
+      let n = int_of_string(input_line fh) in
+      let edge = CREATE_MAT(int, 2, n)
+      and edge_marker = CREATE_VEC(int, n) in
+      let sb = Scanning.from_channel fh in
+      for _i = FST to LASTCOL(edge) do
+        bscanf sb " %i %i %i %_i %_i %i" (fun s c d m ->
+            let s = TO_IDX(s) in
+            GET(edge, 1,s) <- TO_IDX(c);
+            GET(edge, 2,s) <- TO_IDX(d);
+            edge_marker.{s} <- m;
+          )
+      done;
+      close_in fh;
+      (edge, edge_marker)
+    with Sys_error _ ->
+      ( (CREATE_MAT(int, 2, 0)), (CREATE_VEC(int, 0)) ) in
+  let segment = pslg#segment in
+  let segment_marker = pslg#segment_marker in
+  let hole = pslg#hole in
+  let region = pslg#region in
+  (object
+     method point = pt
+     method point_marker = pt_marker
+     method triangle = tr
+     method neighbor = tr_nbh
+     method edge = edge
+     method edge_marker = edge_marker
+     (* From PSLG *)
+     method segment = segment
+     method segment_marker = segment_marker
+     method hole = hole
+     method region = region
+   end : LAYOUT Mesh.t)
 
 let empty_pslg : pslg =
   let empty_mat = CREATE_MAT(float64, 2, 0)

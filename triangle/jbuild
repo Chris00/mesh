@@ -5,8 +5,7 @@
   (public_name mesh-triangle)
   (synopsis  "Binding to the triangle mesh generator")
   (modules   (Mesh_triangle
-              Mesh_triangle_common Mesh_triangleF Mesh_triangleC
-              Mesh_utils))
+              Mesh_triangle_common Mesh_triangleF Mesh_triangleC))
   (c_names (libtriangle_stubs))
   (c_flags ((:include c_flags.sexp)
             -O3 -march=native -fPIC -DPIC))
@@ -23,11 +22,6 @@
  ((targets (c_flags.sexp c_library_flags.sexp))
   (deps    (../config/discover.exe))
   (action  (run ${<} -ocamlc ${OCAMLC}))))
-
-(rule
- ((targets (mesh_utils.ml))
-  (deps    (../src/mesh_utils.ml))
-  (action  (copy# ${^} mesh_utils.ml))))
 
 (rule
  ((targets (libtriangle_stubs.c))

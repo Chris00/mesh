@@ -16,7 +16,6 @@
    LICENSE for more details. *)
 
 open Bigarray
-open Mesh_utils
 
 external init : unit -> unit = "ocaml_triangle_init"
 let () = init()
@@ -100,6 +99,12 @@ let refine ?delaunay ?min_angle ?max_area ?max_steiner
     ?debug ?verbose
     ~pslg:false ~refine:true mesh
 
+
+let copy_mat m =
+  let m' = Array2.create (Array2.kind m) (Array2.layout m)
+                         (Array2.dim1 m) (Array2.dim2 m) in
+  Array2.blit m m';
+  m'
 
 let copy (mesh: 'l t) =
   extend_mesh (Mesh.copy (mesh :> _ Mesh.t))
