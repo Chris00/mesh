@@ -25,6 +25,7 @@ open Mesh_common
 class ['l] pslg = ['l] Mesh_common.pslg
 
 let pslg = Mesh.pslg
+let create = Mesh.create
 
 (* Interface to easymesh -- gathering the FORTRAN and C layouts together
  ***********************************************************************)

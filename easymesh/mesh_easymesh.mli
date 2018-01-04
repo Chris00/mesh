@@ -40,6 +40,16 @@ val pslg : ?hole: 'l Mesh.mat -> ?region: 'l Mesh.mat ->
 (** Same as {!Mesh.pslg}.  Duplicated here to ease the writing of code
     that is easily ported to various meshers. *)
 
+val create : ?hole: 'l Mesh.mat -> ?region: 'l Mesh.mat ->
+             ?point_marker: 'l Mesh.int_vec ->
+             'l Mesh.mat ->
+             ?segment_marker: 'l Mesh.int_vec -> ?segment:'l Mesh.int_mat ->
+             ?neighbor: 'l Mesh.int_mat ->
+             ?edge: 'l Mesh.int_mat -> ?edge_marker: 'l Mesh.int_vec ->
+             'l Mesh.int_mat -> 'l Mesh.t
+(** Same as {!Mesh.create}.  Duplicated here to ease the writing of code
+    that is easily ported to various meshers. *)
+
 
 val triangulate : max_area:float -> 'layout Mesh.pslg -> 'layout Mesh.t
 (** [triangulate ~max_area pslg] returns a triangulation of the
