@@ -1,3 +1,12 @@
+0.9.2 2017-12-25
+----------------
+
+- Compile `EasyMesh.exe` and update the parsing of its output.
+- Make checks in `Mesh_triangle` more uniform.
+- Fix bug in the Triangle bindings.
+- Remove all occurrences of `Obj.magic` to ensure polymorphism
+  w.r.t. the layout.  Does not change the interface.
+
 0.9.1 2017-12-18
 ----------------
 
