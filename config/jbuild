@@ -4,8 +4,3 @@
  ((name      make_FC_code)
   (modules   (make_FC_code))
   (libraries (str))))
-
-(executable
- ((name      discover)
-  (modules   (Discover))
-  (libraries (base stdio configurator))))
