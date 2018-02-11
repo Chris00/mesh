@@ -1,3 +1,9 @@
+0.9.3 2018-02-11
+----------------
+
+- Refine dependencies.
+- Remove `build-test` which is deprecated with OPAM 2.
+
 0.9.2 2017-12-25
 ----------------
 
