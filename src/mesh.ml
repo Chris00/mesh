@@ -73,7 +73,8 @@ let sub (type l) (mesh: l t) ?pos len : l t =
   | C_layout -> MeshC.sub mesh ?pos len
   | Fortran_layout -> MeshF.sub mesh ?pos len
 
-let band_height_P1 (type l) ?filter (mesh: l t) =
+let band_height_P1 (type l) ?filter (mesh: l #t) =
+  let mesh = (mesh :> l t) in
   match layout mesh with
   | C_layout -> MeshC.band_height_P1 filter mesh
   | Fortran_layout -> MeshF.band_height_P1 filter mesh
@@ -100,55 +101,64 @@ module LaTeX =
 struct
   type color = int
 
-  let save (type l) ?edge (mesh: l t) filename =
+  let save (type l) ?edge (mesh: l #t) filename =
+    let mesh = (mesh :> l t) in
     match layout mesh with
     | C_layout -> MeshC.latex ?edge mesh filename
     | Fortran_layout -> MeshF.latex ?edge mesh filename
 
-  let write (type l) ?edge (mesh: l t) fh =
+  let write (type l) ?edge (mesh: l #t) fh =
+    let mesh = (mesh :> l t) in
     match layout mesh with
     | C_layout -> MeshC.latex_write ?edge mesh fh
     | Fortran_layout -> MeshF.latex_write ?edge mesh fh
 
-  let level_curves (type l) ?boundary (mesh: l t) (z: l vec)
+  let level_curves (type l) ?boundary (mesh: l #t) (z: l vec)
         ?level_eq levels filename =
+    let mesh = (mesh :> l t) in
     match layout mesh with
     | C_layout -> MeshC.level_curves ?boundary mesh z
                     ?level_eq levels filename
     | Fortran_layout -> MeshF.level_curves ?boundary mesh z
                           ?level_eq levels filename
 
-  let super_level (type l) ?boundary (mesh: l t) (z: l vec) level color
+  let super_level (type l) ?boundary (mesh: l #t) (z: l vec) level color
         filename =
+    let mesh = (mesh :> l t) in
     match layout mesh with
     | C_layout ->
        MeshC.super_level ?boundary mesh z level color filename
     | Fortran_layout ->
        MeshF.super_level ?boundary mesh z level color filename
 
-  let sub_level (type l) ?boundary (mesh: l t) (z: l vec) level color filename =
+  let sub_level (type l) ?boundary (mesh: l #t) (z: l vec) level color
+        filename =
+    let mesh = (mesh :> l t) in
     match layout mesh with
     | C_layout -> MeshC.sub_level ?boundary mesh z level color filename
     | Fortran_layout -> MeshF.sub_level ?boundary mesh z level color filename
 end
 
-let scilab (type l) (mesh: l t) ?longitude ?azimuth ?mode ?box ?edgecolor
+let scilab (type l) (mesh: l #t) ?longitude ?azimuth ?mode ?box ?edgecolor
       (z: l vec) filename =
+  let mesh = (mesh :> l t) in
   match layout mesh with
   | C_layout -> MeshC.scilab mesh ?longitude ?azimuth ?mode ?box
                   ?edgecolor z filename
   | Fortran_layout -> MeshF.scilab mesh ?longitude ?azimuth ?mode ?box
                         ?edgecolor z filename
 
-let matlab (type l) (mesh: l t) ?edgecolor ?linestyle ?facealpha
+let matlab (type l) (mesh: l #t) ?edgecolor ?linestyle ?facealpha
       (z: l vec) filename =
+  let mesh = (mesh :> l t) in
   match layout mesh with
   | C_layout -> MeshC.matlab mesh ?edgecolor ?linestyle ?facealpha
                   z filename
   | Fortran_layout -> MeshF.matlab mesh ?edgecolor ?linestyle ?facealpha
                         z filename
 
-let mathematica (type l) (mesh: l t) (z: l vec) filename =
+let mathematica (type l) (mesh: l #t) (z: l vec) filename =
+  let mesh = (mesh :> l t) in
   match layout mesh with
   | C_layout -> MeshC.mathematica mesh z filename
   | Fortran_layout -> MeshF.mathematica mesh z filename
