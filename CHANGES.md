@@ -1,3 +1,8 @@
+0.9.4 2018-02-28
+----------------
+
+- Restore the polymorphism of Mesh output functions.
+
 0.9.3 2018-02-11
 ----------------
 
