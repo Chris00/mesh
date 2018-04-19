@@ -1,6 +1,6 @@
 TRIANGLE_URL = http://www.netlib.org/voronoi/triangle.zip
 
-PACKAGES = mesh mesh-graphics mesh-easymesh mesh-triangle
+PACKAGES = $(basename $(wildcard *.opam))
 PKGVERSION = $(shell git describe --always)
 TARBALL = _build/mesh-$(PKGVERSION).tbz
 
@@ -27,7 +27,7 @@ submit:
 	tar -C _build -jcf $(TARBALL) mesh-$(PKGVERSION)
 	$(RM) -rf _build/mesh-$(PKGVERSION)/
 	topkg publish distrib
-# 	Create packahes and perform the subtitution that topkkg does not
+# 	Create packages and perform the subtitution that topkg does not
 #	(until opam2, https://discuss.ocaml.org/t/sync-versions-of-several-packages-coming-from-a-single-repo/808/5)
 	for p in $(PACKAGES); do \
 	  topkg opam pkg -n $$p; \
