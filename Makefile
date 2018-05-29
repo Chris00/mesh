@@ -15,7 +15,7 @@ doc:
 	echo '.def { background: #f0f0f0; }' >> _build/default/_doc/odoc.css
 
 tests:
-	jbuilder runtest
+	jbuilder runtest --force
 
 submit:
 	topkg distrib --skip-build --skip-tests
