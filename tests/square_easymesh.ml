@@ -1,5 +1,4 @@
 open Bigarray
-open Lacaml.D
 open Printf
 
 let pi = 4. *. atan 1.
