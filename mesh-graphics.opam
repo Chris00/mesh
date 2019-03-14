@@ -16,3 +16,4 @@ depends: [
   "mesh"
   "graphics"
 ]
+synopsis: "Triangular mesh representation using the graphics module"

@@ -18,3 +18,11 @@ depends: [
   "mesh"
   "lacaml" {with-test}
 ]
+synopsis: "Triangular mesh generation with EasyMesh"
+description: "
+[EasyMesh][] is a two-dimensional quality mesh generator developed by
+Bojan Niceno and available from MIT.  This module provides an
+interface calling the program EasyMesh to perform the mesh generation.
+
+[EasyMesh]: http://web.mit.edu/easymesh_v1.4/www/easymesh.html
+"
