@@ -15,7 +15,7 @@ depends: [
   "dune" {build}
   "base-bigarray"
   "base-bytes"
-  "mesh"
+  "mesh" {= version}
   "lacaml" {with-test}
 ]
 synopsis: "Triangular mesh generation with EasyMesh"

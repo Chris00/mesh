@@ -15,7 +15,7 @@ depends: [
   "dune" {build}
   "base-bigarray"
   "base-bytes"
-  "mesh"
+  "mesh" {= version}
   "lacaml" {with-test}
 ]
 synopsis: "Binding to the triangle mesh generator"

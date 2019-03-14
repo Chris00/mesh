@@ -26,13 +26,6 @@ submit:
 	tar -C _build -jcf $(TARBALL) mesh-$(PKGVERSION)
 	$(RM) -rf _build/mesh-$(PKGVERSION)/
 	topkg publish distrib
-# 	Create packages and perform the subtitution that topkg does not
-#	(until opam2, https://discuss.ocaml.org/t/sync-versions-of-several-packages-coming-from-a-single-repo/808/5)
-	for p in $(PACKAGES); do \
-	  topkg opam pkg -n $$p; \
-	  sed -e 's/\(^ *"mesh"\) */\1 {= "$(PKGVERSION)"}/' --in-place \
-	  _build/$$p.$(PKGVERSION)/opam; \
-	done
 # until we have https://github.com/ocaml/opam-publish/issues/38
 	[ -d packages ] || (echo "ERROR: Make a symbolic link packages → \
 		opam-repo/packages"; exit 1)
