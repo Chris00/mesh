@@ -5,17 +5,16 @@ PKGVERSION = $(shell git describe --always)
 TARBALL = _build/mesh-$(PKGVERSION).tbz
 
 all byte native:
-	jbuilder build @install --dev
+	dune build @install
 
 clean:
-	jbuilder clean
+	dune clean
 
 doc:
-	jbuilder build --dev @doc
-	echo '.def { background: #f0f0f0; }' >> _build/default/_doc/odoc.css
+	dune build @doc
 
 tests:
-	jbuilder runtest --force
+	dune runtest --force
 
 submit:
 	topkg distrib --skip-build --skip-tests

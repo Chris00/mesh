@@ -1,8 +1,6 @@
-open Base
-open Stdio
+module C = Configurator.V1
 
 let configure t =
-  let module C = Configurator in
   let system_libtriangle =
     (* Test the presence of the header file. *)
     C.c_test t ~link_flags:["-ltriangle"]
@@ -18,10 +16,8 @@ let configure t =
       ["-ltriangle"]
     else
       ["-DTRILIBRARY"; "-DEXTERNAL_TEST"; "-DANSI_DECLARATORS"], [] in
-  let write_sexp file sexp =
-    Out_channel.write_all file ~data:(Sexp.to_string sexp) in
-  write_sexp "c_flags.sexp" (sexp_of_list sexp_of_string ccopt);
-  write_sexp "c_library_flags.sexp" (sexp_of_list sexp_of_string cclib)
+  C.Flags.write_sexp "c_flags.sexp" ccopt;
+  C.Flags.write_sexp "c_library_flags.sexp" cclib
 
 let () =
-  Configurator.main ~name:"discover" configure
+  C.main ~name:"discover" configure
