@@ -17,7 +17,7 @@ tests:
 	dune runtest --force
 
 submit:
-	topkg distrib --skip-build --skip-tests
+	dune-release distrib --skip-build --skip-tests
 #       Add the Triangle files so the tarball can easily be compiled.
 	tar -C _build -xf $(TARBALL)
 	mkdir _build/mesh-$(PKGVERSION)/triangle/triangle/
@@ -25,18 +25,9 @@ submit:
 	  _build/mesh-$(PKGVERSION)/triangle/triangle/
 	tar -C _build -jcf $(TARBALL) mesh-$(PKGVERSION)
 	$(RM) -rf _build/mesh-$(PKGVERSION)/
-	topkg publish distrib
-# until we have https://github.com/ocaml/opam-publish/issues/38
-	[ -d packages ] || (echo "ERROR: Make a symbolic link packages → \
-		opam-repo/packages"; exit 1)
-	for p in $(PACKAGES); do \
-	  mkdir -p packages/$$p; \
-	  cp -r _build/$$p.$(PKGVERSION) packages/$$p/; \
-	done
-	cd packages && git add $(PACKAGES)
-#	CONDUIT_TLS=native topkg opam submit $(addprefix -n, $(PACKAGES))
-
-
+	dune-release publish distrib
+	dune-release opam pkg
+	dune-release opam submit
 
 update-triangle:
 	@WGET=`which wget`;					\
