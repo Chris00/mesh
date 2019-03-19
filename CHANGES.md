@@ -1,3 +1,9 @@
+0.9.5 2019-03-14
+----------------
+
+- Port to `dune` and `dune.configurator`.
+- Upgrade to OPAM 2.
+
 0.9.4 2018-02-28
 ----------------
 
