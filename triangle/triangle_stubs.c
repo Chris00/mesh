@@ -128,7 +128,7 @@ int triunsuitable(vertex triorg, vertex tridest, vertex triapex, REAL area)
 {
   CAMLparam0();
   CAMLlocalN(args, NARGS_TRIUNSUITABLE);
-  static value * closure = NULL;
+  static const value * closure = NULL;
   if (closure == NULL) {
     closure = caml_named_value("triunsuitable_callback");
   }
