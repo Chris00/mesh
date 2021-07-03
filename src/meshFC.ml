@@ -297,7 +297,7 @@ let matlab (mesh: mesh) ?(edgecolor=`Color 0) ?(linestyle="-") ?(facealpha=1.)
   let fh = open_out mat in
   fprintf fh "%% Run in Matlab with: run %s\n\
               %% Created by the OCaml Mesh module (version %%VERSION%%).\n\
-              %% print -painters -dpdf %s.pdf\n" mat base;
+              %% print(\"%s.pdf\", \"-dpdf\")\n" mat base;
   fprintf fh "mesh_x = [" ;
   save_xy fh FST;
   fprintf fh "];\nmesh_y = [";
