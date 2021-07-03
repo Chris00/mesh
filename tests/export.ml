@@ -1,4 +1,3 @@
-open Printf
 open Bigarray
 
 let pi = acos(-1.)
