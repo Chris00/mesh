@@ -334,7 +334,9 @@ val matlab : 'l #t -> ?edgecolor:[`None | `Flat | `Interp | `Color of int]
       [z] (i.e. [z.{i}] is the function value at the point
       [mesh.point.{_,i}] ([fortran layout])) on that mesh so that when
       Matlab runs the created [file].m script, the graph of the
-      function is drawn.
+      function is drawn.  Note that , since Matlab filenames can only
+      contain alphanumeric characters and underscores, all other
+      characters in [file] are replaced by underscores.
 
       @param edgecolor the name of the color for the edges of the
       triangles.  Default: [`Color 0] i.e., black.  [`Color c] use the
